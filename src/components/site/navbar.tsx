@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -25,13 +26,22 @@ export function Logo({
     <a
       href="#top"
       onClick={onClick}
-      className={cn(
-        "inline-flex items-center text-[1.35rem] font-black leading-none tracking-tight text-foreground transition-colors duration-300 hover:text-brand",
-        className
-      )}
+      className={cn("inline-flex items-center", className)}
       aria-label="Fast, back to top"
     >
-      FAST
+      {/* The brand artwork is drawn for a black backdrop, so it rides on a
+          quiet black chip that keeps it untouched and readable on the bar. */}
+      <span className="inline-flex items-center rounded-xl bg-black px-3 py-2 transition-opacity duration-300 hover:opacity-90">
+        <Image
+          src="/images/fast-logo.png"
+          alt=""
+          width={1200}
+          height={395}
+          priority
+          sizes="90px"
+          className="h-5 w-auto sm:h-6"
+        />
+      </span>
     </a>
   );
 }

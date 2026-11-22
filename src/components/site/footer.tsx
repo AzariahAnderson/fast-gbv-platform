@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
 import { Reveal } from "./reveal";
+import { SITE_VERSION } from "@/lib/site";
 
 /**
  * Footer navigation carries no phone numbers, every line hands off to the
@@ -59,9 +60,20 @@ export function Footer() {
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.2fr_2fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <p className="inline-flex items-center text-4xl font-black tracking-tight text-foreground">
-              FAST
-            </p>
+            <a
+              href="#top"
+              aria-label="Fast, back to top"
+              className="inline-flex w-fit items-center rounded-xl bg-black px-3.5 py-2.5"
+            >
+              <Image
+                src="/images/fast-logo.png"
+                alt="Fast"
+                width={1200}
+                height={395}
+                sizes="100px"
+                className="h-6 w-auto"
+              />
+            </a>
             <p className="max-w-xs text-sm font-medium leading-relaxed text-body">
               A public awareness page that connects South Africans to official,
               free gender based violence services. It is not a substitute for
@@ -94,37 +106,24 @@ export function Footer() {
             ))}
           </nav>
         </div>
+      </div>
 
-        {/* Brand band: the FAST motion logo and the "You are loved" artwork
-            sit as their own row, framed in the shared card language. */}
-        <div className="mt-14 grid gap-5 lg:grid-cols-[1fr_2fr] lg:items-stretch">
-          <Reveal delay={0.04}>
-            <div className="card-surface card-hover flex h-full items-center justify-center overflow-hidden bg-black p-6 sm:p-8">
-              <Image
-                src="/images/fast-logo.png"
-                alt="Fast brand logo, speed lines racing into a golden arc"
-                width={1200}
-                height={400}
-                sizes="(max-width: 1024px) 88vw, 320px"
-                className="h-auto w-full max-w-[340px]"
-              />
-            </div>
-          </Reveal>
-          <Reveal delay={0.12}>
-            <div className="card-surface card-hover h-full overflow-hidden">
-              <Image
-                src="/images/you-are-loved-banner.jpg"
-                alt="You are loved. United in hope. Silhouettes with raised fists under a golden sunrise sky"
-                width={1600}
-                height={600}
-                sizes="(max-width: 1024px) 88vw, 720px"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </Reveal>
-        </div>
+      {/* The "You are loved" banner runs edge to edge with no frame, no card
+          and no border: it is artwork, not content, and nothing sits between
+          it and the page. */}
+      <Reveal delay={0.04} className="relative mt-14 sm:mt-16">
+        <Image
+          src="/images/you-are-loved-banner.jpg"
+          alt="You are loved. United in hope. Silhouettes with raised fists under a golden sunrise sky"
+          width={1600}
+          height={600}
+          sizes="100vw"
+          className="h-auto w-full"
+        />
+      </Reveal>
 
-        <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:grid-cols-3">
+      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
+        <div className="mt-12 grid gap-4 border-t-[3px] border-taupe pt-8 sm:mt-14 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
             <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
@@ -162,7 +161,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-4 border-t-[3px] border-taupe pt-6 sm:flex-row">
           <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
             <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            Animated emoji artwork by Noto Emoji, built with care for South Africa, {new Date().getFullYear()}
+            Animated emoji artwork by Noto Emoji, built with care for South Africa, {new Date().getFullYear()} · v{SITE_VERSION}
           </p>
           <a
             href="#emergency"
