@@ -1,0 +1,79 @@
+"use client";
+
+import { Reveal, SectionHeading } from "./reveal";
+import { PhoneCall, Compass, HandHeart } from "lucide-react";
+
+const STEPS = [
+  {
+    n: "01",
+    icon: <PhoneCall className="h-6 w-6" aria-hidden="true" />,
+    title: "Reach out",
+    body: "Call, SMS or send a free Please Call Me from any network, at any hour, in any language. No airtime needed and nothing recorded on your bill. Just a trained human voice.",
+  },
+  {
+    n: "02",
+    icon: <Compass className="h-6 w-6" aria-hidden="true" />,
+    title: "Get matched",
+    body: "A counsellor assesses your situation and connects you to exactly what you need: police, an ambulance, a shelter, a social worker, legal help, or a behaviour change programme if you are the one causing harm.",
+  },
+  {
+    n: "03",
+    icon: <HandHeart className="h-6 w-6" aria-hidden="true" />,
+    title: "Stay supported",
+    body: "Help does not hang up after one call. You receive follow up contact, a personal safety plan, court preparation and counselling for you, your children and the wider family.",
+  },
+];
+
+export function Steps() {
+  return (
+    <section
+      id="how"
+      className="relative scroll-mt-28 py-20 sm:py-28"
+      aria-labelledby="how-heading"
+    >
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+        <SectionHeading
+          eyebrow="How Fast works"
+          title={
+            <>
+              Three steps between
+              <span className="text-brand"> fear and safety.</span>
+            </>
+          }
+          align="center"
+        />
+
+        <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <Reveal key={step.n} delay={0.08 * i}>
+              <div
+                data-cursor="hover"
+                className="group relative flex h-full flex-col gap-5 rounded-[26px] border-2 border-taupe/60 bg-ink p-7 transition-all duration-500 hover:-translate-y-1.5 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-4 top-2 text-[5.5rem] font-black leading-none tracking-tighter text-taupe/20 transition-colors duration-500 group-hover:text-brand/20"
+                >
+                  {step.n}
+                </span>
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-taupe/60 bg-ink-2 text-brand transition-transform duration-500 group-hover:scale-110">
+                  {step.icon}
+                </div>
+                <h3 className="text-2xl font-extrabold tracking-tight">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                {i < 2 ? (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -right-[15px] top-1/2 hidden h-7 w-7 -translate-y-1/2 rounded-full border-2 border-taupe/60 bg-ink-deep text-center font-mono text-xs leading-6 text-brand md:block"
+                  >
+                    →
+                  </span>
+                ) : null}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
