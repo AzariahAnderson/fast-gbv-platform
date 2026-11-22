@@ -122,7 +122,7 @@ export function Resources() {
         />
 
         <div className="card-surface mt-14 overflow-hidden">
-          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-[3px] border-taupe bg-taupe/15 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:grid">
+          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-[3px] border-taupe bg-taupe/15 px-6 py-4 text-[10px] font-bold uppercase tracking-[0.18em] text-dim lg:grid">
             <span>Service</span>
             <span>What they do</span>
             <span>Number</span>
@@ -137,29 +137,29 @@ export function Resources() {
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-brand">
+                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-brand">
                       {r.tag}
                     </span>
-                    <span className="font-bold tracking-tight">{r.name}</span>
+                    <span className="font-black tracking-tight text-foreground">{r.name}</span>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{r.what}</p>
+                  <p className="text-sm font-medium leading-relaxed text-body">{r.what}</p>
                   <div className="flex items-center gap-2">
                     {r.tel ? (
                       <a
                         href={`tel:${r.tel}`}
                         aria-label={`Call ${r.name} on ${r.number}`}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 font-head text-base font-semibold tracking-tight text-brand transition-colors hover:bg-brand hover:text-ink"
+                        className="lift inline-flex min-h-11 items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand hover:bg-brand hover:text-ink"
                       >
                         <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                         {r.number}
                       </a>
                     ) : (
-                      <span className="inline-flex items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 font-head text-base font-semibold tracking-tight text-brand">
+                      <span className="inline-flex items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand">
                         {r.number}
                       </span>
                     )}
                   </div>
-                  <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/80 lg:text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-faint lg:text-right">
                     {r.hours}
                   </p>
                 </li>
@@ -169,7 +169,7 @@ export function Resources() {
         </div>
 
         <Reveal delay={0.2}>
-          <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
+          <p className="mt-6 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
             Details verified at the time of publishing, confirm office hours before travelling
           </p>
         </Reveal>

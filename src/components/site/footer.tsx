@@ -51,11 +51,11 @@ export function Footer() {
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.2fr_2fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <p className="inline-flex items-center gap-2 font-display text-4xl tracking-tight text-foreground">
+            <p className="inline-flex items-center gap-2 text-4xl font-black tracking-tight text-foreground">
               FAST
               <span className="h-2.5 w-2.5 rotate-45 bg-brand" aria-hidden="true" />
             </p>
-            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
+            <p className="max-w-xs text-sm font-medium leading-relaxed text-body">
               A public awareness page that connects South Africans to official,
               free gender based violence services. It is not a substitute for
               police, medical or legal services.
@@ -68,7 +68,7 @@ export function Footer() {
           >
             {COLUMNS.map((col) => (
               <div key={col.title} className="flex flex-col gap-3.5">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand">
                   {col.title}
                 </p>
                 <ul className="flex flex-col gap-2.5">
@@ -76,7 +76,7 @@ export function Footer() {
                     <li key={link.label}>
                       <a
                         href={link.href}
-                        className="group inline-flex items-start gap-1 text-[13px] leading-snug text-muted-foreground transition-colors hover:text-foreground"
+                        className="group inline-flex items-start gap-1 text-[13px] font-semibold leading-snug text-body transition-colors hover:text-foreground"
                       >
                         {link.label}
                         {link.href.startsWith("tel:") ? (
@@ -96,31 +96,31 @@ export function Footer() {
 
         <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Private by design
             </p>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
+            <p className="text-[13px] font-medium leading-relaxed text-body">
               Fast is a static awareness page. No accounts, no tracking cookies
               and no personal information collected or stored.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
               <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Official services only
             </p>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
+            <p className="text-[13px] font-medium leading-relaxed text-body">
               Every helpline listed is run by the South African government or an
               established national NGO. Fast never charges for anything.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
               <BookOpenCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Statistics you can check
             </p>
-            <p className="text-[13px] leading-relaxed text-muted-foreground">
+            <p className="text-[13px] font-medium leading-relaxed text-body">
               Figures on this page come from the HSRC national prevalence study,
               the South African Medical Research Council and the World Health
               Organization.
@@ -129,11 +129,11 @@ export function Footer() {
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t-[3px] border-taupe pt-6 sm:flex-row">
-          <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
             Built with care for South Africa, {new Date().getFullYear()}
           </p>
-          <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
-            In immediate danger? Call <span className="font-bold text-brand">10111</span> now
+          <p className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
+            In immediate danger? Call <span className="font-black text-brand">10111</span> now
           </p>
         </div>
       </div>

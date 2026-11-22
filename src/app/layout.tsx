@@ -1,38 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
+/**
+ * Inter is the single family for the whole site. The variable font carries
+ * every weight from 100 to 900, so display headlines run at 900 while
+ * labels run at 500 and 600 without loading a second file.
+ */
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-/* ChunkFive, the heavy slab used for display headlines and the wordmark */
-const chunk = localFont({
-  src: "../../public/fonts/ChunkFive-Regular.ttf",
-  weight: "400",
-  style: "normal",
-  variable: "--font-chunk",
-  display: "swap",
-});
-
-/* Clash Display, the grotesque used for section headings and UI labels */
-const clash = localFont({
-  src: [
-    { path: "../../public/fonts/ClashDisplay-500.woff2", weight: "500" },
-    { path: "../../public/fonts/ClashDisplay-600.woff2", weight: "600" },
-    { path: "../../public/fonts/ClashDisplay-700.woff2", weight: "700" },
-  ],
-  variable: "--font-clash",
   display: "swap",
 });
 
@@ -81,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${geistMono.variable} ${chunk.variable} ${clash.variable} font-sans antialiased bg-background text-foreground`}
+        className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
       >
         {children}
         <Toaster />

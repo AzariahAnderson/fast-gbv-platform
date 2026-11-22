@@ -10,7 +10,7 @@ export function Reveal({
   children,
   className,
   delay = 0,
-  y = 26,
+  y = 28,
   once = true,
 }: {
   children: ReactNode;
@@ -23,10 +23,10 @@ export function Reveal({
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y, filter: "blur(10px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={reduce ? false : { opacity: 0, y, scale: 0.97, filter: "blur(8px)" }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
       viewport={{ once, margin: "-70px" }}
-      transition={{ duration: 0.9, delay, ease: EASE }}
+      transition={{ duration: 0.85, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -43,7 +43,7 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-brand",
+        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brand",
         className
       )}
     >
@@ -78,7 +78,7 @@ export function SectionHeading({
         <Eyebrow>{eyebrow}</Eyebrow>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2 className="max-w-3xl text-balance font-head text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
+        <h2 className="max-w-3xl text-balance font-head text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl lg:text-[3.4rem]">
           {title}
         </h2>
       </Reveal>
@@ -86,7 +86,7 @@ export function SectionHeading({
         <Reveal delay={0.16}>
           <p
             className={cn(
-              "max-w-2xl text-balance text-base leading-relaxed text-muted-foreground sm:text-lg",
+              "max-w-2xl text-balance text-base font-medium leading-relaxed text-body sm:text-lg",
               align === "center" && "mx-auto"
             )}
           >

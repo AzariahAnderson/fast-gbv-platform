@@ -30,7 +30,7 @@ export function BentoSurvivors() {
             <>
               You are not alone.
               <br />
-              <span className="text-brand">You are not to blame.</span>
+              <span className="text-brand-2">You are not to blame.</span>
             </>
           }
           sub="Abuse grows in silence and isolation. Reaching out is not weakness, it is the moment the pattern starts to break. This is what exists for you, free of charge."
@@ -120,9 +120,9 @@ export function BentoSurvivors() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 rounded-xl border-2 border-taupe bg-taupe/20 px-3.5 py-2.5 text-[13px] font-medium text-foreground/90"
+                    className="flex items-start gap-3 rounded-xl border-2 border-taupe bg-taupe/20 px-3.5 py-2.5 text-[13px] font-semibold text-foreground/90"
                   >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-brand" aria-hidden="true" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-brand-2" aria-hidden="true" />
                     {item}
                   </li>
                 ))}

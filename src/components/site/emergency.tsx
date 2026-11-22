@@ -43,34 +43,34 @@ export function Emergency() {
           <Reveal delay={0.12}>
             <div className="card-hover card-surface flex h-full flex-col justify-between gap-6 p-6 sm:p-7">
               <div className="flex items-center justify-between">
-                <h3 className="font-head text-lg font-semibold tracking-tight text-foreground">
+                <h3 className="font-head text-lg font-black tracking-tight text-foreground">
                   Can&apos;t speak out loud?
                 </h3>
-                <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-brand">
+                <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand">
                   Silent
                 </span>
               </div>
               <div className="flex flex-col gap-4">
                 <div className="rounded-2xl border-2 border-taupe bg-taupe/20 p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
                     Please Call Me, free callback
                   </p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <span className="font-display text-2xl tracking-tight text-brand">*120*7867#</span>
+                    <span className="text-2xl font-black tracking-tight text-brand">*120*7867#</span>
                     <CopyChip value="*120*7867#" />
                   </div>
                 </div>
                 <div className="rounded-2xl border-2 border-taupe bg-taupe/20 p-4">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
                     SMS the word Help to
                   </p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <span className="font-display text-2xl tracking-tight text-brand">31531</span>
+                    <span className="text-2xl font-black tracking-tight text-brand">31531</span>
                     <CopyChip value="31531" />
                   </div>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-muted-foreground">
+              <p className="text-sm font-medium leading-relaxed text-body">
                 A counsellor calls you back and the request costs nothing. Nothing
                 appears on your phone bill and no number shows on your screen.
               </p>
@@ -112,8 +112,8 @@ export function Emergency() {
         </div>
 
         <Reveal delay={0.36}>
-          <p className="rounded-2xl border-2 border-taupe bg-taupe/15 px-5 py-4 text-center text-sm leading-relaxed text-muted-foreground sm:px-8">
-            <span className="font-semibold text-foreground">A note on safety:</span>{" "}
+          <p className="rounded-2xl border-2 border-taupe bg-taupe/15 px-5 py-4 text-center text-sm font-medium leading-relaxed text-body sm:px-8">
+            <span className="font-bold text-foreground">A note on safety:</span>{" "}
             calls and SMS leave a record on your phone. If that puts you at risk,
             delete the entry afterwards and browse this page in private mode. If
             you are in immediate danger, leave the screen and call 10111.

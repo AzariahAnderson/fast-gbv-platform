@@ -49,15 +49,15 @@ export function Steps() {
               <div className="card-hover card-surface group relative flex h-full flex-col gap-5 p-7">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-5 top-3 font-display text-[4.6rem] leading-none text-taupe/40 transition-colors duration-500 group-hover:text-brand/30"
+                  className="pointer-events-none absolute right-5 top-3 font-display text-[4.6rem] font-black leading-none text-taupe/40 transition-colors duration-500 group-hover:text-brand/30"
                 >
                   {step.n}
                 </span>
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-brand transition-transform duration-500 group-hover:scale-110">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-brand transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
                   {step.icon}
                 </div>
-                <h3 className="font-head text-2xl font-semibold tracking-tight text-foreground">{step.title}</h3>
-                <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+                <h3 className="font-head text-2xl font-black tracking-tight text-foreground">{step.title}</h3>
+                <p className="text-sm font-medium leading-relaxed text-body">{step.body}</p>
                 {i < 2 ? (
                   <span
                     aria-hidden="true"

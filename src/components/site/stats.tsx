@@ -51,12 +51,12 @@ export function Stats() {
       />
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-brand">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand">
             The crisis, and why Fast exists
           </p>
           <h2
             id="stats-heading"
-            className="mt-5 text-balance font-head text-4xl font-semibold leading-[1.04] tracking-tight text-foreground sm:text-5xl"
+            className="mt-5 text-balance font-head text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl"
           >
             Silence is the most dangerous
             <span className="text-brand"> number</span> of all.
@@ -67,18 +67,22 @@ export function Stats() {
           {STATS.map((stat, i) => (
             <Reveal key={stat.source} delay={0.06 * i}>
               <div className="card-hover card-surface group flex h-full flex-col gap-5 p-6 sm:p-7">
-                <p className="font-display text-5xl tracking-tight text-foreground sm:text-[3.1rem]">
+                <p
+                  className={`font-display text-5xl font-black tracking-tight sm:text-[3.1rem] ${
+                    i % 2 === 0 ? "text-foreground" : "text-brand"
+                  }`}
+                >
                   {stat.value}
                 </p>
                 {stat.unit ? (
-                  <p className="-mt-3 font-head text-sm font-semibold uppercase tracking-wide text-brand">
+                  <p className="-mt-3 text-sm font-bold uppercase tracking-wide text-brand-2">
                     {stat.unit}
                   </p>
                 ) : null}
-                <p className="text-sm leading-relaxed text-muted-foreground">
+                <p className="text-sm font-medium leading-relaxed text-body">
                   {stat.label}
                 </p>
-                <p className="mt-auto font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground/60">
+                <p className="mt-auto text-[10px] font-bold uppercase tracking-[0.14em] text-faint">
                   {stat.source}
                 </p>
               </div>
@@ -87,9 +91,9 @@ export function Stats() {
         </div>
 
         <Reveal delay={0.3}>
-          <p className="mt-10 text-center text-sm leading-relaxed text-muted-foreground/80">
+          <p className="mt-10 text-center text-sm font-medium leading-relaxed text-body">
             Behind every number is a name, a family, a street in your city.{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-bold text-foreground">
               Every one of them deserved help sooner.
             </span>
           </p>

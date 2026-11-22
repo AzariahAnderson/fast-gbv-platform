@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,7 +18,7 @@ export function Logo({ className }: { className?: string }) {
     <a
       href="#top"
       className={cn(
-        "group inline-flex items-center gap-1.5 font-display text-[1.35rem] leading-none tracking-tight text-foreground",
+        "group inline-flex items-center gap-1.5 text-[1.35rem] font-black leading-none tracking-tight text-foreground",
         className
       )}
       aria-label="Fast, back to top"
@@ -33,14 +33,28 @@ export function Logo({ className }: { className?: string }) {
 }
 
 export function Navbar() {
+  const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [entered, setEntered] = useState(false);
+  const lastY = useRef(0);
+  const { scrollY } = useScroll();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  // useScroll syncs the restored position on mount, so the bar is styled
+  // correctly even when the page loads halfway down
+  useMotionValueEvent(scrollY, "change", (y) => {
+    setScrolled(y > 16);
+    if (lastY.current === 0) {
+      lastY.current = y;
+      return;
+    }
+    // Hide the bar while scrolling down past the hero, reveal on the way up
+    const goingDown = y > lastY.current && y > 140;
+    const goingUp = y < lastY.current - 4;
+    if (goingDown) setHidden(true);
+    else if (goingUp) setHidden(false);
+    lastY.current = y;
+  });
 
   useEffect(() => {
     document.documentElement.style.overflow = open ? "hidden" : "";
@@ -53,12 +67,17 @@ export function Navbar() {
     <>
       <motion.header
         initial={{ y: -90, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 4.05, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ y: hidden ? -110 : 0, opacity: 1 }}
+        transition={
+          entered
+            ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+            : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+        }
+        onAnimationComplete={() => setEntered(true)}
         className={cn(
           "fixed inset-x-0 top-0 z-[100] transition-all duration-500",
           scrolled
-            ? "border-b-[3px] border-taupe bg-ink/90 backdrop-blur-xl"
+            ? "border-b-[3px] border-taupe bg-ink/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.6)] backdrop-blur-xl"
             : "border-b-[3px] border-transparent bg-transparent"
         )}
       >
@@ -73,7 +92,7 @@ export function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="rounded-lg px-3.5 py-2 font-head text-[15px] font-medium text-muted-foreground transition-colors hover:bg-taupe/25 hover:text-foreground"
+                  className="rounded-lg px-3.5 py-2 text-[15px] font-bold text-body transition-colors hover:bg-taupe/25 hover:text-foreground"
                 >
                   {link.label}
                 </a>
@@ -84,7 +103,7 @@ export function Navbar() {
           <div className="flex items-center gap-2.5">
             <a
               href="tel:0800428428"
-              className="group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 font-head text-sm font-semibold tracking-tight text-ink transition-colors hover:bg-brand-2 sm:inline-flex"
+              className="lift group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold tracking-tight text-ink hover:bg-brand-2 sm:inline-flex"
             >
               <Phone
                 className="h-4 w-4 transition-transform group-hover:rotate-12"
@@ -154,7 +173,7 @@ export function Navbar() {
                   duration: 0.5,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="group flex items-center justify-between border-b-[3px] border-taupe/50 py-4 font-display text-3xl uppercase tracking-tight text-foreground"
+                className="group flex items-center justify-between border-b-[3px] border-taupe/50 py-4 text-3xl font-black tracking-tight text-foreground"
               >
                 {link.label}
                 <ArrowUpRight
@@ -173,12 +192,12 @@ export function Navbar() {
           >
             <a
               href="tel:0800428428"
-              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand font-head text-lg font-semibold text-ink"
+              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-lg font-bold text-ink"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
               Call 0800 428 428
             </a>
-            <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
               Free, confidential, answered 24 hours a day
             </p>
           </motion.div>

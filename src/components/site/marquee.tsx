@@ -19,10 +19,10 @@ export function Marquee() {
       {ITEMS.map((item) => {
         const content = (
           <span className="mx-7 inline-flex items-baseline gap-3 whitespace-nowrap">
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/70">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink/70">
               {item.label}
             </span>
-            <span className="font-head text-lg font-semibold tracking-tight text-ink">
+            <span className="text-lg font-black tracking-tight text-ink">
               {item.value}
             </span>
           </span>
@@ -49,7 +49,7 @@ export function Marquee() {
   return (
     <section
       aria-label="Emergency numbers ticker"
-      className="relative z-10 overflow-hidden border-y-[3px] border-taupe bg-brand py-3.5"
+      className="marquee-pause relative z-10 overflow-hidden border-y-[3px] border-taupe bg-brand py-3.5"
     >
       <div className="animate-marquee flex w-max">
         {row("a", false)}
