@@ -52,6 +52,52 @@ const TRUST = [
   { icon: PhoneCall, label: "Nothing on your bill" },
 ];
 
+/**
+ * The animated emojis that frame the headline. Each one is a small local
+ * webp (already precached by the service worker), floated in the side
+ * gutters where wide screens have room to spare and kept clear of the
+ * copy: decoration lives in the margins, never on top of the words.
+ * Lg and up only, because on narrower viewports the gutters disappear and
+ * an emoji would sit on the text it is meant to celebrate.
+ * Every pick is an always-visible animation: the Noto seedling grows out
+ * of nothing and the star twinks to black for whole frames, and an emoji
+ * that vanishes reads as a broken image, not as charm.
+ */
+const FLOATS = [
+  {
+    src: "/emojis/1f49b-128.webp",
+    pos: "left-[2%] top-[7%]",
+    size: "lg:h-11 lg:w-11",
+    rotate: -8,
+    bob: "7s",
+    bobDelay: "0s",
+  },
+  {
+    src: "/emojis/1fac2-128.webp",
+    pos: "right-[2.5%] top-[7%]",
+    size: "lg:h-11 lg:w-11",
+    rotate: 10,
+    bob: "6.4s",
+    bobDelay: "0.9s",
+  },
+  {
+    src: "/emojis/1f91d-128.webp",
+    pos: "left-[3.5%] top-[34%]",
+    size: "lg:h-12 lg:w-12",
+    rotate: -6,
+    bob: "6.8s",
+    bobDelay: "1.7s",
+  },
+  {
+    src: "/emojis/1f4aa-128.webp",
+    pos: "right-[3.5%] top-[37%]",
+    size: "lg:h-9 lg:w-9",
+    rotate: 8,
+    bob: "7.6s",
+    bobDelay: "2.4s",
+  },
+];
+
 export function Hero() {
   const reduce = useReducedMotion();
   const anim = (delay: number) =>
@@ -78,6 +124,46 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-5 text-center sm:px-8">
+        {/* The emoji frame: four gentle companions drifting in the gutters
+            around the headline, arriving just after the words land. The
+            framer span owns the entrance (scale and tilt), the img inside
+            owns the endless bob, so the two transforms never fight. */}
+        {FLOATS.map((f, i) => (
+          <motion.span
+            key={f.src}
+            aria-hidden="true"
+            className={`pointer-events-none absolute z-10 hidden lg:block ${f.pos}`}
+            initial={
+              reduce
+                ? { opacity: 0 }
+                : { opacity: 0, scale: 0.4, rotate: f.rotate * 2 }
+            }
+            animate={
+              reduce
+                ? { opacity: 1 }
+                : { opacity: 1, scale: 1, rotate: f.rotate }
+            }
+            transition={{
+              delay: D + 1.05 + i * 0.12,
+              duration: 0.8,
+              ease: EASE,
+            }}
+          >
+            <img
+              src={f.src}
+              alt=""
+              width={88}
+              height={88}
+              draggable={false}
+              className={`animate-bob drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] ${f.size}`}
+              style={{
+                animationDuration: f.bob,
+                animationDelay: f.bobDelay,
+              }}
+            />
+          </motion.span>
+        ))}
+
         <motion.div {...anim(D + 0.05)}>
           <span className="inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
             <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
@@ -96,9 +182,48 @@ export function Hero() {
           <br />
           <Word delay={D + 0.46}>help</Word>{" "}
           <Word delay={D + 0.52}>answers</Word>{" "}
-          <Word delay={D + 0.6} className="text-brand">
-            fast
-          </Word>
+          {/* The gold word and its sparkle share one no-wrap group so the
+              sparkle can never wrap alone onto its own line at any width. */}
+          <span className="whitespace-nowrap">
+            <Word delay={D + 0.6} className="text-brand">
+              fast
+            </Word>
+            {/* One sparkle pops in beside the gold word once it has landed:
+                the site's whole promise in a single mark. */}
+            <motion.span
+              aria-hidden="true"
+              className="ml-1 inline-block align-middle sm:ml-2.5"
+              initial={
+                reduce
+                  ? { opacity: 0 }
+                  : { opacity: 0, scale: 0, rotate: -30 }
+              }
+              animate={
+                reduce
+                  ? { opacity: 1 }
+                  : { opacity: 1, scale: 1, rotate: 0 }
+              }
+              transition={
+                reduce
+                  ? { delay: D + 0.95, duration: 0.3 }
+                  : {
+                      delay: D + 0.95,
+                      type: "spring",
+                      stiffness: 300,
+                      damping: 13,
+                    }
+              }
+            >
+              <img
+                src="/emojis/2728-128.webp"
+                alt=""
+                width={88}
+                height={88}
+                draggable={false}
+                className="animate-bob h-7 w-7 sm:h-9 sm:w-9 lg:h-12 lg:w-12"
+              />
+            </motion.span>
+          </span>
         </motion.h1>
 
         <motion.p

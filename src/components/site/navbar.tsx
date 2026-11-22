@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPLASH_SKIPPED } from "@/lib/splash";
@@ -43,16 +43,6 @@ export function Navbar() {
   const menuRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
-
-  // Reading progress: one quiet gold hairline along the bottom edge of the
-  // bar, spring-smoothed so it never jitters. On a long crisis page it tells
-  // a skimming visitor how far they have come without any counting UI.
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, {
-    stiffness: 120,
-    damping: 30,
-    mass: 0.4,
-  });
 
   // Scroll spy and the bar's scrolled style, computed from geometry on
   // every frame the page actually moves. The bar never hides: on a crisis
@@ -244,17 +234,6 @@ export function Navbar() {
           </div>
         </nav>
 
-        {/* Reading progress hairline, painted exactly over the bar's bottom
-            border: gold fills the taupe frame as the page is read. Hidden
-            while the bar sits transparent over the hero. */}
-        <motion.div
-          aria-hidden="true"
-          style={{ scaleX: progress }}
-          className={cn(
-            "absolute inset-x-0 bottom-0 h-[3px] origin-left bg-brand transition-opacity duration-500",
-            scrolled ? "opacity-100" : "opacity-0"
-          )}
-        />
       </motion.header>
 
       {open && (

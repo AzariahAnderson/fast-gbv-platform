@@ -12,7 +12,10 @@ ICON_DIR = os.path.join(ROOT, "public", "icons")
 APP_DIR = os.path.join(ROOT, "src", "app")
 
 # ---------------- 1. Emoji downscaling ----------------
-KEEP = ["2728", "1f49b", "1f331", "1f4aa", "1f91d", "1fac2", "1f49a", "1f31f"]
+# Only the six always-visible animations: the seedling (1f331) grows out of
+# nothing and the star (1f31f) twinks to black for whole frames mid-loop,
+# and an emoji that vanishes reads as a broken image, not as charm.
+KEEP = ["2728", "1f49b", "1f4aa", "1f91d", "1fac2", "1f49a"]
 MAX_FRAMES = 24
 
 import urllib.request

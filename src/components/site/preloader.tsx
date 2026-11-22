@@ -6,13 +6,14 @@ import { markSplashShown, splashShownThisSession } from "@/lib/splash";
 
 /**
  * Splash screen. The white wordmark rises in Inter black over the same ink
- * the page itself sits on, one gold rule draws beneath it, the four values
- * arrive as a single quiet line and the curtain lifts into the hero. Four
- * seconds on the first visit of a browser session, skipped via
- * sessionStorage for repeat visits. Composition follows the professional
- * rules for launch screens: one centred idea, generous breathing space,
- * motion that supports rather than decorates, and a look that matches the
- * first screen so the lift feels continuous rather than like a page change.
+ * the page itself sits on, the four values arrive as a single quiet line
+ * and the curtain lifts into the hero. Four seconds on the first visit of
+ * a browser session, skipped via sessionStorage for repeat visits.
+ * Composition follows the professional rules for launch screens: one
+ * centred idea, generous breathing space, motion that supports rather than
+ * decorates, and a look that matches the first screen so the lift feels
+ * continuous rather than like a page change. No progress bar: a splash is
+ * a promise, not a download.
  */
 const VALUES = ["Free", "Anonymous", "Safe", "Trusted"];
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -102,20 +103,11 @@ export function Preloader() {
               ))}
             </div>
 
-            {/* A gold sweep draws itself over a quiet taupe base line */}
-            <span className="mt-8 h-px w-44 bg-taupe sm:w-52" />
-            <motion.span
-              initial={reduce ? { opacity: 0 } : { scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 1.15, duration: 0.9, ease: EASE }}
-              className="-mt-px h-[3px] w-44 origin-left bg-brand sm:w-52"
-            />
-
             <motion.p
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.5, duration: 0.6, ease: EASE }}
-              className="mt-7 text-[11px] font-bold uppercase tracking-[0.34em] text-body"
+              className="mt-9 text-[11px] font-bold uppercase tracking-[0.34em] text-body"
             >
               South African GBV support, always on
             </motion.p>

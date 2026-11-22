@@ -16,12 +16,10 @@ import { BASELINE } from "@/lib/live-types";
 const EMOJIS = [
   { src: "/emojis/2728-128.webp", alt: "Sparkles" },
   { src: "/emojis/1f49b-128.webp", alt: "Yellow heart" },
-  { src: "/emojis/1f331-128.webp", alt: "Seedling" },
   { src: "/emojis/1f4aa-128.webp", alt: "Flexed biceps" },
   { src: "/emojis/1f91d-128.webp", alt: "Handshake" },
   { src: "/emojis/1fac2-128.webp", alt: "People hugging" },
   { src: "/emojis/1f49a-128.webp", alt: "Green heart" },
-  { src: "/emojis/1f31f-128.webp", alt: "Glowing star" },
 ];
 
 const ROTATE_MS = 6500;

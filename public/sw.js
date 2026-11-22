@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v6";
+const VERSION = "fast-v7";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -20,14 +20,14 @@ const PRECACHE = [
   "/icons/icon-maskable-512.png",
   // The animated encouragement emojis: small local webp files, precached on
   // install so the support messages render even on a first offline visit.
+  // Only the six always-visible animations ship: the seedling and the star
+  // blink fully transparent for whole frames mid-loop and read as broken.
   "/emojis/2728-128.webp",
   "/emojis/1f49b-128.webp",
-  "/emojis/1f331-128.webp",
   "/emojis/1f4aa-128.webp",
   "/emojis/1f91d-128.webp",
   "/emojis/1fac2-128.webp",
   "/emojis/1f49a-128.webp",
-  "/emojis/1f31f-128.webp",
 ];
 
 self.addEventListener("install", (event) => {

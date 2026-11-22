@@ -66,6 +66,10 @@ const nextConfig: NextConfig = {
   output: "standalone",
   reactStrictMode: true,
   poweredByHeader: false,
+  // Dev only: the sandbox preview proxies the dev server through a
+  // *.space-z.ai origin, which Next.js otherwise warns about on every
+  // static asset request. Production is unaffected.
+  allowedDevOrigins: ["*.space-z.ai"],
   async headers() {
     return [
       {
