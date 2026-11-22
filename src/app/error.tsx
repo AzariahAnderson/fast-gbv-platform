@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Phone, RotateCcw, LifeBuoy } from "lucide-react";
+import { CRISIS_LINE, CRISIS_TEL_HREF } from "@/lib/numbers";
 
 /**
  * Route-level error boundary. If the page ever crashes here it must never
@@ -34,11 +35,11 @@ export default function Error({
 
       <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
         <a
-          href="tel:0800428428"
+          href={CRISIS_TEL_HREF}
           className="lift inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-brand text-xl font-black tracking-tight text-ink"
         >
           <Phone className="h-5 w-5" aria-hidden="true" />
-          GBV Command Centre 0800 428 428
+          {CRISIS_LINE.name} {CRISIS_LINE.display}
         </a>
         <div className="grid grid-cols-2 gap-3">
           <a

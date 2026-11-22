@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { markSplashDone, markSplashShown, splashShownThisSession } from "@/lib/splash";
+import { CURTAIN_EASE, EASE } from "@/lib/motion";
 
 /**
  * Splash screen. The white wordmark rises in Inter black over the same ink
@@ -16,7 +17,6 @@ import { markSplashDone, markSplashShown, splashShownThisSession } from "@/lib/s
  * a promise, not a download.
  */
 const VALUES = ["Free", "Anonymous", "Safe", "Trusted"];
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 export function Preloader() {
   const [done, setDone] = useState(false);
@@ -62,7 +62,7 @@ export function Preloader() {
           exit={
             skip
               ? { opacity: 0, transition: { duration: 0.3, ease: "linear" } }
-              : { y: "-100%", transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] } }
+              : { y: "-100%", transition: { duration: 0.75, ease: CURTAIN_EASE } }
           }
           aria-hidden="true"
         >

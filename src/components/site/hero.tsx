@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { SPLASH_SKIPPED } from "@/lib/splash";
 import { GREETINGS } from "@/lib/languages";
+import { EASE } from "@/lib/motion";
+import { CRISIS_TEL_HREF } from "@/lib/numbers";
 import {
   getProfileSnapshot,
   greetingName,
@@ -19,7 +21,6 @@ import {
   type FastProfile,
 } from "@/lib/profile";
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 // The splash curtain starts lifting at 4.0s and the hero enters underneath
 // it. When the splash was already shown this session the curtain lifts
 // immediately, so the entrance starts right away instead.
@@ -343,7 +344,7 @@ export function Hero() {
           className="mt-10 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row"
         >
           <a
-            href="tel:0800428428"
+            href={CRISIS_TEL_HREF}
             className="lift group inline-flex min-h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-brand px-8 text-base font-bold tracking-tight text-ink shadow-[0_16px_36px_-16px_rgba(216,211,101,0.45)] hover:bg-brand-2 sm:w-auto"
           >
             <Phone

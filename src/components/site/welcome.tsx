@@ -15,6 +15,8 @@ import {
   WELCOME_OPEN_EVENT,
 } from "@/lib/profile";
 import { SPLASH_DONE_EVENT, splashIsDone } from "@/lib/splash";
+import { EASE } from "@/lib/motion";
+import { CRISIS_LINE, CRISIS_TEL_HREF } from "@/lib/numbers";
 import { useToast } from "@/hooks/use-toast";
 
 /**
@@ -33,9 +35,7 @@ import { useToast } from "@/hooks/use-toast";
  * - The overlay only opens after the splash lifts, and only when no
  *   profile exists and none was skipped before.
  */
-const EASE = [0.22, 1, 0.36, 1] as const;
 const STEPS = 3;
-
 const inputClass =
   "mt-1.5 min-h-12 w-full rounded-xl border-2 border-taupe bg-ink/70 px-4 text-base font-semibold text-foreground transition-colors placeholder:font-medium placeholder:text-faint focus:border-brand focus:outline-none";
 
@@ -557,11 +557,11 @@ export function Welcome() {
             {/* Pinned on every step: the flow never stands between someone
                 in danger and the crisis line. */}
             <a
-              href="tel:0800428428"
+              href={CRISIS_TEL_HREF}
               className="relative mx-auto mb-1 inline-flex items-center gap-2 rounded-xl border border-taupe/60 bg-taupe/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-dim transition-colors hover:border-brand hover:text-brand"
             >
               <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-              In danger now? Call 0800 428 428
+              In danger now? Call {CRISIS_LINE.display}
             </a>
           </div>
         </motion.div>

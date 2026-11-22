@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPLASH_SKIPPED } from "@/lib/splash";
+import { EASE } from "@/lib/motion";
+import { CRISIS_TEL_HREF } from "@/lib/numbers";
 
 const LINKS = [
   { label: "Emergency", href: "#emergency" },
@@ -163,8 +165,8 @@ export function Navbar() {
         animate={{ y: "0%", opacity: 1 }}
         transition={
           SPLASH_SKIPPED
-            ? { delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
-            : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+            ? { delay: 0.2, duration: 0.7, ease: EASE }
+            : { delay: 4.05, duration: 0.7, ease: EASE }
         }
         className={cn(
           "fixed inset-x-0 top-0 z-[100] pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow] duration-500",
@@ -236,81 +238,83 @@ export function Navbar() {
 
       </motion.header>
 
-      {open && (
-        <motion.div
-          ref={menuRef}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[150] flex flex-col bg-ink pt-[env(safe-area-inset-top)] lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile menu"
-        >
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-grid bg-fade-y opacity-25"
-          />
-
-          <div className="relative flex h-16 items-center justify-between px-5 sm:px-8">
-            <Logo onClick={() => setOpen(false)} />
-            <button
-              ref={closeRef}
-              onClick={() => setOpen(false)}
-              aria-label="Close menu"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20"
-            >
-              <X className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </div>
-
-          <nav
-            className="relative flex flex-1 flex-col justify-center gap-1 px-7"
-            aria-label="Mobile navigation"
-          >
-            {LINKS.map((link, i) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: 0.06 + i * 0.05,
-                  duration: 0.5,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="group flex items-center justify-between border-b-[3px] border-taupe/50 py-4 text-3xl font-black tracking-tight text-foreground"
-              >
-                {link.label}
-                <ArrowUpRight
-                  className="h-6 w-6 text-brand opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
-                  aria-hidden="true"
-                />
-              </motion.a>
-            ))}
-          </nav>
-
+      <AnimatePresence>
+        {open && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-            className="relative px-7 pb-[max(3rem,env(safe-area-inset-bottom))]"
+            ref={menuRef}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[150] flex flex-col bg-ink pt-[env(safe-area-inset-top)] lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile menu"
           >
-            <a
-              href="tel:0800428428"
-              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-lg font-bold text-ink"
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-grid bg-fade-y opacity-25"
+            />
+
+            <div className="relative flex h-16 items-center justify-between px-5 sm:px-8">
+              <Logo onClick={() => setOpen(false)} />
+              <button
+                ref={closeRef}
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            <nav
+              className="relative flex flex-1 flex-col justify-center gap-1 px-7"
+              aria-label="Mobile navigation"
             >
-              <Phone className="h-5 w-5" aria-hidden="true" />
-              Call the Command Centre now
-            </a>
-            <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
-              Free, confidential, answered 24 hours a day
-            </p>
+              {LINKS.map((link, i) => (
+                <motion.a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  initial={{ opacity: 0, x: -24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.06 + i * 0.05,
+                    duration: 0.5,
+                    ease: EASE,
+                  }}
+                  className="group flex items-center justify-between border-b-[3px] border-taupe/50 py-4 text-3xl font-black tracking-tight text-foreground"
+                >
+                  {link.label}
+                  <ArrowUpRight
+                    className="h-6 w-6 text-brand opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+                    aria-hidden="true"
+                  />
+                </motion.a>
+              ))}
+            </nav>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="relative px-7 pb-[max(3rem,env(safe-area-inset-bottom))]"
+            >
+              <a
+                href={CRISIS_TEL_HREF}
+                className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-lg font-bold text-ink"
+              >
+                <Phone className="h-5 w-5" aria-hidden="true" />
+                Call the Command Centre now
+              </a>
+              <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
+                Free, confidential, answered 24 hours a day
+              </p>
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -14,7 +14,6 @@ import { cn } from "@/lib/utils";
 export function CallCard({
   title,
   number,
-  tel,
   href,
   description,
   chips = [],
@@ -26,7 +25,6 @@ export function CallCard({
 }: {
   title: string;
   number: string;
-  tel?: string;
   href: string;
   description?: string;
   chips?: string[];

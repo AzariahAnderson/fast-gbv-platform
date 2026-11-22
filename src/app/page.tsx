@@ -13,6 +13,7 @@ import { Faq } from "@/components/site/faq";
 import { Cta } from "@/components/site/cta";
 import { Footer } from "@/components/site/footer";
 import { FAQS } from "@/lib/faqs";
+import { LANGUAGES } from "@/lib/languages";
 import { SITE_URL } from "@/lib/site";
 
 /**
@@ -24,19 +25,10 @@ import { SITE_URL } from "@/lib/site";
  * No ratings, reviews or statistics are claimed here.
  */
 function structuredData() {
-  const languages = [
-    "English",
-    "Afrikaans",
-    "isiZulu",
-    "isiXhosa",
-    "Sesotho",
-    "Setswana",
-    "Sepedi",
-    "siSwati",
-    "Tshivenda",
-    "Xitsonga",
-    "isiNdebele",
-  ];
+  // The languages the GBV Command Centre answers in: derived from the
+  // single source of truth in src/lib/languages.ts so structured data can
+  // never drift from the list the welcome flow actually offers.
+  const languages = LANGUAGES.map((l) => l.english);
   return {
     "@context": "https://schema.org",
     "@graph": [

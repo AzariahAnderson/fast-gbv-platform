@@ -5,150 +5,26 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ChevronDown, Phone, PhoneCall } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { CallCard, CopyChip } from "./cards";
+import { EASE } from "@/lib/motion";
+import {
+  CRISIS_LINE,
+  CRISIS_TEL_HREF,
+  DIRECTORY,
+  DIRECTORY_GROUPS,
+  telHref,
+  type DirectoryEntry,
+} from "@/lib/numbers";
 
 /**
  * The one and only section of the site that carries phone numbers. Critical
  * lines come first as large tap targets, the full verified directory follows
  * inside a collapsed disclosure so the page stays calm: open it only when
  * the moment needs it. Every other section links here instead of repeating
- * numbers.
+ * numbers. The numbers themselves live in src/lib/numbers.ts — the single
+ * immutable source of truth — and are only rendered here.
  */
 
-type Directory = {
-  name: string;
-  what: string;
-  number: string;
-  tel?: string;
-  hours: string;
-  tag: string;
-  group: string;
-};
-
-const DIRECTORY: Directory[] = [
-  {
-    name: "GBV Command Centre",
-    what: "Crisis counselling, social workers, shelters and referrals, for survivors and abusers",
-    number: "0800 428 428",
-    tel: "0800428428",
-    hours: "24 hours, free",
-    tag: "First call",
-    group: "Urgent and first call",
-  },
-  {
-    name: "SAPS, South African Police Service",
-    what: "Emergencies, opening a case, protection order enforcement, FCS units for sexual offences",
-    number: "10111",
-    tel: "10111",
-    hours: "24 hours, free",
-    tag: "Emergency",
-    group: "Urgent and first call",
-  },
-  {
-    name: "Cellphone emergency",
-    what: "Routes you to the nearest police, ambulance or fire service from any cellphone",
-    number: "112",
-    tel: "112",
-    hours: "24 hours, free",
-    tag: "No airtime",
-    group: "Urgent and first call",
-  },
-  {
-    name: "Ambulance and fire",
-    what: "Medical emergencies, serious injuries and firefighting response",
-    number: "10177",
-    tel: "10177",
-    hours: "24 hours, free",
-    tag: "Emergency",
-    group: "Urgent and first call",
-  },
-  {
-    name: "TEARS Foundation",
-    what: "Free SMS helpline for survivors of gender based and sexual violence",
-    number: "*134*7355#",
-    hours: "24 hours, free",
-    tag: "Silent help",
-    group: "Silent and anonymous help",
-  },
-  {
-    name: "Crime Stop",
-    what: "Report crime anonymously, no names taken and no court appearances required",
-    number: "0860 010 111",
-    tel: "0860010111",
-    hours: "24 hours, free",
-    tag: "Anonymous",
-    group: "Silent and anonymous help",
-  },
-  {
-    name: "POWA, People Opposed to Women Abuse",
-    what: "Counselling, shelters and court support for women experiencing abuse",
-    number: "011 642 4345",
-    tel: "0116424345",
-    hours: "Office hours",
-    tag: "Shelter",
-    group: "Counselling, shelters and families",
-  },
-  {
-    name: "Lifeline South Africa",
-    what: "Emotional counselling for anyone, survivors, witnesses and those who cause harm",
-    number: "0861 322 322",
-    tel: "0861322322",
-    hours: "24 hours, free",
-    tag: "Counselling",
-    group: "Counselling, shelters and families",
-  },
-  {
-    name: "Family Life Centre, FAMSA",
-    what: "Professional individual, relationship and family counselling in Johannesburg",
-    number: "011 788 4784",
-    tel: "0117884784",
-    hours: "Mon to Fri, 08:00 to 17:00",
-    tag: "Counselling",
-    group: "Counselling, shelters and families",
-  },
-  {
-    name: "Childline South Africa",
-    what: "Child abuse, neglect and support for children and teenagers",
-    number: "116",
-    tel: "116",
-    hours: "24 hours, free",
-    tag: "Children",
-    group: "Children and young people",
-  },
-  {
-    name: "Sonke Gender Justice",
-    what: "Men's behaviour change groups and gender justice advocacy",
-    number: "011 339 3589",
-    tel: "0113393589",
-    hours: "Office hours",
-    tag: "Change",
-    group: "For those who cause harm",
-  },
-];
-
-const GROUPS: { label: string; blurb: string }[] = [
-  {
-    label: "Urgent and first call",
-    blurb: "Life-threatening danger, the police and medical response",
-  },
-  {
-    label: "Silent and anonymous help",
-    blurb: "Reach out without a voice call, without leaving a name",
-  },
-  {
-    label: "Counselling, shelters and families",
-    blurb: "Ongoing support for survivors, witnesses and their families",
-  },
-  {
-    label: "Children and young people",
-    blurb: "Abuse, neglect and anyone reporting a child at risk",
-  },
-  {
-    label: "For those who cause harm",
-    blurb: "Behaviour change support, without judgement",
-  },
-];
-
-function DirectoryRow({ r, last }: { r: Directory; last: boolean }) {
+function DirectoryRow({ r, last }: { r: DirectoryEntry; last: boolean }) {
   return (
     <li
       className={`grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-taupe/15 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
@@ -190,6 +66,18 @@ export function Emergency() {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
 
+  // The featured cards read their numbers from the directory (never
+  // hardcoded here), looked up by their digits-only tel value.
+  const entry = (tel: string): DirectoryEntry => {
+    const found = DIRECTORY.find((d) => d.tel === tel);
+    if (!found) throw new Error(`Directory is missing the ${tel} entry`);
+    return found;
+  };
+  const crisis = entry(CRISIS_LINE.tel);
+  const saps = entry("10111");
+  const ambulance = entry("10177");
+  const childline = entry("116");
+
   return (
     <section
       id="emergency"
@@ -212,10 +100,10 @@ export function Emergency() {
           {/* GBV Command Centre, featured */}
           <Reveal className="sm:col-span-2" delay={0.05}>
             <CallCard
-              title="GBV Command Centre"
+              title={crisis.name}
               tagline="Department of Social Development"
-              number="0800 428 428"
-              href="tel:0800428428"
+              number={crisis.number}
+              href={telHref(crisis.tel ?? CRISIS_LINE.tel)}
               featured
               description="South Africa's national 24 hour crisis line for gender based violence. Trained counsellors speak all 11 official languages, assess your immediate danger and can send a mobile social worker, arrange shelter space or stay on the line while you contact the police."
               chips={["Toll free", "24 hours", "11 languages", "Social worker callback"]}
@@ -268,8 +156,8 @@ export function Emergency() {
           <Reveal delay={0.18}>
             <CallCard
               title="SAPS, police"
-              number="10111"
-              href="tel:10111"
+              number={saps.number}
+              href={telHref(saps.tel ?? "10111")}
               description="For life threatening emergencies. Police must respond to every domestic violence complaint, help you reach a place of safety and assist with a protection order. Dedicated Family Violence, Child Protection and Sexual Offences units handle these cases."
               chips={["24 hours", "Free", "FCS units"]}
             />
@@ -279,8 +167,8 @@ export function Emergency() {
           <Reveal delay={0.24}>
             <CallCard
               title="Ambulance and fire"
-              number="10177"
-              href="tel:10177"
+              number={ambulance.number}
+              href={telHref(ambulance.tel ?? "10177")}
               description="Medical emergencies and serious injuries. From any cellphone you can also dial 112, which works on MTN, Vodacom, Cell C and Telkom even without airtime."
               chips={["24 hours", "Free", "Cellphone: 112"]}
             />
@@ -290,8 +178,8 @@ export function Emergency() {
           <Reveal delay={0.3}>
             <CallCard
               title="Childline SA"
-              number="116"
-              href="tel:116"
+              number={childline.number}
+              href={telHref(childline.tel ?? "116")}
               description="For children and young people facing abuse or neglect, and for adults reporting a child at risk. Toll free from every network, any time of day."
               chips={["Toll free", "24 hours", "Children and teens"]}
             />
@@ -350,16 +238,16 @@ export function Emergency() {
                   transition={
                     reduce
                       ? { duration: 0.15 }
-                      : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                      : { duration: 0.5, ease: EASE }
                   }
                   className="overflow-hidden border-t-[3px] border-taupe"
                 >
-                  {GROUPS.map((group, gi) => {
+                  {DIRECTORY_GROUPS.map((group, gi) => {
                     const rows = DIRECTORY.filter((r) => r.group === group.label);
                     return (
                       <div
                         key={group.label}
-                        className={gi !== GROUPS.length - 1 ? "border-b-2 border-taupe/60" : ""}
+                        className={gi !== DIRECTORY_GROUPS.length - 1 ? "border-b-2 border-taupe/60" : ""}
                       >
                         <p className="px-5 pb-1 pt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand sm:px-6">
                           {group.label}

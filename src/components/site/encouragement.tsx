@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLive } from "@/hooks/use-live";
 import { BASELINE } from "@/lib/live-types";
+import { EASE } from "@/lib/motion";
 
 /**
  * Encouragement strip. Replaces the old emergency numbers ticker with a
@@ -115,7 +116,7 @@ export function Encouragement() {
                 initial={reduce ? false : { opacity: 0, y: 14, filter: "blur(6px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                 exit={reduce ? undefined : { opacity: 0, y: -14, filter: "blur(6px)" }}
-                transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.55, ease: EASE }}
                 className="text-balance text-lg font-black leading-snug tracking-tight text-foreground sm:text-2xl"
               >
                 {messages[safeIndex] ?? ""}
