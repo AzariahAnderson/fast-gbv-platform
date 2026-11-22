@@ -54,18 +54,21 @@ const TRUST = [
 
 /**
  * The animated emojis that frame the headline. Each one is a small local
- * webp (already precached by the service worker), floated in the side
- * gutters where wide screens have room to spare and kept clear of the
- * copy: decoration lives in the margins, never on top of the words.
- * Lg and up only, because on narrower viewports the gutters disappear and
- * an emoji would sit on the text it is meant to celebrate.
- * Every pick is an always-visible animation: the Noto seedling grows out
- * of nothing and the star twinks to black for whole frames, and an emoji
- * that vanishes reads as a broken image, not as charm.
+ * webp (precached by the service worker), floated in the side gutters
+ * where wide screens have room to spare and kept clear of the copy:
+ * decoration lives in the margins, never on top of the words. Lg and up
+ * only, because on narrower viewports the gutters disappear and an emoji
+ * would sit on the text it is meant to celebrate.
+ * Every pick is an always-visible animation (measured frame by frame in
+ * scripts/fetch-emojis.py) and every pick carries the section's message:
+ * a sparkling heart for love, a cherry blossom for gentleness, a clover
+ * for hope and folded hands for support. The seedling and the star were
+ * rejected for blinking fully transparent mid-loop; the bouquet and the
+ * dizzy swoosh were rejected as too busy at 44px.
  */
 const FLOATS = [
   {
-    src: "/emojis/1f49b-128.webp",
+    src: "/emojis/1f496-128.webp",
     pos: "left-[2%] top-[7%]",
     size: "lg:h-11 lg:w-11",
     rotate: -8,
@@ -73,7 +76,7 @@ const FLOATS = [
     bobDelay: "0s",
   },
   {
-    src: "/emojis/1fac2-128.webp",
+    src: "/emojis/1f338-128.webp",
     pos: "right-[2.5%] top-[7%]",
     size: "lg:h-11 lg:w-11",
     rotate: 10,
@@ -81,17 +84,17 @@ const FLOATS = [
     bobDelay: "0.9s",
   },
   {
-    src: "/emojis/1f91d-128.webp",
+    src: "/emojis/1f340-128.webp",
     pos: "left-[3.5%] top-[34%]",
-    size: "lg:h-12 lg:w-12",
+    size: "lg:h-10 lg:w-10",
     rotate: -6,
     bob: "6.8s",
     bobDelay: "1.7s",
   },
   {
-    src: "/emojis/1f4aa-128.webp",
+    src: "/emojis/1f64f-128.webp",
     pos: "right-[3.5%] top-[37%]",
-    size: "lg:h-9 lg:w-9",
+    size: "lg:h-12 lg:w-12",
     rotate: 8,
     bob: "7.6s",
     bobDelay: "2.4s",

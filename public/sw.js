@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v7";
+const VERSION = "fast-v8";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -18,11 +18,15 @@ const PRECACHE = [
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-maskable-512.png",
-  // The animated encouragement emojis: small local webp files, precached on
-  // install so the support messages render even on a first offline visit.
-  // Only the six always-visible animations ship: the seedling and the star
-  // blink fully transparent for whole frames mid-loop and read as broken.
+  // The animated emojis: small local webp files, precached on install so
+  // the hero frame and the support messages render even on a first offline
+  // visit. Every shipped animation is visible in all of its frames — the
+  // seedling and the star blink fully transparent mid-loop and read broken.
   "/emojis/2728-128.webp",
+  "/emojis/1f496-128.webp",
+  "/emojis/1f338-128.webp",
+  "/emojis/1f340-128.webp",
+  "/emojis/1f64f-128.webp",
   "/emojis/1f49b-128.webp",
   "/emojis/1f4aa-128.webp",
   "/emojis/1f91d-128.webp",
