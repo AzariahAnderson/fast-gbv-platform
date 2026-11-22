@@ -1,90 +1,65 @@
 #!/usr/bin/env python3
 """
-Brand asset pipeline for the Fast beta.
+Fast brand icon pipeline (beta 0.9.0-beta.2).
 
-Inputs (user uploads, never modified):
-  upload/FAST Motion Tech Logo.png       2172x724 RGBA, transparent background
-  upload/You Are Loved_ United in Hope.png 2048x768 RGB banner
+The uploaded FAST motion artwork has been dropped from the UI. All favicons
+and PWA icons are now generated in-house: a flat, static, grey (taupe #605B51,
+the palette's own grey) rounded nothing - just a square of colour with a bold
+white "F" set in Noto Sans Bold. No SVG, no animation, no external artwork.
 
+Inputs : /usr/share/fonts/truetype/chinese/NotoSansSC-Bold.ttf (Latin glyphs)
 Outputs:
-  public/images/fast-logo.png            trimmed RGBA logo, 1200px wide
-  public/images/you-are-loved-banner.jpg 1600x600 JPEG q85
-  src/app/icon.png                       512x512 square, logo on black
-  src/app/apple-icon.png                 180x180 square, logo on black
   src/app/favicon.ico                    16/32/48 multi-size ICO
-  public/icons/icon-192.png              192x192 square
-  public/icons/icon-512.png              512x512 square
-  public/icons/icon-maskable-512.png     512x512, artwork inside the safe zone
+  src/app/icon.png                       512x512
+  src/app/apple-icon.png                 180x180
+  public/icons/icon-192.png              192x192
+  public/icons/icon-512.png              512x512
+  public/icons/icon-maskable-512.png     512x512, glyph inside the safe zone
 
-The logo artwork is used exactly as supplied: it is only trimmed, scaled and
-centred on a black square that matches the site's dark ink palette. No
-recoloring, no redrawn artwork.
+The "You are loved" banner JPEG in public/images is untouched; it stays the
+footer artwork and the OG image.
 """
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
-LOGO_SRC = "upload/FAST Motion Tech Logo.png"
-BANNER_SRC = "upload/You Are Loved_ United in Hope.png"
-
-
-def trimmed_logo() -> Image.Image:
-    """Trim fully transparent margins so the artwork fills its box."""
-    logo = Image.open(LOGO_SRC).convert("RGBA")
-    bbox = logo.getchannel("A").getbbox()
-    if bbox:
-        logo = logo.crop(bbox)
-    return logo
+FONT_PATH = "/usr/share/fonts/truetype/chinese/NotoSansSC-Bold.ttf"
+GREY = (96, 91, 81, 255)     # #605B51, the palette taupe
+WHITE = (255, 255, 255, 255)
 
 
-def save_logo(out_path: str, target_width: int) -> tuple[int, int]:
-    logo = trimmed_logo()
-    w, h = logo.size
-    new_h = round(h * target_width / w)
-    logo = logo.resize((target_width, new_h), Image.LANCZOS)
-    logo.save(out_path, "PNG", optimize=True)
-    return logo.size
+def f_glyph(height: int) -> Image.Image:
+    """Render a white bold "F" and trim it to its ink bounding box."""
+    size = height * 3
+    font = ImageFont.truetype(FONT_PATH, size)
+    pad = size // 2
+    img = Image.new("RGBA", (size + pad * 2, size + pad * 2), (0, 0, 0, 0))
+    ImageDraw.Draw(img).text((pad + size // 2, pad + size // 2), "F",
+                             font=font, fill=WHITE, anchor="mm")
+    bbox = img.getbbox()
+    img = img.crop(bbox)
+    scale = height / img.size[1]
+    return img.resize((max(1, round(img.size[0] * scale)), height), Image.LANCZOS)
 
 
-def square_icon(out_path: str, size: int, art_ratio: float, fmt: str = "PNG") -> None:
-    """Centre the logo on a black square; art_ratio is art width / canvas width."""
-    canvas = Image.new("RGBA", (size, size), (0, 0, 0, 255))
-    logo = trimmed_logo()
-    art_w = round(size * art_ratio)
-    art_h = round(logo.size[1] * art_w / logo.size[0])
-    if art_h > size:
-        art_h = round(size * 0.9)
-        art_w = round(logo.size[0] * art_h / logo.size[1])
-    art = logo.resize((art_w, art_h), Image.LANCZOS)
-    canvas.alpha_composite(art, ((size - art_w) // 2, (size - art_h) // 2))
-    canvas.convert("RGB" if fmt == "ICO" else "RGBA").save(out_path, fmt)
-
-
-def favicon(out_path: str, art_ratio: float = 0.86) -> None:
-    """One 256px master; PIL derives crisp 16/32/48 ICO frames from it."""
-    canvas = Image.new("RGBA", (256, 256), (0, 0, 0, 255))
-    logo = trimmed_logo()
-    art_w = round(256 * art_ratio)
-    art_h = round(logo.size[1] * art_w / logo.size[0])
-    art = logo.resize((art_w, art_h), Image.LANCZOS)
-    canvas.alpha_composite(art, ((256 - art_w) // 2, (256 - art_h) // 2))
-    canvas.save(out_path, format="ICO", sizes=[(16, 16), (32, 32), (48, 48)])
-
-
-def banner() -> None:
-    src = Image.open(BANNER_SRC).convert("RGB")
-    src.resize((1600, 600), Image.LANCZOS).save(
-        "public/images/you-are-loved-banner.jpg", "JPEG", quality=85, optimize=True, progressive=True
-    )
+def make_icon(size: int, glyph_ratio: float) -> Image.Image:
+    """Grey square with the white F optically centred (nudged up half a
+    percent because a lone capital sits heavy on the baseline)."""
+    canvas = Image.new("RGBA", (size, size), GREY)
+    glyph = f_glyph(round(size * glyph_ratio))
+    x = (size - glyph.size[0]) // 2
+    y = round((size - glyph.size[1]) / 2 - size * 0.005)
+    canvas.alpha_composite(glyph, (x, y))
+    return canvas
 
 
 if __name__ == "__main__":
-    print("fast-logo.png:", save_logo("public/images/fast-logo.png", 1200))
-    banner()
-    print("you-are-loved-banner.jpg: 1600x600")
-    square_icon("src/app/icon.png", 512, 0.86)
-    square_icon("src/app/apple-icon.png", 180, 0.86)
-    favicon("src/app/favicon.ico")
-    square_icon("public/icons/icon-192.png", 192, 0.86)
-    square_icon("public/icons/icon-512.png", 512, 0.86)
-    square_icon("public/icons/icon-maskable-512.png", 512, 0.62)
-    print("done")
+    make_icon(512, 0.58).save("src/app/icon.png", "PNG", optimize=True)
+    make_icon(180, 0.58).save("src/app/apple-icon.png", "PNG", optimize=True)
+    master = make_icon(256, 0.58)
+    master.save("src/app/favicon.ico", format="ICO",
+                sizes=[(16, 16), (32, 32), (48, 48)])
+    make_icon(192, 0.58).save("public/icons/icon-192.png", "PNG", optimize=True)
+    make_icon(512, 0.58).save("public/icons/icon-512.png", "PNG", optimize=True)
+    # Maskable: keep the glyph well inside the 80% safe-zone circle.
+    make_icon(512, 0.38).save("public/icons/icon-maskable-512.png", "PNG", optimize=True)
+    print("icon set regenerated: grey bg, white F, static raster only")

@@ -60,20 +60,9 @@ export function Footer() {
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.2fr_2fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <a
-              href="#top"
-              aria-label="Fast, back to top"
-              className="inline-flex w-fit items-center rounded-xl bg-black px-3.5 py-2.5"
-            >
-              <Image
-                src="/images/fast-logo.png"
-                alt="Fast"
-                width={1200}
-                height={395}
-                sizes="100px"
-                className="h-6 w-auto"
-              />
-            </a>
+            <p className="inline-flex items-center text-4xl font-black tracking-tight text-foreground">
+              FAST
+            </p>
             <p className="max-w-xs text-sm font-medium leading-relaxed text-body">
               A public awareness page that connects South Africans to official,
               free gender based violence services. It is not a substitute for

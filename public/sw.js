@@ -8,7 +8,7 @@
  * networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v3";
+const VERSION = "fast-v4";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
