@@ -36,8 +36,8 @@ export function BentoSurvivors() {
           sub="Abuse grows in silence and isolation. Reaching out is not weakness, it is the moment the pattern starts to break. This is what exists for you, free of charge."
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.05}>
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-6">
+          <Reveal className="md:col-span-2 lg:col-span-4" delay={0.05}>
             <InfoCard
               icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
               title="Counselling at any hour, in your language"
@@ -52,7 +52,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal delay={0.1}>
+          <Reveal className="lg:col-span-2" delay={0.1}>
             <InfoCard
               icon={<Home className="h-5 w-5" aria-hidden="true" />}
               title="Safe places to stay"
@@ -64,7 +64,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal delay={0.15}>
+          <Reveal className="lg:col-span-2" delay={0.15}>
             <InfoCard
               icon={<Scale className="h-5 w-5" aria-hidden="true" />}
               title="Legal protection, free of charge"
@@ -76,7 +76,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal delay={0.2}>
+          <Reveal className="lg:col-span-2" delay={0.2}>
             <InfoCard
               icon={<HeartPulse className="h-5 w-5" aria-hidden="true" />}
               title="Medical care and evidence"
@@ -89,7 +89,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal delay={0.25}>
+          <Reveal className="lg:col-span-2" delay={0.25}>
             <InfoCard
               icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
               title="Help without a voice call"
@@ -102,7 +102,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.3}>
+          <Reveal className="md:col-span-2 lg:col-span-4" delay={0.3}>
             <InfoCard
               icon={<ListChecks className="h-5 w-5" aria-hidden="true" />}
               title="Build your safety plan"
@@ -120,9 +120,9 @@ export function BentoSurvivors() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 rounded-xl border-2 border-taupe/60 bg-ink-2 px-3.5 py-2.5 text-[13px] font-medium text-foreground/90"
+                    className="flex items-start gap-3 rounded-xl border-2 border-taupe bg-taupe/20 px-3.5 py-2.5 text-[13px] font-medium text-foreground/90"
                   >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rotate-45 bg-brand" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
@@ -130,7 +130,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal className="md:col-span-2 lg:col-span-1" delay={0.35}>
+          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.35}>
             <InfoCard
               icon={<Baby className="h-5 w-5" aria-hidden="true" />}
               title="Help for children"

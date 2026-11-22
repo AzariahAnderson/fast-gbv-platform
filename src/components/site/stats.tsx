@@ -42,7 +42,7 @@ export function Stats() {
   return (
     <section
       id="stats"
-      className="relative scroll-mt-28 border-y-2 border-taupe/50 bg-ink-deep py-20 sm:py-28"
+      className="relative scroll-mt-28 border-y-[3px] border-taupe bg-taupe/15 py-20 sm:py-28"
       aria-labelledby="stats-heading"
     >
       <div
@@ -56,7 +56,7 @@ export function Stats() {
           </p>
           <h2
             id="stats-heading"
-            className="mt-5 text-balance text-4xl font-extrabold leading-[1.02] tracking-tighter sm:text-5xl"
+            className="mt-5 text-balance font-head text-4xl font-semibold leading-[1.04] tracking-tight text-foreground sm:text-5xl"
           >
             Silence is the most dangerous
             <span className="text-brand"> number</span> of all.
@@ -67,11 +67,11 @@ export function Stats() {
           {STATS.map((stat, i) => (
             <Reveal key={stat.source} delay={0.06 * i}>
               <div className="card-hover card-surface group flex h-full flex-col gap-5 p-6 sm:p-7">
-                <p className="text-5xl font-black tracking-tighter sm:text-[3.2rem]">
+                <p className="font-display text-5xl tracking-tight text-foreground sm:text-[3.1rem]">
                   {stat.value}
                 </p>
                 {stat.unit ? (
-                  <p className="-mt-3 text-sm font-bold uppercase tracking-wide text-brand">
+                  <p className="-mt-3 font-head text-sm font-semibold uppercase tracking-wide text-brand">
                     {stat.unit}
                   </p>
                 ) : null}

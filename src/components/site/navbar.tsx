@@ -18,13 +18,16 @@ export function Logo({ className }: { className?: string }) {
     <a
       href="#top"
       className={cn(
-        "group inline-flex items-baseline text-lg font-black tracking-tighter",
+        "group inline-flex items-center gap-1.5 font-display text-[1.35rem] leading-none tracking-tight text-foreground",
         className
       )}
       aria-label="Fast, back to top"
     >
-      <span className="transition-colors group-hover:text-brand-2">FAST</span>
-      <span className="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-brand transition-transform duration-300 group-hover:scale-125" />
+      FAST
+      <span
+        className="h-[7px] w-[7px] rotate-45 bg-brand transition-transform duration-300 group-hover:scale-125"
+        aria-hidden="true"
+      />
     </a>
   );
 }
@@ -34,7 +37,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -49,28 +52,28 @@ export function Navbar() {
   return (
     <>
       <motion.header
-        initial={{ y: -80, opacity: 0 }}
+        initial={{ y: -90, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex justify-center px-3 pt-3 sm:px-6 sm:pt-4"
+        transition={{ delay: 4.05, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className={cn(
+          "fixed inset-x-0 top-0 z-[100] transition-all duration-500",
+          scrolled
+            ? "border-b-[3px] border-taupe bg-ink/90 backdrop-blur-xl"
+            : "border-b-[3px] border-transparent bg-transparent"
+        )}
       >
         <nav
           aria-label="Main navigation"
-          className={cn(
-            "pointer-events-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 rounded-2xl border-2 pl-4 pr-2 backdrop-blur-xl transition-all duration-500",
-            scrolled
-              ? "border-taupe/70 bg-ink-deep/90 shadow-[0_20px_50px_-16px_rgba(0,0,0,0.6)]"
-              : "border-taupe/40 bg-ink-deep/50"
-          )}
+          className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-5 sm:px-8"
         >
           <Logo />
 
-          <ul className="hidden items-center gap-0.5 lg:flex">
+          <ul className="hidden items-center gap-1 lg:flex">
             {LINKS.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="rounded-lg px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-ink/60 hover:text-foreground"
+                  className="rounded-lg px-3.5 py-2 font-head text-[15px] font-medium text-muted-foreground transition-colors hover:bg-taupe/25 hover:text-foreground"
                 >
                   {link.label}
                 </a>
@@ -78,10 +81,10 @@ export function Navbar() {
             ))}
           </ul>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <a
               href="tel:0800428428"
-              className="group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold tracking-tight text-ink-deep transition-all hover:bg-brand-2 hover:shadow-[0_0_28px_rgba(216,211,101,0.35)] sm:inline-flex"
+              className="group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 font-head text-sm font-semibold tracking-tight text-ink transition-colors hover:bg-brand-2 sm:inline-flex"
             >
               <Phone
                 className="h-4 w-4 transition-transform group-hover:rotate-12"
@@ -92,7 +95,7 @@ export function Navbar() {
             <a
               href="tel:0800428428"
               aria-label="Call the GBV Command Centre now"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-ink-deep sm:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-ink sm:hidden"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
             </a>
@@ -100,7 +103,7 @@ export function Navbar() {
               onClick={() => setOpen(true)}
               aria-label="Open menu"
               aria-expanded={open}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe/50 bg-ink/60 text-foreground transition-colors hover:border-taupe hover:bg-ink lg:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-foreground transition-colors hover:border-brand hover:text-brand lg:hidden"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
             </button>
@@ -114,27 +117,25 @@ export function Navbar() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[150] flex flex-col bg-ink-deep lg:hidden"
+          className="fixed inset-0 z-[150] flex flex-col bg-ink lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile menu"
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute left-1/2 top-[-20%] h-[24rem] w-[36rem] -translate-x-1/2 rounded-full bg-brand/[0.07] blur-[120px]"
+            className="pointer-events-none absolute inset-0 bg-grid bg-fade-y opacity-25"
           />
 
-          <div className="relative flex items-center justify-between px-4 pt-5">
-            <div className="flex h-14 w-full items-center justify-between rounded-2xl border-2 border-taupe/40 bg-ink-deep/60 pl-4 pr-2">
-              <Logo />
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe/50 bg-ink/60"
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
+          <div className="relative flex h-16 items-center justify-between px-5 sm:px-8">
+            <Logo />
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
           </div>
 
           <nav
@@ -153,7 +154,7 @@ export function Navbar() {
                   duration: 0.5,
                   ease: [0.22, 1, 0.36, 1],
                 }}
-                className="group flex items-center justify-between border-b-2 border-taupe/30 py-4 text-3xl font-extrabold tracking-tight"
+                className="group flex items-center justify-between border-b-[3px] border-taupe/50 py-4 font-display text-3xl uppercase tracking-tight text-foreground"
               >
                 {link.label}
                 <ArrowUpRight
@@ -172,7 +173,7 @@ export function Navbar() {
           >
             <a
               href="tel:0800428428"
-              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-lg font-bold text-ink-deep"
+              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand font-head text-lg font-semibold text-ink"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
               Call 0800 428 428

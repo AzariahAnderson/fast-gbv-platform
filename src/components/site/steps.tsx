@@ -49,21 +49,21 @@ export function Steps() {
               <div className="card-hover card-surface group relative flex h-full flex-col gap-5 p-7">
                 <span
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-2 text-[5.5rem] font-black leading-none tracking-tighter text-taupe/20 transition-colors duration-500 group-hover:text-brand/20"
+                  className="pointer-events-none absolute right-5 top-3 font-display text-[4.6rem] leading-none text-taupe/40 transition-colors duration-500 group-hover:text-brand/30"
                 >
                   {step.n}
                 </span>
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-taupe/60 bg-ink-2 text-brand transition-transform duration-500 group-hover:scale-110">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-brand transition-transform duration-500 group-hover:scale-110">
                   {step.icon}
                 </div>
-                <h3 className="text-2xl font-extrabold tracking-tight">{step.title}</h3>
+                <h3 className="font-head text-2xl font-semibold tracking-tight text-foreground">{step.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{step.body}</p>
                 {i < 2 ? (
                   <span
                     aria-hidden="true"
-                    className="absolute -right-[17px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 rounded-full border-2 border-taupe/60 bg-ink-deep text-center font-mono text-xs leading-7 text-brand md:block"
+                    className="absolute -right-[20px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 rotate-45 items-center justify-center border-[3px] border-taupe bg-background md:flex"
                   >
-                    →
+                    <span className="h-1.5 w-1.5 bg-brand" />
                   </span>
                 ) : null}
               </div>

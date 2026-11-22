@@ -43,14 +43,11 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe/50 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-brand",
+        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-3.5 py-1.5 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-brand",
         className
       )}
     >
-      <span className="relative flex h-1.5 w-1.5">
-        <span className="absolute inline-flex h-full w-full rounded-full bg-brand animate-ping-soft" />
-        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-brand" />
-      </span>
+      <span className="h-1.5 w-1.5 rotate-45 bg-brand" aria-hidden="true" />
       {children}
     </span>
   );
@@ -81,7 +78,7 @@ export function SectionHeading({
         <Eyebrow>{eyebrow}</Eyebrow>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2 className="max-w-3xl text-balance text-4xl font-extrabold leading-[1.02] tracking-tighter sm:text-5xl lg:text-6xl">
+        <h2 className="max-w-3xl text-balance font-head text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
           {title}
         </h2>
       </Reveal>

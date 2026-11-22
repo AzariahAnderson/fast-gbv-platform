@@ -2,7 +2,19 @@
 
 import { RefreshCw, PhoneCall, Users, Flame, ArrowUpRight } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
-import { InfoCard, CallCard } from "./cards";
+import { InfoCard } from "./cards";
+
+function CardLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5 hover:text-brand-2"
+    >
+      {children}
+      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+    </a>
+  );
+}
 
 export function BentoChange() {
   return (
@@ -25,7 +37,7 @@ export function BentoChange() {
 
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {/* Accountability steps */}
-          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.05}>
+          <Reveal className="md:col-span-2" delay={0.05}>
             <InfoCard
               icon={<RefreshCw className="h-5 w-5" aria-hidden="true" />}
               title="Three honest steps out"
@@ -57,7 +69,7 @@ export function BentoChange() {
                 ].map((step) => (
                   <li
                     key={step.n}
-                    className="flex gap-4 rounded-2xl border-2 border-taupe/60 bg-ink-2 p-4 sm:p-5"
+                    className="flex gap-4 rounded-2xl border-2 border-taupe bg-taupe/20 p-4 sm:p-5"
                   >
                     <span className="font-mono text-lg font-bold text-brand">{step.n}</span>
                     <div>
@@ -75,12 +87,12 @@ export function BentoChange() {
           {/* Why it matters */}
           <Reveal delay={0.12}>
             <div className="card-hover card-surface flex h-full flex-col justify-between gap-6 p-6 sm:p-7">
-              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl border-2 border-taupe/60 bg-ink-2 text-brand">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-brand">
                 <Flame className="h-5 w-5" aria-hidden="true" />
               </div>
-              <p className="text-2xl font-extrabold leading-snug tracking-tight sm:text-3xl">
+              <p className="font-head text-2xl font-medium leading-snug tracking-tight text-foreground sm:text-3xl">
                 &ldquo;The cycle ends{" "}
-                <span className="text-gradient-brand">with you</span>, not with
+                <span className="text-brand">with you</span>, not with
                 the next child who watches.&rdquo;
               </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
@@ -93,13 +105,15 @@ export function BentoChange() {
 
           {/* Counselling */}
           <Reveal delay={0.18}>
-            <CallCard
+            <InfoCard
+              icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
               title="Counselling, for you"
-              number="0861 322 322"
-              href="tel:0861322322"
-              description="Lifeline answers around the clock for anyone, and that includes you. The Family Life Centre, FAMSA, offers professional individual and relationship counselling on 011 788 4784 during weekdays."
-              chips={["24 hours", "Confidential", "Men welcome"]}
-            />
+              link={<CardLink href="tel:0861322322">Lifeline: 0861 322 322</CardLink>}
+            >
+              Lifeline answers around the clock for anyone, and that includes
+              you. The Family Life Centre, FAMSA, offers professional individual
+              and relationship counselling on 011 788 4784 during weekdays.
+            </InfoCard>
           </Reveal>
 
           {/* Programmes */}
@@ -107,15 +121,7 @@ export function BentoChange() {
             <InfoCard
               icon={<Users className="h-5 w-5" aria-hidden="true" />}
               title="Behaviour change programmes"
-              link={
-                <a
-                  href="tel:0113393589"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5 hover:text-brand-2"
-                >
-                  Sonke Gender Justice: 011 339 3589
-                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              }
+              link={<CardLink href="tel:0113393589">Sonke Gender Justice: 011 339 3589</CardLink>}
             >
               Structured programmes help men examine the beliefs that drive
               violence and practise new responses. Sonke Gender Justice runs
@@ -127,17 +133,9 @@ export function BentoChange() {
           {/* Family repair */}
           <Reveal delay={0.3}>
             <InfoCard
-              icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
+              icon={<Users className="h-5 w-5" aria-hidden="true" />}
               title="Repairing the family"
-              link={
-                <a
-                  href="tel:0117884784"
-                  className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5 hover:text-brand-2"
-                >
-                  FAMSA: 011 788 4784
-                  <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              }
+              link={<CardLink href="tel:0117884784">FAMSA: 011 788 4784</CardLink>}
             >
               Stopping the harm is step one, healing what it damaged is step two.
               FAMSA&apos;s psychologists and social workers help families rebuild

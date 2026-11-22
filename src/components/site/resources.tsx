@@ -122,7 +122,7 @@ export function Resources() {
         />
 
         <div className="card-surface mt-14 overflow-hidden">
-          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-2 border-taupe/60 bg-ink-2 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:grid">
+          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-[3px] border-taupe bg-taupe/15 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:grid">
             <span>Service</span>
             <span>What they do</span>
             <span>Number</span>
@@ -132,12 +132,12 @@ export function Resources() {
             {RESOURCES.map((r, i) => (
               <Reveal key={r.name} delay={Math.min(i * 0.04, 0.3)} y={14}>
                 <li
-                  className={`group grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-ink-2 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
-                    i !== RESOURCES.length - 1 ? "border-b-2 border-taupe/40" : ""
+                  className={`group grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-taupe/15 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
+                    i !== RESOURCES.length - 1 ? "border-b-2 border-taupe/60" : ""
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-lg border-2 border-taupe/50 bg-ink-2 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-brand">
+                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 font-mono text-[9px] uppercase tracking-widest text-brand">
                       {r.tag}
                     </span>
                     <span className="font-bold tracking-tight">{r.name}</span>
@@ -148,13 +148,13 @@ export function Resources() {
                       <a
                         href={`tel:${r.tel}`}
                         aria-label={`Call ${r.name} on ${r.number}`}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border-2 border-brand/50 bg-brand/10 px-4 py-2 text-base font-black tracking-tight text-brand transition-all hover:bg-brand hover:text-ink-deep"
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 font-head text-base font-semibold tracking-tight text-brand transition-colors hover:bg-brand hover:text-ink"
                       >
                         <Phone className="h-3.5 w-3.5" aria-hidden="true" />
                         {r.number}
                       </a>
                     ) : (
-                      <span className="inline-flex items-center gap-2 rounded-xl border-2 border-brand/50 bg-brand/10 px-4 py-2 text-base font-black tracking-tight text-brand">
+                      <span className="inline-flex items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 font-head text-base font-semibold tracking-tight text-brand">
                         {r.number}
                       </span>
                     )}

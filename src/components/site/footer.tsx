@@ -43,16 +43,17 @@ const COLUMNS = [
 
 export function Footer() {
   return (
-    <footer className="relative mt-auto overflow-hidden border-t-2 border-taupe/50 pb-10 pt-16 sm:pt-20">
+    <footer className="relative mt-auto overflow-hidden border-t-[3px] border-taupe pb-10 pt-16 sm:pt-20">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-[-30%] left-1/2 h-[22rem] w-[56rem] -translate-x-1/2 rounded-full bg-brand/[0.05] blur-[130px]"
+        className="pointer-events-none absolute bottom-[-30%] left-1/2 h-[22rem] w-[56rem] -translate-x-1/2 rounded-full bg-taupe/35 blur-[130px]"
       />
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.2fr_2fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <p className="text-4xl font-black tracking-tighter">
-              FAST<span className="ml-1 inline-block h-2.5 w-2.5 rounded-full bg-brand" />
+            <p className="inline-flex items-center gap-2 font-display text-4xl tracking-tight text-foreground">
+              FAST
+              <span className="h-2.5 w-2.5 rotate-45 bg-brand" aria-hidden="true" />
             </p>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
               A public awareness page that connects South Africans to official,
@@ -93,7 +94,7 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-14 grid gap-4 border-t-2 border-taupe/50 pt-8 sm:grid-cols-3">
+        <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
             <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
@@ -127,13 +128,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 select-none overflow-hidden" aria-hidden="true">
-          <p className="text-center text-[19vw] font-black leading-[0.8] tracking-tighter text-taupe/15 mask-fade-b">
-            FAST
-          </p>
-        </div>
-
-        <div className="flex flex-col items-center justify-between gap-4 border-t-2 border-taupe/50 pt-6 sm:flex-row">
+        <div className="flex flex-col items-center justify-between gap-4 border-t-[3px] border-taupe pt-6 sm:flex-row">
           <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground/60">
             Built with care for South Africa, {new Date().getFullYear()}
           </p>

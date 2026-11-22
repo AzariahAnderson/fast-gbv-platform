@@ -64,9 +64,9 @@ export function Faq() {
               <AccordionItem
                 key={faq.q}
                 value={`item-${i}`}
-                className="border-taupe/50"
+                className="border-taupe/70"
               >
-                <AccordionTrigger className="py-5 text-left text-base font-bold tracking-tight hover:text-brand hover:no-underline sm:text-lg [&[data-state=open]>svg]:text-brand">
+                <AccordionTrigger className="py-5 text-left font-head text-base font-semibold tracking-tight hover:text-brand hover:no-underline sm:text-lg [&[data-state=open]>svg]:text-brand">
                   {faq.q}
                 </AccordionTrigger>
                 <AccordionContent className="pb-6 text-[15px] leading-relaxed text-muted-foreground">
