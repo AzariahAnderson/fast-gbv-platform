@@ -124,7 +124,7 @@ export function Hero() {
               className="h-5 w-5 transition-transform duration-300 group-hover:rotate-12"
               aria-hidden="true"
             />
-            Call 0800 428 428
+            Get help now
           </a>
           <a
             href="#change"

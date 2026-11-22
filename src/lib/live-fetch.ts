@@ -34,6 +34,9 @@ type CacheState = {
 const g = globalThis as unknown as {
   __fastLive?: CacheState;
   __fastLiveJob?: Promise<LiveData>;
+  /** Set for this process lifetime when Gemini answers that it will never
+   * serve this region, so later refreshes skip straight to the fallback. */
+  __fastGeminiBlocked?: boolean;
 };
 
 function state(): CacheState {
@@ -221,7 +224,20 @@ ${buildRules()}`,
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) {
-    throw new Error(`gemini ${res.status}`);
+    // Surface the real reason in the log (quota, geo block, bad key...)
+    // instead of a bare status code, and remember permanent rejections.
+    const detail = await res.text().catch(() => "");
+    const reason = (() => {
+      try {
+        return JSON.parse(detail)?.error?.message ?? "";
+      } catch {
+        return detail.slice(0, 140);
+      }
+    })();
+    if (/location is not supported|API key not valid/i.test(reason)) {
+      g.__fastGeminiBlocked = true;
+    }
+    throw new Error(`gemini ${res.status}${reason ? `: ${reason.slice(0, 160)}` : ""}`);
   }
   const text = extractText(await res.json());
   return sanitize({ ...JSON.parse(stripFences(text)), generator: "gemini" });
@@ -292,11 +308,17 @@ For the news section choose the 3 most relevant and most recent items from the n
 async function generate(): Promise<LiveData> {
   if (g.__fastLiveJob) return g.__fastLiveJob;
   const job = (async () => {
-    const attempts: [string, () => Promise<LiveData>][] = [
-      ["gemini+search", () => callGemini(true)],
-      ["gemini", () => callGemini(false)],
-      ["websearch", callSearchEngine],
-    ];
+    // Cheapest first. Gemini is skipped entirely when this server knows the
+    // key cannot work from here (missing key, unsupported region), which
+    // saves two dead timeouts on every refresh in those deployments.
+    const geminiDead = g.__fastGeminiBlocked === true || !process.env.GEMINI_API_KEY;
+    const attempts: [string, () => Promise<LiveData>][] = geminiDead
+      ? [["websearch", callSearchEngine]]
+      : [
+          ["gemini+search", () => callGemini(true)],
+          ["gemini", () => callGemini(false)],
+          ["websearch", callSearchEngine],
+        ];
     for (const [name, run] of attempts) {
       try {
         const data = await run();

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, ShieldCheck, BadgeCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
 
 /**
  * Footer navigation carries no phone numbers, every line hands off to the

@@ -109,5 +109,5 @@ export const BASELINE: LiveData = {
     "The pattern can be broken, and it starts with one call.",
     "You deserve to be safe in your own home.",
   ],
-  tip: "Save 0800 428 428 under a different name in your phone, and keep a grab bag with documents and some cash in one place.",
+  tip: "Save the Command Centre number under a different name in your phone, and keep a grab bag with documents and some cash in one place.",
 };

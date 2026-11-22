@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { refreshLive } from "@/lib/live-fetch";
 import { BASELINE } from "@/lib/live-types";
 
@@ -11,16 +11,10 @@ export const maxDuration = 60;
  * treated as a manual refresh, which refreshLive rate limits to about one
  * generation every nine minutes so the key can never be run dry.
  */
-async function handler(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && req.method === "GET") {
-    const token = req.headers.get("authorization");
-    const isCron = token === `Bearer ${secret}`;
-    if (!isCron) {
-      // Manual browser refresh: allowed, refreshLive handles rate limiting.
-    }
-  }
-
+async function handler() {
+  // The hourly cron carries a bearer token, a browser click does not. Both
+  // are allowed through: refreshLive itself rate limits how often a real
+  // generation can run, so neither path can run the key dry.
   try {
     const { data, refreshed } = await refreshLive();
     return NextResponse.json(
