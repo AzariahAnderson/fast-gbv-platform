@@ -1,42 +1,48 @@
 "use client";
 
-import { ArrowUpRight, ShieldCheck, BadgeCheck, BookOpenCheck } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, BadgeCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
+
+/**
+ * Footer navigation carries no phone numbers, every line hands off to the
+ * single emergency section instead. The closing row keeps one quiet pointer
+ * to it for anyone who scrolls all the way down in a crisis.
+ */
 
 const COLUMNS = [
   {
-    title: "Emergency",
+    title: "Help",
     links: [
-      { label: "GBV Command Centre, 0800 428 428", href: "tel:0800428428" },
-      { label: "SAPS Police, 10111", href: "tel:10111" },
-      { label: "Ambulance and Fire, 10177", href: "tel:10177" },
-      { label: "Childline, 116", href: "tel:116" },
+      { label: "Emergency numbers", href: "#emergency" },
+      { label: "How Fast works", href: "#how" },
+      { label: "Questions people ask", href: "#faq" },
+      { label: "Back to top", href: "#top" },
     ],
   },
   {
     title: "For survivors",
     links: [
-      { label: "Emergency numbers", href: "#emergency" },
       { label: "Counselling and shelters", href: "#survivors" },
       { label: "Legal protection", href: "#survivors" },
       { label: "Safety planning", href: "#survivors" },
+      { label: "Help for children", href: "#survivors" },
     ],
   },
   {
     title: "For change",
     links: [
-      { label: "Three honest steps", href: "#change" },
+      { label: "Three honest steps out", href: "#change" },
       { label: "Behaviour change programmes", href: "#change" },
-      { label: "Family counselling, FAMSA", href: "tel:0117884784" },
-      { label: "Sonke Gender Justice", href: "tel:0113393589" },
+      { label: "Family counselling", href: "#change" },
+      { label: "Men's groups", href: "#change" },
     ],
   },
   {
-    title: "Site",
+    title: "About the data",
     links: [
-      { label: "The crisis in numbers", href: "#stats" },
-      { label: "Full resource directory", href: "#resources" },
-      { label: "FAQ", href: "#faq" },
-      { label: "Back to top", href: "#top" },
+      { label: "Live figures, refreshed hourly", href: "#live" },
+      { label: "News with sources", href: "#live" },
+      { label: "The full directory", href: "#emergency" },
+      { label: "Today's safety tip", href: "#live" },
     ],
   },
 ];
@@ -78,12 +84,6 @@ export function Footer() {
                         className="group inline-flex items-start gap-1 text-[13px] font-semibold leading-snug text-body transition-colors hover:text-foreground"
                       >
                         {link.label}
-                        {link.href.startsWith("tel:") ? (
-                          <ArrowUpRight
-                            className="mt-0.5 h-3 w-3 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
-                            aria-hidden="true"
-                          />
-                        ) : null}
                       </a>
                     </li>
                   ))}
@@ -106,12 +106,13 @@ export function Footer() {
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
-              <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
-              Official services only
+              <WifiOff className="h-3.5 w-3.5" aria-hidden="true" />
+              Works without data
             </p>
             <p className="text-[13px] font-medium leading-relaxed text-body">
-              Every helpline listed is run by the South African government or an
-              established national NGO. Fast never charges for anything.
+              Once this page has loaded, it stays available offline. Visit it
+              once today and the emergency section keeps working with no
+              connection and almost no airtime.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
@@ -120,20 +121,25 @@ export function Footer() {
               Statistics you can check
             </p>
             <p className="text-[13px] font-medium leading-relaxed text-body">
-              Figures on this page come from the HSRC national prevalence study,
-              the South African Medical Research Council and the World Health
-              Organization.
+              Figures and headlines refresh hourly with Google Search grounding
+              and every card links to its publishing source. Emergency numbers
+              are always the verified official ones.
             </p>
           </div>
         </div>
 
         <div className="flex flex-col items-center justify-between gap-4 border-t-[3px] border-taupe pt-6 sm:flex-row">
-          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
-            Built with care for South Africa, {new Date().getFullYear()}
+          <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+            Animated emoji artwork by Noto Emoji, built with care for South Africa, {new Date().getFullYear()}
           </p>
-          <p className="text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
-            In immediate danger? Call <span className="font-black text-brand">10111</span> now
-          </p>
+          <a
+            href="#emergency"
+            className="inline-flex items-center gap-1.5 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint transition-colors hover:text-brand"
+          >
+            In immediate danger? The emergency numbers are one tap away
+            <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+          </a>
         </div>
       </div>
     </footer>

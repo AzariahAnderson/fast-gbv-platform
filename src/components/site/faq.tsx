@@ -11,7 +11,7 @@ import {
 const FAQS = [
   {
     q: "Is it really free and confidential?",
-    a: "Yes. 0800 428 428, the Please Call Me callback on *120*7867# and SMS to 31531 are all free from every South African network. Calls are confidential, and counsellors only involve the police or a social worker if you ask, or if someone's life is in immediate danger.",
+    a: "Yes. The Command Centre line, the Please Call Me callback and the SMS line in the emergency section are all free from every South African network. Calls are confidential, and counsellors only involve the police or a social worker if you ask, or if someone's life is in immediate danger.",
   },
   {
     q: "What happens when I call the GBV Command Centre?",
@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "I am a man. Can I get help?",
-    a: "Yes. Men are survivors too and these lines are for you. Lifeline on 0861 322 322 counsels anyone at any hour, and Childline on 116 is there for boys and young men. Men abused by partners will be believed and helped.",
+    a: "Yes. Men are survivors too and these lines are for you. Lifeline counsels anyone at any hour, and Childline is there for boys and young men. Men abused by partners will be believed and helped.",
   },
   {
     q: "I am the one causing harm. Will I be judged?",
@@ -31,11 +31,11 @@ const FAQS = [
   },
   {
     q: "What if I cannot speak safely on the phone?",
-    a: "Dial *120*7867# to send a free Please Call Me, or SMS the word Help to 31531. A counsellor calls you back, or texts if a call is unsafe. Delete sent messages if your phone is checked, and browse in private mode where possible.",
+    a: "The emergency section has two silent options: a free Please Call Me callback and an SMS line. A counsellor calls you back, or texts if a call is unsafe. Delete sent messages if your phone is checked, and browse in private mode where possible.",
   },
   {
     q: "How do I hide my visit to this website?",
-    a: "Use private or incognito browsing before you open the page. Clear your browser history afterwards if your device is monitored, and never leave help pages open on screen. If you are in immediate danger, close the browser and call 10111 from a safe place.",
+    a: "Use private or incognito browsing before you open the page. Clear your browser history afterwards if your device is monitored, and never leave help pages open on screen. If you are in immediate danger, close the browser and call the police from a safe place.",
   },
 ];
 

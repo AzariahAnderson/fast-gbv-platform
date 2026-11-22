@@ -8,40 +8,11 @@ import {
   Languages,
   Clock,
   PhoneCall,
-  Flame,
-  Copy,
-  MessageSquareText,
 } from "lucide-react";
-import { useState } from "react";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 // The splash curtain starts lifting at 4.0s, the hero enters underneath it
 const D = 3.9;
-
-function CopyCode({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-    } catch {
-      /* clipboard unavailable */
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1600);
-  };
-  return (
-    <button
-      onClick={copy}
-      aria-label={`Copy ${value}`}
-      className="lift inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border-2 border-taupe text-muted-foreground hover:border-brand hover:text-brand"
-    >
-      <Copy className="h-3.5 w-3.5" aria-hidden="true" />
-      <span aria-hidden="true" className={copied ? "sr-only" : "hidden"}>
-        Copied
-      </span>
-    </button>
-  );
-}
 
 /** One word of the headline rising out of its own clip mask */
 function Word({
@@ -180,104 +151,11 @@ export function Hero() {
           ))}
         </motion.ul>
 
-        {/* App-style preview panel */}
-        <motion.div
-          {...anim(D + 0.94)}
-          className="mt-16 w-full max-w-4xl sm:mt-20"
-        >
-          <div className="card-surface overflow-hidden text-left">
-            {/* Panel header */}
-            <div className="flex items-center justify-between border-b-[3px] border-taupe px-6 py-4 sm:px-8">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-ink">
-                  <PhoneCall className="h-4 w-4" aria-hidden="true" />
-                </span>
-                <p className="text-sm font-bold tracking-tight text-foreground">Fast Assist</p>
-              </div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
-                Counsellor available now
-              </span>
-            </div>
-
-            {/* Panel body */}
-            <div className="grid gap-3 px-6 py-6 sm:grid-cols-3 sm:px-8">
-              <a
-                href="tel:0800428428"
-                className="lift group flex flex-col gap-2 rounded-2xl border-[3px] border-brand bg-brand p-5 text-ink hover:bg-brand-2"
-              >
-                <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-ink/70">
-                  <PhoneCall className="h-3.5 w-3.5" aria-hidden="true" />
-                  GBV Command Centre
-                </span>
-                <span className="text-2xl font-black tracking-tight">0800 428 428</span>
-                <span className="text-xs font-medium text-ink/70">
-                  Crisis counselling, shelters, social workers
-                </span>
-              </a>
-              <a
-                href="tel:10111"
-                className="lift group flex flex-col gap-2 rounded-2xl border-[3px] border-taupe bg-taupe/20 p-5 hover:border-brand"
-              >
-                <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
-                  <ShieldCheck className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                  Police
-                </span>
-                <span className="text-2xl font-black tracking-tight text-foreground">10111</span>
-                <span className="text-xs font-medium text-body">
-                  Life threatening emergencies
-                </span>
-              </a>
-              <a
-                href="tel:10177"
-                className="lift group flex flex-col gap-2 rounded-2xl border-[3px] border-taupe bg-taupe/20 p-5 hover:border-brand"
-              >
-                <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
-                  <Flame className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                  Ambulance and fire
-                </span>
-                <span className="text-2xl font-black tracking-tight text-foreground">10177</span>
-                <span className="text-xs font-medium text-body">
-                  Medical emergencies and injuries
-                </span>
-              </a>
-            </div>
-
-            {/* Panel footer: silent help */}
-            <div className="flex flex-col gap-3 border-t-[3px] border-taupe px-6 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-              <div className="flex items-center gap-4 rounded-2xl border-2 border-taupe bg-taupe/20 px-4 py-2.5">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-dim">
-                    Can&apos;t speak safely? Free callback
-                  </p>
-                  <p className="text-lg font-black tracking-tight text-brand">
-                    *120*7867#
-                  </p>
-                </div>
-                <CopyCode value="*120*7867#" />
-              </div>
-              <div className="flex items-center gap-4 rounded-2xl border-2 border-taupe bg-taupe/20 px-4 py-2.5">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-dim">
-                    Or SMS the word Help to
-                  </p>
-                  <p className="text-lg font-black tracking-tight text-brand">31531</p>
-                </div>
-                <CopyCode value="31531" />
-              </div>
-              <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-dim">
-                <MessageSquareText className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-                Works on every network
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
         <motion.a
           {...anim(D + 1.04)}
           href="#emergency"
           aria-label="Scroll to emergency numbers"
-          className="group mt-16 inline-flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-dim transition-colors hover:text-brand"
+          className="group mt-20 inline-flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-dim transition-colors hover:text-brand"
         >
           In danger right now
           <ArrowDown

@@ -1,17 +1,23 @@
 "use client";
 
-import { RefreshCw, PhoneCall, Users, Flame, ArrowUpRight } from "lucide-react";
+import { RefreshCw, PhoneCall, Users, Flame, ArrowDown } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { InfoCard } from "./cards";
 
-function CardLink({ href, children }: { href: string; children: React.ReactNode }) {
+/**
+ * Behaviour change pathways for people who are causing harm. Copy keeps the
+ * compassionate, no-judgement tone while pointing every action at the single
+ * emergency section, so numbers stay in one place on the page.
+ */
+
+function CardLink({ children }: { children: React.ReactNode }) {
   return (
     <a
-      href={href}
+      href="#emergency"
       className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5"
     >
       {children}
-      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+      <ArrowDown className="h-4 w-4" aria-hidden="true" />
     </a>
   );
 }
@@ -59,7 +65,7 @@ export function BentoChange() {
                   {
                     n: "02",
                     t: "Ask for help",
-                    d: "Call 0800 428 428 and say I need help to change. The line exists for you too. You will be listened to and referred to support near you.",
+                    d: "Call the GBV Command Centre and say I need help to change. The line exists for you too. You will be listened to and referred to support near you.",
                   },
                   {
                     n: "03",
@@ -108,11 +114,11 @@ export function BentoChange() {
             <InfoCard
               icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
               title="Counselling, for you"
-              link={<CardLink href="tel:0861322322">Lifeline: 0861 322 322</CardLink>}
+              link={<CardLink>Talk to someone today</CardLink>}
             >
               Lifeline answers around the clock for anyone, and that includes
               you. The Family Life Centre, FAMSA, offers professional individual
-              and relationship counselling on 011 788 4784 during weekdays.
+              and relationship counselling during weekdays in Johannesburg.
             </InfoCard>
           </Reveal>
 
@@ -121,7 +127,7 @@ export function BentoChange() {
             <InfoCard
               icon={<Users className="h-5 w-5" aria-hidden="true" />}
               title="Behaviour change programmes"
-              link={<CardLink href="tel:0113393589">Sonke Gender Justice: 011 339 3589</CardLink>}
+              link={<CardLink>Find a men's group</CardLink>}
             >
               Structured programmes help men examine the beliefs that drive
               violence and practise new responses. Sonke Gender Justice runs
@@ -135,7 +141,7 @@ export function BentoChange() {
             <InfoCard
               icon={<Users className="h-5 w-5" aria-hidden="true" />}
               title="Repairing the family"
-              link={<CardLink href="tel:0117884784">FAMSA: 011 788 4784</CardLink>}
+              link={<CardLink>Rebuild trust at home</CardLink>}
             >
               Stopping the harm is step one, healing what it damaged is step two.
               FAMSA&apos;s psychologists and social workers help families rebuild

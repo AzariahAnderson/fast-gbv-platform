@@ -1,17 +1,22 @@
 "use client";
 
-import { PhoneCall, Home, Scale, HeartPulse, ListChecks, Baby, Smartphone, ArrowUpRight } from "lucide-react";
+import { PhoneCall, Home, Scale, HeartPulse, ListChecks, Baby, Smartphone, ArrowDown } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { InfoCard } from "./cards";
 
-function CardLink({ href, children }: { href: string; children: React.ReactNode }) {
+/**
+ * Survivor pathways. Numbers never repeat here, every card hands the visitor
+ * down to the single emergency section where all of them live together.
+ */
+
+function CardLink({ children }: { children: React.ReactNode }) {
   return (
     <a
-      href={href}
+      href="#emergency"
       className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5"
     >
       {children}
-      <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+      <ArrowDown className="h-4 w-4" aria-hidden="true" />
     </a>
   );
 }
@@ -41,14 +46,13 @@ export function BentoSurvivors() {
             <InfoCard
               icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
               title="Counselling at any hour, in your language"
-              link={<CardLink href="tel:0800428428">Call 0800 428 428</CardLink>}
+              link={<CardLink>Reach a counsellor now</CardLink>}
             >
               Counsellors at the GBV Command Centre answer day and night in all 11
               official languages. They listen without judgement, help you judge how
               much danger you are in and stay on the line while you decide your
-              next step. Lifeline&apos;s national line, 0861 322 322, offers
-              round the clock emotional support to anyone who needs a voice to
-              listen.
+              next step. Lifeline&apos;s national line offers round the clock
+              emotional support to anyone who needs a voice to listen.
             </InfoCard>
           </Reveal>
 
@@ -56,7 +60,7 @@ export function BentoSurvivors() {
             <InfoCard
               icon={<Home className="h-5 w-5" aria-hidden="true" />}
               title="Safe places to stay"
-              link={<CardLink href="tel:0116424345">POWA: 011 642 4345</CardLink>}
+              link={<CardLink>Find a shelter bed</CardLink>}
             >
               Shelters and safe houses in all nine provinces can take you and your
               children in, often the same day. The Command Centre and POWA locate
@@ -69,8 +73,8 @@ export function BentoSurvivors() {
               icon={<Scale className="h-5 w-5" aria-hidden="true" />}
               title="Legal protection, free of charge"
             >
-              Under the Domestic Violence Act 116 of 1998 you can ask the clerk of
-              any magistrates court for an interim protection order. No lawyer, no
+              Under the Domestic Violence Act you can ask the clerk of any
+              magistrates court for an interim protection order. No lawyer, no
               fee. SAPS must help you apply, must give you a case number and must
               arrest the abuser if the order is breached.
             </InfoCard>
@@ -80,7 +84,7 @@ export function BentoSurvivors() {
             <InfoCard
               icon={<HeartPulse className="h-5 w-5" aria-hidden="true" />}
               title="Medical care and evidence"
-              link={<CardLink href="tel:10177">Emergency: 10177</CardLink>}
+              link={<CardLink>Get medical help</CardLink>}
             >
               Thuthuzela Care Centres at major hospitals are one stop facilities
               where you can be treated, counselled and, if you choose, report to
@@ -93,12 +97,12 @@ export function BentoSurvivors() {
             <InfoCard
               icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
               title="Help without a voice call"
-              link={<CardLink href="tel:*134*7355%23">Dial *134*7355# free</CardLink>}
+              link={<CardLink>See the silent options</CardLink>}
             >
-              When a call is not safe, the TEARS Foundation answers *134*7355#
-              with a free callback, and the Command Centre reads SMS sent to
-              31531. Both cost nothing and can be sent from any phone, including
-              a borrowed one.
+              When a call is not safe, the TEARS Foundation and the Command Centre
+              answer with a free callback over Please Call Me or an SMS. Both
+              cost nothing and can be sent from any phone, including a borrowed
+              one. The codes are waiting in the emergency section below.
             </InfoCard>
           </Reveal>
 
@@ -134,7 +138,7 @@ export function BentoSurvivors() {
             <InfoCard
               icon={<Baby className="h-5 w-5" aria-hidden="true" />}
               title="Help for children"
-              link={<CardLink href="tel:116">Childline: 116, free</CardLink>}
+              link={<CardLink>Protect a child</CardLink>}
             >
               Children who witness or suffer abuse need their own support. Childline
               answers around the clock for children and teenagers, and helps adults

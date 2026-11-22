@@ -29,6 +29,12 @@ export const metadata: Metadata = {
     "behaviour change programme",
   ],
   authors: [{ name: "Fast" }],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Fast",
+  },
   openGraph: {
     title: "Fast | Help that answers, fast",
     description:

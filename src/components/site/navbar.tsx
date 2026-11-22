@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { label: "Emergency", href: "#emergency" },
   { label: "Survivors", href: "#survivors" },
+  { label: "Live", href: "#live" },
   { label: "Change", href: "#change" },
-  { label: "Resources", href: "#resources" },
   { label: "FAQ", href: "#faq" },
 ];
 
@@ -105,7 +105,7 @@ export function Navbar() {
                 className="h-4 w-4 transition-transform group-hover:rotate-12"
                 aria-hidden="true"
               />
-              0800 428 428
+              Get help now
             </a>
             <a
               href="tel:0800428428"
@@ -113,6 +113,7 @@ export function Navbar() {
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-ink sm:hidden"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
+              <span className="sr-only">Get help now</span>
             </a>
             <button
               onClick={() => setOpen(true)}
@@ -191,7 +192,7 @@ export function Navbar() {
               className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-lg font-bold text-ink"
             >
               <Phone className="h-5 w-5" aria-hidden="true" />
-              Call 0800 428 428
+              Call the Command Centre now
             </a>
             <p className="mt-4 text-center text-[10px] font-bold uppercase tracking-[0.18em] text-dim">
               Free, confidential, answered 24 hours a day
