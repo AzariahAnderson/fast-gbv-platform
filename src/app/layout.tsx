@@ -61,10 +61,10 @@ export const metadata: Metadata = {
     url: "/",
     images: [
       {
-        url: "/images/you-are-loved-banner.jpg",
-        width: 1600,
-        height: 600,
-        alt: "You are loved. United in hope.",
+        url: "/images/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Fast — free, confidential, 24/7 GBV support for South Africa",
       },
     ],
   },
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     title: "Fast | Help that answers, fast",
     description:
       "Free, confidential, 24/7 GBV support for South Africa. Call 0800 428 428.",
-    images: ["/images/you-are-loved-banner.jpg"],
+    images: ["/images/og.png"],
   },
 };
 

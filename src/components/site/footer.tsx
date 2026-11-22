@@ -1,8 +1,6 @@
 "use client";
 
-import Image from "next/image";
 import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
-import { Reveal } from "./reveal";
 import { SITE_VERSION } from "@/lib/site";
 
 /**
@@ -95,24 +93,8 @@ export function Footer() {
             ))}
           </nav>
         </div>
-      </div>
 
-      {/* The "You are loved" banner runs edge to edge with no frame, no card
-          and no border: it is artwork, not content, and nothing sits between
-          it and the page. */}
-      <Reveal delay={0.04} className="relative mt-14 sm:mt-16">
-        <Image
-          src="/images/you-are-loved-banner.jpg"
-          alt="You are loved. United in hope. Silhouettes with raised fists under a golden sunrise sky"
-          width={1600}
-          height={600}
-          sizes="100vw"
-          className="h-auto w-full"
-        />
-      </Reveal>
-
-      <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="mt-12 grid gap-4 border-t-[3px] border-taupe pt-8 sm:mt-14 sm:grid-cols-3">
+        <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:mt-16 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
             <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />

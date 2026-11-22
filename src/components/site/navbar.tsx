@@ -55,10 +55,11 @@ export function Navbar() {
       lastY.current = y;
       return;
     }
-    // Hide the bar while scrolling down past the hero, reveal on the way up
+    // Hide the bar while scrolling down past the hero, reveal on the way up.
+    // Never hides while the mobile menu is open on top of it.
     const goingDown = y > lastY.current && y > 140;
     const goingUp = y < lastY.current - 4;
-    if (goingDown) setHidden(true);
+    if (goingDown && !open) setHidden(true);
     else if (goingUp) setHidden(false);
     lastY.current = y;
   });
@@ -110,8 +111,8 @@ export function Navbar() {
   return (
     <>
       <motion.header
-        initial={{ y: -90, opacity: 0 }}
-        animate={{ y: hidden ? -110 : 0, opacity: 1 }}
+        initial={{ y: "-90%", opacity: 0 }}
+        animate={{ y: hidden ? "-110%" : "0%", opacity: 1 }}
         transition={
           entered
             ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
@@ -121,9 +122,9 @@ export function Navbar() {
         }
         onAnimationComplete={() => setEntered(true)}
         className={cn(
-          "fixed inset-x-0 top-0 z-[100] transition-all duration-500",
+          "fixed inset-x-0 top-0 z-[100] pt-[env(safe-area-inset-top)] transition-colors duration-500",
           scrolled
-            ? "border-b-[3px] border-taupe bg-ink/90 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+            ? "border-b-[3px] border-taupe bg-ink/95 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.55)] supports-[backdrop-filter]:bg-ink/80 supports-[backdrop-filter]:backdrop-blur-xl"
             : "border-b-[3px] border-transparent bg-transparent"
         )}
       >
@@ -186,7 +187,7 @@ export function Navbar() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[150] flex flex-col bg-ink lg:hidden"
+          className="fixed inset-0 z-[150] flex flex-col bg-ink pt-[env(safe-area-inset-top)] lg:hidden"
           role="dialog"
           aria-modal="true"
           aria-label="Mobile menu"

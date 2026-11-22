@@ -1,13 +1,17 @@
 "use client";
 
-import { Phone, PhoneCall } from "lucide-react";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronDown, Phone, PhoneCall } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { CallCard, CopyChip } from "./cards";
 
 /**
  * The one and only section of the site that carries phone numbers. Critical
  * lines come first as large tap targets, the full verified directory follows
- * underneath. Every other section links here instead of repeating numbers.
+ * inside a collapsed disclosure so the page stays calm: open it only when
+ * the moment needs it. Every other section links here instead of repeating
+ * numbers.
  */
 
 type Directory = {
@@ -17,6 +21,7 @@ type Directory = {
   tel?: string;
   hours: string;
   tag: string;
+  group: string;
 };
 
 const DIRECTORY: Directory[] = [
@@ -27,6 +32,7 @@ const DIRECTORY: Directory[] = [
     tel: "0800428428",
     hours: "24 hours, free",
     tag: "First call",
+    group: "Urgent and first call",
   },
   {
     name: "SAPS, South African Police Service",
@@ -35,6 +41,7 @@ const DIRECTORY: Directory[] = [
     tel: "10111",
     hours: "24 hours, free",
     tag: "Emergency",
+    group: "Urgent and first call",
   },
   {
     name: "Cellphone emergency",
@@ -43,6 +50,7 @@ const DIRECTORY: Directory[] = [
     tel: "112",
     hours: "24 hours, free",
     tag: "No airtime",
+    group: "Urgent and first call",
   },
   {
     name: "Ambulance and fire",
@@ -51,6 +59,7 @@ const DIRECTORY: Directory[] = [
     tel: "10177",
     hours: "24 hours, free",
     tag: "Emergency",
+    group: "Urgent and first call",
   },
   {
     name: "TEARS Foundation",
@@ -58,46 +67,7 @@ const DIRECTORY: Directory[] = [
     number: "*134*7355#",
     hours: "24 hours, free",
     tag: "Silent help",
-  },
-  {
-    name: "POWA, People Opposed to Women Abuse",
-    what: "Counselling, shelters and court support for women experiencing abuse",
-    number: "011 642 4345",
-    tel: "0116424345",
-    hours: "Office hours",
-    tag: "Shelter",
-  },
-  {
-    name: "Lifeline South Africa",
-    what: "Emotional counselling for anyone, survivors, witnesses and those who cause harm",
-    number: "0861 322 322",
-    tel: "0861322322",
-    hours: "24 hours, free",
-    tag: "Counselling",
-  },
-  {
-    name: "Childline South Africa",
-    what: "Child abuse, neglect and support for children and teenagers",
-    number: "116",
-    tel: "116",
-    hours: "24 hours, free",
-    tag: "Children",
-  },
-  {
-    name: "Sonke Gender Justice",
-    what: "Men's behaviour change groups and gender justice advocacy",
-    number: "011 339 3589",
-    tel: "0113393589",
-    hours: "Office hours",
-    tag: "Change",
-  },
-  {
-    name: "Family Life Centre, FAMSA",
-    what: "Professional individual, relationship and family counselling in Johannesburg",
-    number: "011 788 4784",
-    tel: "0117884784",
-    hours: "Mon to Fri, 08:00 to 17:00",
-    tag: "Counselling",
+    group: "Silent and anonymous help",
   },
   {
     name: "Crime Stop",
@@ -106,10 +76,120 @@ const DIRECTORY: Directory[] = [
     tel: "0860010111",
     hours: "24 hours, free",
     tag: "Anonymous",
+    group: "Silent and anonymous help",
+  },
+  {
+    name: "POWA, People Opposed to Women Abuse",
+    what: "Counselling, shelters and court support for women experiencing abuse",
+    number: "011 642 4345",
+    tel: "0116424345",
+    hours: "Office hours",
+    tag: "Shelter",
+    group: "Counselling, shelters and families",
+  },
+  {
+    name: "Lifeline South Africa",
+    what: "Emotional counselling for anyone, survivors, witnesses and those who cause harm",
+    number: "0861 322 322",
+    tel: "0861322322",
+    hours: "24 hours, free",
+    tag: "Counselling",
+    group: "Counselling, shelters and families",
+  },
+  {
+    name: "Family Life Centre, FAMSA",
+    what: "Professional individual, relationship and family counselling in Johannesburg",
+    number: "011 788 4784",
+    tel: "0117884784",
+    hours: "Mon to Fri, 08:00 to 17:00",
+    tag: "Counselling",
+    group: "Counselling, shelters and families",
+  },
+  {
+    name: "Childline South Africa",
+    what: "Child abuse, neglect and support for children and teenagers",
+    number: "116",
+    tel: "116",
+    hours: "24 hours, free",
+    tag: "Children",
+    group: "Children and young people",
+  },
+  {
+    name: "Sonke Gender Justice",
+    what: "Men's behaviour change groups and gender justice advocacy",
+    number: "011 339 3589",
+    tel: "0113393589",
+    hours: "Office hours",
+    tag: "Change",
+    group: "For those who cause harm",
   },
 ];
 
+const GROUPS: { label: string; blurb: string }[] = [
+  {
+    label: "Urgent and first call",
+    blurb: "Life-threatening danger, the police and medical response",
+  },
+  {
+    label: "Silent and anonymous help",
+    blurb: "Reach out without a voice call, without leaving a name",
+  },
+  {
+    label: "Counselling, shelters and families",
+    blurb: "Ongoing support for survivors, witnesses and their families",
+  },
+  {
+    label: "Children and young people",
+    blurb: "Abuse, neglect and anyone reporting a child at risk",
+  },
+  {
+    label: "For those who cause harm",
+    blurb: "Behaviour change support, without judgement",
+  },
+];
+
+function DirectoryRow({ r, last }: { r: Directory; last: boolean }) {
+  return (
+    <li
+      className={`grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-taupe/15 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
+        last ? "" : "border-b-2 border-taupe/60"
+      }`}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-dim">
+          {r.tag}
+        </span>
+        <span className="font-black tracking-tight text-foreground">{r.name}</span>
+      </div>
+      <p className="text-sm font-medium leading-relaxed text-body">{r.what}</p>
+      <div className="flex items-center gap-2">
+        {r.tel ? (
+          <a
+            href={`tel:${r.tel}`}
+            aria-label={`Call ${r.name} on ${r.number}`}
+            className="lift inline-flex min-h-11 items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand hover:bg-brand hover:text-ink"
+          >
+            <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+            {r.number}
+          </a>
+        ) : (
+          <span className="inline-flex items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand">
+            {r.number}
+            <CopyChip value={r.number} />
+          </span>
+        )}
+      </div>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-faint lg:text-right">
+        {r.hours}
+      </p>
+    </li>
+  );
+}
+
 export function Emergency() {
+  const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
+
   return (
     <section
       id="emergency"
@@ -218,7 +298,8 @@ export function Emergency() {
           </Reveal>
         </div>
 
-        {/* Full verified directory, still inside this one section */}
+        {/* Full verified directory: collapsed by default so the emergency
+            section stays calm, grouped so it is scannable once opened. */}
         <Reveal delay={0.1}>
           <h3
             id="directory"
@@ -229,49 +310,74 @@ export function Emergency() {
         </Reveal>
         <Reveal delay={0.14}>
           <div className="card-surface mt-8 overflow-hidden">
-            <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-[3px] border-taupe bg-taupe/15 px-6 py-4 text-[10px] font-bold uppercase tracking-[0.18em] text-dim lg:grid">
-              <span>Service</span>
-              <span>What they do</span>
-              <span>Number</span>
-              <span className="text-right">Hours</span>
-            </div>
-            <ul className="flex flex-col">
-              {DIRECTORY.map((r, i) => (
-                <li
-                  key={r.name}
-                  className={`group grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-taupe/15 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
-                    i !== DIRECTORY.length - 1 ? "border-b-2 border-taupe/60" : ""
-                  }`}
+            <button
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-controls="directory-panel"
+              className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left transition-colors duration-300 hover:bg-taupe/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand sm:px-6 sm:py-6"
+            >
+              <span className="flex flex-col gap-1.5">
+                <span className="font-head text-lg font-black tracking-tight text-foreground">
+                  {open ? "Hide the full directory" : "Open the full directory"}
+                </span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+                  11 verified services · grouped · tap to call or copy
+                </span>
+              </span>
+              <span
+                className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 transition-all duration-500 ${
+                  open
+                    ? "border-brand bg-brand/15 text-brand"
+                    : "border-taupe bg-taupe/20 text-foreground"
+                }`}
+              >
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform duration-500 ${open ? "rotate-180" : ""}`}
+                  aria-hidden="true"
+                />
+              </span>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {open && (
+                <motion.div
+                  id="directory-panel"
+                  key="directory-panel"
+                  initial={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                  animate={reduce ? { opacity: 1 } : { height: "auto", opacity: 1 }}
+                  exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+                  transition={
+                    reduce
+                      ? { duration: 0.15 }
+                      : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
+                  }
+                  className="overflow-hidden border-t-[3px] border-taupe"
                 >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-dim">
-                      {r.tag}
-                    </span>
-                    <span className="font-black tracking-tight text-foreground">{r.name}</span>
-                  </div>
-                  <p className="text-sm font-medium leading-relaxed text-body">{r.what}</p>
-                  <div className="flex items-center gap-2">
-                    {r.tel ? (
-                      <a
-                        href={`tel:${r.tel}`}
-                        aria-label={`Call ${r.name} on ${r.number}`}
-                        className="lift inline-flex min-h-11 items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand hover:bg-brand hover:text-ink"
+                  {GROUPS.map((group, gi) => {
+                    const rows = DIRECTORY.filter((r) => r.group === group.label);
+                    return (
+                      <div
+                        key={group.label}
+                        className={gi !== GROUPS.length - 1 ? "border-b-2 border-taupe/60" : ""}
                       >
-                        <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-                        {r.number}
-                      </a>
-                    ) : (
-                      <span className="inline-flex items-center gap-2 rounded-xl border-[3px] border-brand bg-brand/10 px-4 py-2 text-base font-bold tracking-tight text-brand">
-                        {r.number}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-faint lg:text-right">
-                    {r.hours}
-                  </p>
-                </li>
-              ))}
-            </ul>
+                        <p className="px-5 pb-1 pt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-brand sm:px-6">
+                          {group.label}
+                        </p>
+                        <p className="px-5 pb-4 text-xs font-medium leading-relaxed text-faint sm:px-6">
+                          {group.blurb}
+                        </p>
+                        <ul className="flex flex-col">
+                          {rows.map((r, i) => (
+                            <DirectoryRow key={r.name} r={r} last={i === rows.length - 1} />
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </Reveal>
         <Reveal delay={0.18}>
