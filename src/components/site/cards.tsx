@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import { Check, Copy, Phone } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Check, Copy, Phone, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -112,29 +112,82 @@ export function CallCard({
 
 export function CopyChip({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear any pending reset when the chip unmounts, so no stray timer ever
+  // touches state after this component is gone.
+  useEffect(() => () => {
+    if (timer.current) clearTimeout(timer.current);
+  }, []);
 
   const copy = async () => {
+    // Two paths, honest result: the async Clipboard API where it exists,
+    // then the legacy textarea fallback for older browsers and insecure
+    // contexts. Only a verified success shows the confirmation tick.
+    let ok = false;
     try {
-      await navigator.clipboard.writeText(value);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value);
+        ok = true;
+      }
     } catch {
-      const ta = document.createElement("textarea");
-      ta.value = value;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand("copy");
-      document.body.removeChild(ta);
+      ok = false;
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    if (!ok) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = value;
+        ta.setAttribute("readonly", "");
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    if (timer.current) clearTimeout(timer.current);
+    if (ok) {
+      setCopied(true);
+      timer.current = setTimeout(() => setCopied(false), 1800);
+    } else {
+      // Nothing was copied. Say so instead of showing a false tick: the
+      // number itself stays on screen to select by hand.
+      setFailed(true);
+      timer.current = setTimeout(() => setFailed(false), 2400);
+    }
   };
 
   return (
     <button
       onClick={copy}
-      aria-label={`Copy ${value} to clipboard`}
-      className="lift inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border-2 border-taupe text-brand hover:border-brand hover:bg-brand hover:text-ink"
+      aria-label={
+        copied
+          ? `Copied ${value}`
+          : failed
+            ? `Could not copy ${value}, please select it by hand`
+            : `Copy ${value} to clipboard`
+      }
+      aria-live="polite"
+      className={cn(
+        "lift inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border-2 transition-colors",
+        failed
+          ? "border-taupe text-dim"
+          : copied
+            ? "border-brand bg-brand text-ink"
+            : "border-taupe text-brand hover:border-brand hover:bg-brand hover:text-ink"
+      )}
     >
-      {copied ? <Check className="h-4 w-4" aria-hidden="true" /> : <Copy className="h-4 w-4" aria-hidden="true" />}
+      {copied ? (
+        <Check className="h-4 w-4" aria-hidden="true" />
+      ) : failed ? (
+        <X className="h-4 w-4" aria-hidden="true" />
+      ) : (
+        <Copy className="h-4 w-4" aria-hidden="true" />
+      )}
     </button>
   );
 }

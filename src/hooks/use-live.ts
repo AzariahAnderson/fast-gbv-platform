@@ -14,12 +14,36 @@ const g = globalThis as unknown as {
   __fastLiveJob?: Promise<void> | null;
 };
 
+/**
+ * Fetch with a hard deadline. Without this, one hung request on a flaky
+ * mobile network would leave the shared job promise pending forever and
+ * block every later retry for the whole page session.
+ */
+function timedFetch(url: string, ms: number, init?: RequestInit): Promise<Response> {
+  const signal =
+    typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
+      ? AbortSignal.timeout(ms)
+      : undefined;
+  return fetch(url, { ...init, signal });
+}
+
 async function fetchLive(): Promise<LiveData> {
-  const res = await fetch("/api/live", { cache: "no-store" });
-  if (!res.ok) throw new Error(`live ${res.status}`);
-  const data = (await res.json()) as LiveData;
-  if (!data?.stats?.length) throw new Error("live payload incomplete");
-  return data;
+  // One quiet retry after a short backoff: the first attempt can fail on a
+  // network handover, the second usually lands, and two attempts cap the
+  // worst case at roughly twelve seconds before the baseline takes over.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const res = await timedFetch("/api/live", 9000, { cache: "no-store" });
+      if (!res.ok) throw new Error(`live ${res.status}`);
+      const data = (await res.json()) as LiveData;
+      if (!data?.stats?.length) throw new Error("live payload incomplete");
+      return data;
+    } catch (err) {
+      if (attempt === 1) throw err;
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+  }
+  throw new Error("live fetch exhausted");
 }
 
 export function useLive() {
@@ -47,17 +71,25 @@ export function useLive() {
     }
   }, []);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<"fresh" | "cached" | "failed"> => {
     setRefreshing(true);
     try {
-      const res = await fetch("/api/refresh", { method: "POST" });
+      // The refresh path can legitimately take a while when the server has
+      // to generate (up to its own 60s budget), so it gets a wider deadline
+      // than the read path but still one a visitor will not outlive.
+      const res = await timedFetch("/api/refresh", 65000, { method: "POST" });
       if (res.ok) {
-        const fresh = (await res.json()) as LiveData;
+        const fresh = (await res.json()) as LiveData & { refreshed?: boolean };
         g.__fastLiveClient = fresh;
         setData(fresh);
+        // The server reports whether a real generation ran or the rate
+        // limit returned the cached payload; the caller surfaces that.
+        return fresh.refreshed === false ? "cached" : "fresh";
       }
+      return "failed";
     } catch {
       /* keep showing the last known data */
+      return "failed";
     } finally {
       setRefreshing(false);
     }

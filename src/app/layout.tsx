@@ -97,6 +97,10 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased bg-background text-foreground`}
       >
         {children}
+        {/* The splash shows this emoji within the first second, long before
+            the service worker or the browser would otherwise fetch it; a
+            preload link removes the one visible pop-in on a cold visit. */}
+        <link rel="preload" as="image" href="/emojis/2728-128.webp" />
         <Toaster />
       </body>
     </html>

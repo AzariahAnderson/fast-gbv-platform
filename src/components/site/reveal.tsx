@@ -20,11 +20,15 @@ export function Reveal({
   once?: boolean;
 }) {
   const reduce = useReducedMotion();
+  // Opacity, translate and scale only: animating a blur filter forces the
+  // compositor to re-filter every frame, which is the single most expensive
+  // effect in this design on a low end phone. Dropping it costs nothing
+  // visually at this distance and makes mid page scrolling visibly smoother.
   return (
     <motion.div
       className={className}
-      initial={reduce ? false : { opacity: 0, y, scale: 0.97, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+      initial={reduce ? false : { opacity: 0, y, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
       viewport={{ once, margin: "-70px" }}
       transition={{ duration: 0.85, delay, ease: EASE }}
     >

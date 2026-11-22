@@ -3,6 +3,7 @@
 import { ArrowUpRight, RefreshCw, Radio, ShieldCheck, Lightbulb } from "lucide-react";
 import { Reveal } from "./reveal";
 import { useLive } from "@/hooks/use-live";
+import { useToast } from "@/hooks/use-toast";
 import type { LiveData } from "@/lib/live-types";
 
 /**
@@ -90,7 +91,33 @@ function NewsCard({ item }: { item: LiveData["news"][number] }) {
 
 export function Live() {
   const { data, refreshing, refresh, isLive } = useLive();
+  const { toast } = useToast();
   const updated = updatedLabel(data.updatedAt);
+
+  // The refresh button used to answer silently: a rate limited server sent
+  // back cached data and nothing on screen changed, which reads as "broken".
+  // Every outcome now gets one quiet, honest toast.
+  const onRefresh = async () => {
+    const outcome = await refresh();
+    if (outcome === "fresh") {
+      toast({
+        title: "Live data updated",
+        description: "Newest figures and headlines are on the cards now.",
+      });
+    } else if (outcome === "cached") {
+      toast({
+        title: "Already fresh",
+        description:
+          "Figures regenerate once an hour; nothing new in the last few minutes.",
+      });
+    } else {
+      toast({
+        title: "Could not refresh",
+        description:
+          "The refresh service did not answer. The last verified data stays on screen.",
+      });
+    }
+  };
 
   return (
     <section
@@ -132,7 +159,7 @@ export function Live() {
                 {isLive ? `Updated ${updated}` : "Verified baseline"}
               </span>
               <button
-                onClick={() => refresh()}
+                onClick={onRefresh}
                 disabled={refreshing}
                 className="lift inline-flex min-h-10 items-center gap-2 rounded-xl border-2 border-taupe bg-taupe/20 px-4 text-xs font-bold uppercase tracking-[0.14em] text-dim transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
               >

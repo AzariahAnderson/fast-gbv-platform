@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPLASH_SKIPPED } from "@/lib/splash";
@@ -39,23 +39,89 @@ export function Logo({
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
 
-  // The bar never hides. On a crisis page the one tap to "Get help now" has
-  // to stay reachable no matter how far a visitor has scrolled, and anchor
-  // navigation must never leave the bar stranded off-screen (the old
-  // hide-on-scroll-down logic did exactly that after clicking a nav link).
-  // A plain listener also styles the bar correctly when the page loads
-  // halfway down, without a framer-motion scroll subscription.
+  // Reading progress: one quiet gold hairline along the bottom edge of the
+  // bar, spring-smoothed so it never jitters. On a long crisis page it tells
+  // a skimming visitor how far they have come without any counting UI.
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 30,
+    mass: 0.4,
+  });
+
+  // Scroll spy and the bar's scrolled style, computed from geometry on
+  // every frame the page actually moves. The bar never hides: on a crisis
+  // page the one tap to "Get help now" has to stay reachable no matter how
+  // far a visitor has scrolled, and anchor navigation must never leave the
+  // bar stranded off-screen (the old hide-on-scroll-down logic did exactly
+  // that after clicking a nav link). A narrow band around the vertical
+  // middle of the viewport is matched against the five nav sections, so the
+  // highlight always answers "where am I" for wheel scrolling, anchor jumps
+  // and keyboard moves alike. IntersectionObserver was tried first but its
+  // callbacks are tick-timing dependent in headless and low power browsers:
+  // after a smooth anchor jump the last callback can report a stale band
+  // and leave the highlight wrong or missing. Geometry does not have that
+  // failure mode, and five rect reads per scroll frame are nothing.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
+    let raf = 0;
+    const compute = () => {
+      raf = 0;
+      setScrolled(window.scrollY > 16);
+
+      const bandTop = window.innerHeight * 0.38;
+      const bandBottom = window.innerHeight * 0.48;
+      let found: string | null = null;
+      for (const link of LINKS) {
+        const el = document.getElementById(link.href.slice(1));
+        if (!el) continue;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= bandTop && rect.bottom >= bandBottom) {
+          found = link.href;
+          break;
+        }
+      }
+      // Pinned to the very bottom of a long page the band can fall between
+      // sections (steps and cta carry no nav link); keeping the nearest
+      // section above highlighted reads better than dropping the marker.
+      if (!found && window.scrollY > 0) {
+        const doc = document.documentElement;
+        if (window.scrollY + window.innerHeight >= doc.scrollHeight - 4) {
+          for (let i = LINKS.length - 1; i >= 0; i--) {
+            const el = document.getElementById(LINKS[i].href.slice(1));
+            if (el && el.getBoundingClientRect().top < bandTop) {
+              found = LINKS[i].href;
+              break;
+            }
+          }
+        }
+      }
+      setActive(found);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(compute);
+    };
+    compute();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
+  // Anchor jumps get their own immediate highlight: setting the clicked
+  // link right away is honest feedback — the browser is on its way there,
+  // so the nav should say so at once. The scroll handler then keeps it
+  // correct for every movement afterwards.
+  const onNavLink = (href: string) => setActive(href);
+
+  // Locking the page scroll while the mobile menu is open.
   useEffect(() => {
     document.documentElement.style.overflow = open ? "hidden" : "";
     return () => {
@@ -131,7 +197,14 @@ export function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="relative rounded-lg px-3.5 py-2 text-[15px] font-bold text-body transition-colors duration-300 hover:text-foreground after:absolute after:inset-x-3.5 after:bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-brand after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100"
+                  onClick={() => onNavLink(link.href)}
+                  aria-current={active === link.href ? "true" : undefined}
+                  className={cn(
+                    "relative rounded-lg px-3.5 py-2 text-[15px] font-bold transition-colors duration-300 after:absolute after:inset-x-3.5 after:bottom-1 after:h-0.5 after:origin-left after:rounded-full after:bg-brand after:transition-transform after:duration-300 after:ease-out",
+                    active === link.href
+                      ? "text-foreground after:scale-x-100"
+                      : "text-body after:scale-x-0 hover:text-foreground hover:after:scale-x-100"
+                  )}
                 >
                   {link.label}
                 </a>
@@ -170,6 +243,18 @@ export function Navbar() {
             </button>
           </div>
         </nav>
+
+        {/* Reading progress hairline, painted exactly over the bar's bottom
+            border: gold fills the taupe frame as the page is read. Hidden
+            while the bar sits transparent over the hero. */}
+        <motion.div
+          aria-hidden="true"
+          style={{ scaleX: progress }}
+          className={cn(
+            "absolute inset-x-0 bottom-0 h-[3px] origin-left bg-brand transition-opacity duration-500",
+            scrolled ? "opacity-100" : "opacity-0"
+          )}
+        />
       </motion.header>
 
       {open && (

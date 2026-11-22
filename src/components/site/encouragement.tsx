@@ -34,11 +34,13 @@ export function Encouragement() {
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const paused = useRef(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useRef(true);
 
   useEffect(() => {
     if (reduce || messages.length < 2) return;
     const t = setInterval(() => {
-      if (!paused.current) {
+      if (!paused.current && inView.current) {
         setIndex((i) => (i + 1) % messages.length);
       }
     }, ROTATE_MS);
@@ -55,12 +57,29 @@ export function Encouragement() {
     paused.current = false;
   }, []);
 
+  // Battery sense: the strip keeps spinning while far off-screen, which on
+  // a phone means paying animation and re-render cost nobody is watching.
+  // Pause the rotation entirely whenever the strip is out of view.
+  useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        inView.current = entry.isIntersecting;
+      },
+      { threshold: 0.1 },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <section
       aria-label="A word of encouragement"
       className="relative z-10 overflow-hidden border-y-[3px] border-taupe bg-taupe/20"
     >
       <div
+        ref={rootRef}
         className="mx-auto flex min-h-28 max-w-4xl items-center justify-center gap-6 px-5 py-6 sm:gap-10 sm:px-8 sm:py-7"
         onMouseEnter={hold}
         onMouseLeave={release}
