@@ -9,10 +9,13 @@ import {
   Clock,
   PhoneCall,
 } from "lucide-react";
+import { SPLASH_SKIPPED } from "@/lib/splash";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
-// The splash curtain starts lifting at 4.0s, the hero enters underneath it
-const D = 3.9;
+// The splash curtain starts lifting at 4.0s and the hero enters underneath
+// it. When the splash was already shown this session the curtain lifts
+// immediately, so the entrance starts right away instead.
+const D = SPLASH_SKIPPED ? 0.15 : 3.9;
 
 /** One word of the headline rising out of its own clip mask */
 function Word({

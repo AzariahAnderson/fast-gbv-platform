@@ -2,19 +2,36 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { markSplashShown, splashShownThisSession } from "@/lib/splash";
 
 /**
  * Splash screen. The wordmark rises in Inter black, the four values behind
  * the name appear in sequence, then the content drifts up and the curtain
- * lifts. Four seconds, no progress bar, no counters, no pulsing indicators.
+ * lifts. Four seconds on the first visit of a browser session, skipped via
+ * sessionStorage for repeat visits, no progress bar, no counters, no
+ * pulsing indicators.
  */
 const VALUES = ["Free", "Anonymous", "Safe", "Trusted"];
 
 export function Preloader() {
   const [done, setDone] = useState(false);
+  const [skip, setSkip] = useState(false);
   const reduce = useReducedMotion();
 
   useEffect(() => {
+    // Repeat visit inside the same browser session: lift the curtain right
+    // away instead of holding it for the full four seconds. The unmount is
+    // queued on the next frame so the first paint stays consistent and the
+    // skip decision, which reads sessionStorage (an external store), does
+    // not fire a synchronous cascading render.
+    if (splashShownThisSession()) {
+      const r = requestAnimationFrame(() => {
+        setSkip(true);
+        setDone(true);
+      });
+      return () => cancelAnimationFrame(r);
+    }
+    markSplashShown();
     const t = setTimeout(() => setDone(true), 4000);
     return () => clearTimeout(t);
   }, []);
@@ -30,8 +47,13 @@ export function Preloader() {
     <AnimatePresence>
       {!done && (
         <motion.div
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center bg-ink"
-          exit={{ y: "-100%", transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] } }}
+          id="splash"
+          className="fast-preloader fixed inset-0 z-[200] flex flex-col items-center justify-center bg-ink"
+          exit={
+            skip
+              ? { opacity: 0, transition: { duration: 0.3, ease: "linear" } }
+              : { y: "-100%", transition: { duration: 0.75, ease: [0.76, 0, 0.24, 1] } }
+          }
           aria-hidden="true"
         >
           {/* One warm light source behind the wordmark, completely still */}

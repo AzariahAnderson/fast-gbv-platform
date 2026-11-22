@@ -51,12 +51,13 @@ function cacheFile(): string {
   return path.join(dir, "live-cache.json");
 }
 
-async function readCacheFile(): Promise<LiveData | null> {
+/** Returns the cached payload together with the time it was written. */
+async function readCacheFile(): Promise<CacheState | null> {
   try {
     const raw = await fs.readFile(cacheFile(), "utf8");
     const parsed = JSON.parse(raw) as CacheState;
     if (parsed?.data?.stats?.length) {
-      return sanitize(parsed.data);
+      return { data: sanitize(parsed.data), fetchedAt: parsed.fetchedAt || 0 };
     }
   } catch {
     /* no cache yet */
@@ -114,6 +115,14 @@ export function sanitize(raw: unknown): LiveData {
   if (!raw || typeof raw !== "object") return fallback;
   const obj = raw as Record<string, unknown>;
 
+  // Fresh engine output carries no timestamp; a payload restored from the
+  // cache does. Preserve the original so "updated at" reflects when the
+  // data was actually generated, not when the cache happened to be read.
+  const restoredAt =
+    typeof obj.updatedAt === "string" && !Number.isNaN(Date.parse(obj.updatedAt))
+      ? obj.updatedAt
+      : new Date().toISOString();
+
   const stats: LiveStat[] = Array.isArray(obj.stats)
     ? (obj.stats as Record<string, unknown>[])
         .map((s) => ({
@@ -143,13 +152,13 @@ export function sanitize(raw: unknown): LiveData {
     ? (obj.encouragement as unknown[])
         .map((e) => cleanText(e, 140))
         .filter(Boolean)
-        .slice(0, 12)
+        .slice(0, 16)
     : [];
 
   const tip = cleanText(obj.tip, 240);
 
   return {
-    updatedAt: new Date().toISOString(),
+    updatedAt: restoredAt,
     generator: obj.generator === "websearch" ? "websearch" : "gemini",
     stats: stats.length >= 2 ? stats : fallback.stats,
     news: news.length >= 1 ? news : fallback.news,
@@ -334,7 +343,7 @@ async function generate(): Promise<LiveData> {
     // Every engine failed: keep whatever we had (memory > file > baseline)
     // and schedule the next attempt for roughly five minutes from now.
     const file = await readCacheFile();
-    const data = file ?? state().data ?? BASELINE;
+    const data = file?.data ?? state().data ?? BASELINE;
     state().data = data;
     state().fetchedAt = Date.now() - TTL_MS + 5 * 60 * 1000;
     return data;
@@ -353,18 +362,20 @@ export async function getLive(): Promise<LiveData> {
     return current.data;
   }
   if (current.fetchedAt === 0) {
+    // Cold instance: adopt the last cached payload, fresh or stale, so a
+    // visitor never waits on a generation and never sees an empty section.
     const file = await readCacheFile();
     if (file) {
-      current.data = file;
-      current.fetchedAt = Date.now() - TTL_MS + 10 * 60 * 1000; // stale in 10 min
+      current.data = file.data;
+      current.fetchedAt = file.fetchedAt;
     }
   }
   if (Date.now() - state().fetchedAt >= TTL_MS) {
     // Non-blocking refresh: visitors never wait on a generation.
     void generate();
-    if (current.fetchedAt === 0) {
-      return state().data; // first ever request, baseline goes out immediately
-    }
+    // Serve the last valid payload right now; the fresh one lands in the
+    // cache for the next request.
+    return state().data;
   }
   return current.data;
 }
@@ -375,6 +386,16 @@ export async function refreshLive(): Promise<{ data: LiveData; refreshed: boolea
   const age = Date.now() - current.fetchedAt;
   if (current.fetchedAt > 0 && age < MIN_INTERVAL_MS && g.__fastLiveJob === undefined) {
     return { data: current.data, refreshed: false };
+  }
+  if (current.fetchedAt === 0) {
+    // Cold instance: a recently written disk cache means another instance
+    // just generated, so there is no need to spend engine quota again.
+    const file = await readCacheFile();
+    if (file && file.fetchedAt > 0 && Date.now() - file.fetchedAt < MIN_INTERVAL_MS) {
+      current.data = file.data;
+      current.fetchedAt = file.fetchedAt;
+      return { data: current.data, refreshed: false };
+    }
   }
   const data = await generate();
   return { data, refreshed: true };

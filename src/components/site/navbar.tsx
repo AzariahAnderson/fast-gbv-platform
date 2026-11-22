@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SPLASH_SKIPPED } from "@/lib/splash";
 
 const LINKS = [
   { label: "Emergency", href: "#emergency" },
@@ -13,10 +14,17 @@ const LINKS = [
   { label: "FAQ", href: "#faq" },
 ];
 
-export function Logo({ className }: { className?: string }) {
+export function Logo({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
   return (
     <a
       href="#top"
+      onClick={onClick}
       className={cn(
         "inline-flex items-center text-[1.35rem] font-black leading-none tracking-tight text-foreground transition-colors duration-300 hover:text-brand",
         className
@@ -34,6 +42,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [entered, setEntered] = useState(false);
   const lastY = useRef(0);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLButtonElement>(null);
   const { scrollY } = useScroll();
 
   // useScroll syncs the restored position on mount, so the bar is styled
@@ -59,6 +70,43 @@ export function Navbar() {
     };
   }, [open]);
 
+  // The mobile menu is a modal dialog: move focus in, keep it trapped between
+  // the menu controls while open, close on Escape and hand focus back.
+  useEffect(() => {
+    if (!open) return;
+    const opener = openerRef.current;
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const dialog = menuRef.current;
+      if (!dialog) return;
+      const focusable = dialog.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !dialog.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !dialog.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      opener?.focus();
+    };
+  }, [open]);
+
   return (
     <>
       <motion.header
@@ -67,7 +115,9 @@ export function Navbar() {
         transition={
           entered
             ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-            : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+            : SPLASH_SKIPPED
+              ? { delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+              : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
         }
         onAnimationComplete={() => setEntered(true)}
         className={cn(
@@ -116,9 +166,11 @@ export function Navbar() {
               <span className="sr-only">Get help now</span>
             </a>
             <button
+              ref={openerRef}
               onClick={() => setOpen(true)}
               aria-label="Open menu"
               aria-expanded={open}
+              aria-haspopup="dialog"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20 text-foreground transition-colors hover:border-brand hover:text-brand lg:hidden"
             >
               <Menu className="h-5 w-5" aria-hidden="true" />
@@ -129,6 +181,7 @@ export function Navbar() {
 
       {open && (
         <motion.div
+          ref={menuRef}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -144,8 +197,9 @@ export function Navbar() {
           />
 
           <div className="relative flex h-16 items-center justify-between px-5 sm:px-8">
-            <Logo />
+            <Logo onClick={() => setOpen(false)} />
             <button
+              ref={closeRef}
               onClick={() => setOpen(false)}
               aria-label="Close menu"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border-2 border-taupe bg-taupe/20"

@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
+import { Reveal } from "./reveal";
 
 /**
  * Footer navigation carries no phone numbers, every line hands off to the
@@ -91,6 +93,35 @@ export function Footer() {
               </div>
             ))}
           </nav>
+        </div>
+
+        {/* Brand band: the FAST motion logo and the "You are loved" artwork
+            sit as their own row, framed in the shared card language. */}
+        <div className="mt-14 grid gap-5 lg:grid-cols-[1fr_2fr] lg:items-stretch">
+          <Reveal delay={0.04}>
+            <div className="card-surface card-hover flex h-full items-center justify-center overflow-hidden bg-black p-6 sm:p-8">
+              <Image
+                src="/images/fast-logo.png"
+                alt="Fast brand logo, speed lines racing into a golden arc"
+                width={1200}
+                height={400}
+                sizes="(max-width: 1024px) 88vw, 320px"
+                className="h-auto w-full max-w-[340px]"
+              />
+            </div>
+          </Reveal>
+          <Reveal delay={0.12}>
+            <div className="card-surface card-hover h-full overflow-hidden">
+              <Image
+                src="/images/you-are-loved-banner.jpg"
+                alt="You are loved. United in hope. Silhouettes with raised fists under a golden sunrise sky"
+                width={1600}
+                height={600}
+                sizes="(max-width: 1024px) 88vw, 720px"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          </Reveal>
         </div>
 
         <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:grid-cols-3">

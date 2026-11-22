@@ -82,7 +82,7 @@
   --secondary-foreground: #edebe6;
 
   --muted: rgba(96, 91, 81, 0.3);
-  --muted-foreground: #a8a39a;
+  --muted-foreground: #bcb7ae;
 
   --accent: #d8d365;
   --accent-foreground: #454040;
@@ -102,11 +102,12 @@
   --cream: #e6f082;
 
   /* The warm grey text ladder, each step mixed from the taupe #605B51
-     toward white. Headlines 8.6:1, body 5.8:1, labels 3.9:1, notes 2.8:1
-     against the #454040 background. */
+     toward white. Ladder order is preserved (body is brightest) and every
+     step clears the WCAG AA 4.5:1 minimum against the #454040 background:
+     headlines 8.6:1, body 5.8:1, labels 5.1:1, notes 4.7:1. */
   --text-body: #c7c3bb;
-  --text-dim: #a8a39a;
-  --text-faint: #8a857c;
+  --text-dim: #bcb7ae;
+  --text-faint: #b5b0a6;
 
   --chart-1: #d8d365;
   --chart-2: #e6f082;
@@ -166,6 +167,25 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  /* Skip link, the first focusable element on the page. Hidden until it
+     receives keyboard focus, then it appears as a small brand pill. */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 300;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.75rem;
+    background: var(--brand);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.875rem;
+    transform: translateY(-300%);
+    transition: transform 0.2s ease;
+  }
+  .skip-link:focus {
+    transform: translateY(0);
   }
   /* Film grain overlay, fully desaturated so it never tints a foreign hue */
   .noise-overlay {

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useLive } from "@/hooks/use-live";
+import { BASELINE } from "@/lib/live-types";
 
 /**
  * Encouragement strip. Replaces the old emergency numbers ticker with a
@@ -27,7 +28,9 @@ const ROTATE_MS = 6500;
 
 export function Encouragement() {
   const { data } = useLive();
-  const messages = data.encouragement.length ? data.encouragement : [];
+  // The strip must never go blank, not even if the AI payload is missing or
+  // malformed: the verified baseline always backs it up.
+  const messages = data.encouragement.length ? data.encouragement : BASELINE.encouragement;
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const paused = useRef(false);
