@@ -21,9 +21,9 @@ export function Emergency() {
           sub="Every number on this page is free, official and answered around the clock. Tap to dial, or copy the code and send it from any phone, including a borrowed one."
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {/* GBV Command Centre, featured */}
-          <Reveal className="lg:col-span-2" delay={0.05}>
+          <Reveal className="sm:col-span-2 lg:col-span-2" delay={0.05}>
             <CallCard
               title="GBV Command Centre"
               tagline="Department of Social Development"
@@ -44,7 +44,7 @@ export function Emergency() {
 
           {/* Silent help */}
           <Reveal delay={0.12}>
-            <div className="flex h-full flex-col justify-between gap-6 rounded-[26px] border-2 border-taupe/60 bg-ink p-6 transition-all duration-500 hover:-translate-y-1 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:p-7">
+            <div className="card-hover card-surface flex h-full flex-col justify-between gap-6 p-6 sm:p-7">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-extrabold tracking-tight">
                   Can&apos;t speak out loud?
@@ -54,7 +54,7 @@ export function Emergency() {
                 </span>
               </div>
               <div className="flex flex-col gap-4">
-                <div className="rounded-2xl border-2 border-taupe/60 bg-ink-2/70 p-4">
+                <div className="rounded-2xl border-2 border-taupe/60 bg-ink-2 p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     Please Call Me, free callback
                   </p>
@@ -63,7 +63,7 @@ export function Emergency() {
                     <CopyChip value="*120*7867#" />
                   </div>
                 </div>
-                <div className="rounded-2xl border-2 border-taupe/60 bg-ink-2/70 p-4">
+                <div className="rounded-2xl border-2 border-taupe/60 bg-ink-2 p-4">
                   <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     SMS the word Help to
                   </p>
@@ -115,7 +115,7 @@ export function Emergency() {
         </div>
 
         <Reveal delay={0.36}>
-          <p className="mt-8 rounded-2xl border-2 border-taupe/60 bg-ink px-5 py-4 text-center text-sm leading-relaxed text-muted-foreground">
+          <p className="rounded-2xl border-2 border-taupe/60 bg-ink px-5 py-4 text-center text-sm leading-relaxed text-muted-foreground sm:px-8">
             <span className="font-semibold text-foreground">A note on safety:</span>{" "}
             calls and SMS leave a record on your phone. If that puts you at risk,
             delete the entry afterwards and browse this page in private mode. If

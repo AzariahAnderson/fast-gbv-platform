@@ -1,5 +1,4 @@
 import { Preloader } from "@/components/site/preloader";
-import { Cursor } from "@/components/site/cursor";
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
 import { Marquee } from "@/components/site/marquee";
@@ -17,7 +16,6 @@ export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <Preloader />
-      <Cursor />
       <div className="noise-overlay" aria-hidden="true" />
       <Navbar />
 

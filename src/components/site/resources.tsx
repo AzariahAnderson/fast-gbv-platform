@@ -121,8 +121,8 @@ export function Resources() {
           sub="Verified national and regional helplines. Save this page, screenshot the numbers, share them with someone who needs them today."
         />
 
-        <div className="mt-14 overflow-hidden rounded-[26px] border-2 border-taupe/60">
-          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-2 border-taupe/60 bg-ink-2/80 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:grid">
+        <div className="card-surface mt-14 overflow-hidden">
+          <div className="hidden grid-cols-[1.1fr_1.6fr_auto_auto] gap-4 border-b-2 border-taupe/60 bg-ink-2 px-6 py-4 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground lg:grid">
             <span>Service</span>
             <span>What they do</span>
             <span>Number</span>
@@ -132,7 +132,7 @@ export function Resources() {
             {RESOURCES.map((r, i) => (
               <Reveal key={r.name} delay={Math.min(i * 0.04, 0.3)} y={14}>
                 <li
-                  className={`group grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-ink-2/50 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
+                  className={`group grid grid-cols-1 gap-3 px-5 py-5 transition-colors duration-300 hover:bg-ink-2 sm:px-6 lg:grid-cols-[1.1fr_1.6fr_auto_auto] lg:items-center lg:gap-4 ${
                     i !== RESOURCES.length - 1 ? "border-b-2 border-taupe/40" : ""
                   }`}
                 >

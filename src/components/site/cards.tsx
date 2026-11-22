@@ -5,9 +5,9 @@ import { Check, Copy, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
- * Card system — strict grey theme:
- * surface #454040 (ink), border #605B51 (taupe, thick 2px, soft),
- * accents limited to the two brand yellows for numbers and actions.
+ * Card system: one shared surface for the whole site so every grey is
+ * identical: fill #454040, border #605B51, soft top highlight, gentle depth.
+ * Accents are limited to the two brand yellows for numbers and actions.
  */
 export function CallCard({
   title,
@@ -36,12 +36,9 @@ export function CallCard({
 }) {
   return (
     <div
-      data-cursor="hover"
       className={cn(
-        "group relative flex h-full flex-col gap-5 rounded-[26px] border-2 bg-ink p-6 transition-all duration-500 sm:p-7",
-        featured
-          ? "border-brand/45 shadow-[0_0_64px_rgba(216,211,101,0.07)]"
-          : "border-taupe/60 hover:-translate-y-1 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)]",
+        "card-hover card-surface group flex h-full flex-col gap-5 p-6 sm:p-7",
+        featured && "card-featured",
         className
       )}
     >
@@ -78,7 +75,7 @@ export function CallCard({
           "group/cta inline-flex items-center gap-3 rounded-2xl font-black tracking-tight transition-all",
           featured
             ? "border-2 border-brand bg-brand px-5 py-4 text-3xl text-ink-deep hover:bg-brand-2 sm:text-4xl"
-            : "border-2 border-taupe/60 bg-ink-2/70 px-4 py-3 text-2xl text-brand hover:border-brand/60 sm:text-3xl"
+            : "border-2 border-taupe/60 bg-ink-2 px-4 py-3 text-2xl text-brand hover:border-brand/60 sm:text-3xl"
         )}
       >
         <Phone
@@ -100,7 +97,7 @@ export function CallCard({
           {chips.map((chip) => (
             <li
               key={chip}
-              className="rounded-lg border-2 border-taupe/50 bg-ink-2/70 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
+              className="rounded-lg border-2 border-taupe/50 bg-ink-2 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground"
             >
               {chip}
             </li>
@@ -155,9 +152,8 @@ export function InfoCard({
 }) {
   return (
     <div
-      data-cursor="hover"
       className={cn(
-        "group relative flex h-full flex-col gap-4 rounded-[26px] border-2 border-taupe/60 bg-ink p-6 transition-all duration-500 hover:-translate-y-1 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:p-7",
+        "card-hover card-surface group flex h-full flex-col gap-4 p-6 sm:p-7",
         className
       )}
     >

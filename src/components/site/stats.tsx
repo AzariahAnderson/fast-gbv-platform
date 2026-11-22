@@ -42,7 +42,7 @@ export function Stats() {
   return (
     <section
       id="stats"
-      className="relative scroll-mt-28 border-y-2 border-taupe/50 bg-ink-deep/60 py-20 sm:py-28"
+      className="relative scroll-mt-28 border-y-2 border-taupe/50 bg-ink-deep py-20 sm:py-28"
       aria-labelledby="stats-heading"
     >
       <div
@@ -66,10 +66,7 @@ export function Stats() {
         <div className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {STATS.map((stat, i) => (
             <Reveal key={stat.source} delay={0.06 * i}>
-              <div
-                data-cursor="hover"
-                className="group flex h-full flex-col gap-5 rounded-[26px] border-2 border-taupe/60 bg-ink p-6 transition-all duration-500 hover:-translate-y-1 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)] sm:p-7"
-              >
+              <div className="card-hover card-surface group flex h-full flex-col gap-5 p-6 sm:p-7">
                 <p className="text-5xl font-black tracking-tighter sm:text-[3.2rem]">
                   {stat.value}
                 </p>

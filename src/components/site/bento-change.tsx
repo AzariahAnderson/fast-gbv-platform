@@ -23,9 +23,9 @@ export function BentoChange() {
           sub="Owning it is the hardest thing you will ever do, and the bravest. Violence is learned behaviour, which means it can be unlearned. There is no judgement on this page, only accountability, support and a way out of the cycle."
         />
 
-        <div className="mt-14 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {/* Accountability steps */}
-          <Reveal className="lg:col-span-2" delay={0.05}>
+          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.05}>
             <InfoCard
               icon={<RefreshCw className="h-5 w-5" aria-hidden="true" />}
               title="Three honest steps out"
@@ -57,7 +57,7 @@ export function BentoChange() {
                 ].map((step) => (
                   <li
                     key={step.n}
-                    className="flex gap-4 rounded-2xl border-2 border-taupe/60 bg-ink-2/70 p-4 sm:p-5"
+                    className="flex gap-4 rounded-2xl border-2 border-taupe/60 bg-ink-2 p-4 sm:p-5"
                   >
                     <span className="font-mono text-lg font-bold text-brand">{step.n}</span>
                     <div>
@@ -74,7 +74,7 @@ export function BentoChange() {
 
           {/* Why it matters */}
           <Reveal delay={0.12}>
-            <div className="flex h-full flex-col justify-between gap-6 rounded-[26px] border-2 border-brand/45 bg-ink p-6 shadow-[0_0_64px_rgba(216,211,101,0.07)] transition-all duration-500 hover:-translate-y-1 sm:p-7">
+            <div className="card-hover card-surface flex h-full flex-col justify-between gap-6 p-6 sm:p-7">
               <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl border-2 border-taupe/60 bg-ink-2 text-brand">
                 <Flame className="h-5 w-5" aria-hidden="true" />
               </div>

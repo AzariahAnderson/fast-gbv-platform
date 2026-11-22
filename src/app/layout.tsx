@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Fast — Free, 24/7 GBV Support for South Africa",
+  title: "Fast | Free, 24/7 GBV Support for South Africa",
   description:
     "Fast routes survivors, witnesses and those who cause harm to South Africa's free, confidential 24/7 gender-based-violence services: counselling, shelters, legal protection and behaviour-change programmes. In danger now? Call 0800 428 428.",
   keywords: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Fast" }],
   openGraph: {
-    title: "Fast — Help that answers. Fast.",
+    title: "Fast. Help that answers. Fast.",
     description:
       "South Africa's gender-based violence support hub. Free, confidential, 24/7. One call, real humans, real help.",
     type: "website",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fast — Help that answers. Fast.",
+    title: "Fast. Help that answers. Fast.",
     description:
       "Free, confidential, 24/7 GBV support for South Africa. Call 0800 428 428.",
   },
@@ -49,6 +49,7 @@ export const viewport: Viewport = {
   themeColor: "#1d1a18",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

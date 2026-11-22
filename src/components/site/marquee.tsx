@@ -49,7 +49,7 @@ export function Marquee() {
   return (
     <section
       aria-label="Emergency numbers ticker"
-      className="relative z-10 -rotate-[0.5deg] scale-[1.02] overflow-hidden border-y-2 border-ink-deep/50 bg-brand py-3.5"
+      className="relative z-10 overflow-hidden border-y-2 border-ink-deep/60 bg-brand py-3.5"
     >
       <div className="animate-marquee flex w-max">
         {row("a", false)}

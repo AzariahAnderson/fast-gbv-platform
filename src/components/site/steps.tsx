@@ -46,10 +46,7 @@ export function Steps() {
         <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-3">
           {STEPS.map((step, i) => (
             <Reveal key={step.n} delay={0.08 * i}>
-              <div
-                data-cursor="hover"
-                className="group relative flex h-full flex-col gap-5 rounded-[26px] border-2 border-taupe/60 bg-ink p-7 transition-all duration-500 hover:-translate-y-1.5 hover:border-taupe hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
-              >
+              <div className="card-hover card-surface group relative flex h-full flex-col gap-5 p-7">
                 <span
                   aria-hidden="true"
                   className="pointer-events-none absolute right-4 top-2 text-[5.5rem] font-black leading-none tracking-tighter text-taupe/20 transition-colors duration-500 group-hover:text-brand/20"
@@ -64,7 +61,7 @@ export function Steps() {
                 {i < 2 ? (
                   <span
                     aria-hidden="true"
-                    className="absolute -right-[15px] top-1/2 hidden h-7 w-7 -translate-y-1/2 rounded-full border-2 border-taupe/60 bg-ink-deep text-center font-mono text-xs leading-6 text-brand md:block"
+                    className="absolute -right-[17px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 rounded-full border-2 border-taupe/60 bg-ink-deep text-center font-mono text-xs leading-7 text-brand md:block"
                   >
                     →
                   </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, ShieldCheck, BadgeCheck, BookOpenCheck } from "lucide-react";
 
 const COLUMNS = [
   {
@@ -93,7 +93,41 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-14 select-none overflow-hidden" aria-hidden="true">
+        <div className="mt-14 grid gap-4 border-t-2 border-taupe/50 pt-8 sm:grid-cols-3">
+          <div className="flex flex-col gap-1.5">
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+              <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              Private by design
+            </p>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Fast is a static awareness page. No accounts, no tracking cookies
+              and no personal information collected or stored.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+              <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              Official services only
+            </p>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Every helpline listed is run by the South African government or an
+              established national NGO. Fast never charges for anything.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <p className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-brand">
+              <BookOpenCheck className="h-3.5 w-3.5" aria-hidden="true" />
+              Statistics you can check
+            </p>
+            <p className="text-[13px] leading-relaxed text-muted-foreground">
+              Figures on this page come from the HSRC national prevalence study,
+              the South African Medical Research Council and the World Health
+              Organization.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-12 select-none overflow-hidden" aria-hidden="true">
           <p className="text-center text-[19vw] font-black leading-[0.8] tracking-tighter text-taupe/15 mask-fade-b">
             FAST
           </p>

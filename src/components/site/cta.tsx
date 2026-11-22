@@ -8,7 +8,7 @@ export function Cta() {
     <section className="relative py-20 sm:py-28" aria-labelledby="cta-heading">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[32px] border-2 border-taupe/60 bg-ink px-6 py-16 text-center shadow-[0_40px_120px_rgba(0,0,0,0.4)] sm:px-12 sm:py-24">
+          <div className="card-surface relative overflow-hidden px-6 py-16 text-center sm:px-12 sm:py-24">
             <div
               aria-hidden="true"
               className="pointer-events-none absolute inset-0"
@@ -35,7 +35,6 @@ export function Cta() {
               </p>
               <a
                 href="tel:0800428428"
-                data-cursor="hover"
                 className="group mt-10 inline-flex min-h-16 items-center gap-3 rounded-2xl bg-brand px-9 text-xl font-black tracking-tight text-ink-deep transition-all hover:scale-[1.03] hover:bg-brand-2 hover:shadow-[0_0_56px_rgba(216,211,101,0.4)]"
               >
                 <Phone

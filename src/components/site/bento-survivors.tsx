@@ -1,6 +1,6 @@
 "use client";
 
-import { PhoneCall, Home, Scale, HeartPulse, ListChecks, Baby, ArrowUpRight } from "lucide-react";
+import { PhoneCall, Home, Scale, HeartPulse, ListChecks, Baby, Smartphone, ArrowUpRight } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { InfoCard } from "./cards";
 
@@ -37,7 +37,7 @@ export function BentoSurvivors() {
         />
 
         <div className="mt-14 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          <Reveal className="md:col-span-2" delay={0.05}>
+          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.05}>
             <InfoCard
               icon={<PhoneCall className="h-5 w-5" aria-hidden="true" />}
               title="Counselling at any hour, in your language"
@@ -89,7 +89,20 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal className="md:col-span-2" delay={0.25}>
+          <Reveal delay={0.25}>
+            <InfoCard
+              icon={<Smartphone className="h-5 w-5" aria-hidden="true" />}
+              title="Help without a voice call"
+              link={<CardLink href="tel:*134*7355%23">Dial *134*7355# free</CardLink>}
+            >
+              When a call is not safe, the TEARS Foundation answers *134*7355#
+              with a free callback, and the Command Centre reads SMS sent to
+              31531. Both cost nothing and can be sent from any phone, including
+              a borrowed one.
+            </InfoCard>
+          </Reveal>
+
+          <Reveal className="md:col-span-2 lg:col-span-2" delay={0.3}>
             <InfoCard
               icon={<ListChecks className="h-5 w-5" aria-hidden="true" />}
               title="Build your safety plan"
@@ -107,7 +120,7 @@ export function BentoSurvivors() {
                 ].map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 rounded-xl border-2 border-taupe/60 bg-ink-2/70 px-3.5 py-2.5 text-[13px] font-medium text-foreground/90"
+                    className="flex items-start gap-3 rounded-xl border-2 border-taupe/60 bg-ink-2 px-3.5 py-2.5 text-[13px] font-medium text-foreground/90"
                   >
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" aria-hidden="true" />
                     {item}
@@ -117,7 +130,7 @@ export function BentoSurvivors() {
             </InfoCard>
           </Reveal>
 
-          <Reveal delay={0.3}>
+          <Reveal className="md:col-span-2 lg:col-span-1" delay={0.35}>
             <InfoCard
               icon={<Baby className="h-5 w-5" aria-hidden="true" />}
               title="Help for children"
