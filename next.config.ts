@@ -22,14 +22,19 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  // data: covers the inline SVG film grain in globals.css, blob: covers
-  // in-memory previews no page code currently creates but the platform may.
-  "img-src 'self' data: blob:",
+  // data: covers the inline SVG film grain in globals.css. No page code
+  // creates blob: or media URLs, so nothing else is allowed: any attempt
+  // to exfiltrate pixels or open a plug-in container fails the policy.
+  "img-src 'self' data:",
   "font-src 'self'",
   `connect-src 'self'${isDev ? " ws:" : ""}`,
   "media-src 'self'",
   "worker-src 'self'",
   "manifest-src 'self'",
+  // No frames or plug-in containers are used anywhere on the site; saying
+  // so explicitly keeps a future dependency from quietly opening one.
+  "frame-src 'none'",
+  "child-src 'none'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -53,9 +58,19 @@ const securityHeaders = [
   { key: "X-DNS-Prefetch-Control", value: "on" },
   {
     key: "Permissions-Policy",
+    // Every capability a support page never needs is denied outright,
+    // including the ones browsers default to allowing on any page: a
+    // survivor must never be asked for camera, microphone or location,
+    // and no embed can opt into advertising or federated identity APIs.
     value:
-      "camera=(), microphone=(), geolocation=(), interest-cohort=(), payment=(), usb=(), bluetooth=(), magnetometer=(), accelerometer=(), gyroscope=(), idle-detection=(), screen-wake-lock=(), display-capture=()",
+      "camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=(), bluetooth=(), magnetometer=(), accelerometer=(), gyroscope=(), idle-detection=(), screen-wake-lock=(), display-capture=(), midi=(), serial=(), hid=(), web-share=(), window-management=(), local-fonts=(), storage-access=(), publickey-credentials-create=(), publickey-credentials-get=(), xr-spatial-tracking=(), compute-pressure=()",
   },
+  // Legacy plug-in policy header; 'none' is the only sane value today and
+  // silences scanners that still probe for it.
+  { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
+  // Puts the document in its own agent cluster so a same-site attacker
+  // cannot reach it through synchronous cross-document property access.
+  { key: "Origin-Agent-Cluster", value: "?1" },
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
@@ -85,6 +100,18 @@ const nextConfig: NextConfig = {
         headers: [
           { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
           { key: "Service-Worker-Allowed", value: "/" },
+        ],
+      },
+      {
+        // Local artwork changes only when a release changes it, and the
+        // service worker reinstalls its precache with cache:"reload" on
+        // every version bump, so a day of freshness with a week of
+        // stale-while-revalidate is a safe win on flaky mobile networks:
+        // repeat visits render the emoji frame and icons without a single
+        // round trip.
+        source: "/:asset(emojis|icons|images)/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
         ],
       },
     ];

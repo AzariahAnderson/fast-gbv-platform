@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v9";
+const VERSION = "fast-v10";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -42,7 +42,12 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(STATIC_CACHE);
-      await Promise.allSettled(PRECACHE.map((url) => cache.add(url)));
+      // cache:"reload" bypasses the HTTP cache, so a version bump always
+      // installs the true bytes of every asset even when the server sends
+      // long-lived Cache-Control headers for the artwork directories.
+      await Promise.allSettled(
+        PRECACHE.map((url) => cache.add(new Request(url, { cache: "reload" }))),
+      );
       await self.skipWaiting();
     })(),
   );

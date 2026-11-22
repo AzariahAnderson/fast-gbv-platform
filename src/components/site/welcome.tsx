@@ -7,6 +7,7 @@ import { GREETINGS, LANGUAGES, languageByCode } from "@/lib/languages";
 import { STRUGGLES } from "@/lib/struggles";
 import { checkName } from "@/lib/name-guard";
 import {
+  clearProfile,
   getProfile,
   markWelcomeSkipped,
   saveProfile,
@@ -45,6 +46,11 @@ export function Welcome() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
+  // True when the flow opened over an existing profile (footer
+  // "Personalise your greeting"): the header then offers the one action
+  // a personal-data flow must always provide — deletion.
+  const [editing, setEditing] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const [lang, setLang] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
@@ -71,6 +77,8 @@ export function Welcome() {
     }
     setDir(1);
     setStep(0);
+    setEditing(!!p);
+    setConfirmRemove(false);
     setOpen(true);
   }, []);
 
@@ -116,14 +124,41 @@ export function Welcome() {
     setOpen(false);
   }, []);
 
+  // Deletion is destructive, so it needs two deliberate taps: the first
+  // arms the button, the second wipes. Four seconds alone disarms it, and
+  // closing the flow always disarms it.
+  useEffect(() => {
+    if (!confirmRemove) return;
+    const timer = setTimeout(() => setConfirmRemove(false), 4000);
+    return () => clearTimeout(timer);
+  }, [confirmRemove]);
+
+  const removeGreeting = useCallback(() => {
+    if (!confirmRemove) {
+      setConfirmRemove(true);
+      return;
+    }
+    clearProfile();
+    markWelcomeSkipped();
+    setOpen(false);
+    toast({
+      title: "Greeting removed.",
+      description:
+        "The language, names and struggles were deleted from this device. There was never a copy anywhere else.",
+    });
+  }, [confirmRemove, toast]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") skip();
+      if (e.key === "Escape") {
+        if (confirmRemove) setConfirmRemove(false);
+        skip();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, skip]);
+  }, [open, skip, confirmRemove]);
 
   // Focus the step heading whenever the panel changes so keyboard and
   // screen-reader users always know where they are.
@@ -180,7 +215,7 @@ export function Welcome() {
     <h2
       ref={headingRef}
       tabIndex={-1}
-      className="font-display text-3xl font-black leading-[1.08] tracking-tight text-foreground focus:outline-none sm:text-4xl"
+      className="text-balance font-display text-3xl font-black leading-[1.08] tracking-tight text-foreground focus:outline-none sm:text-4xl"
     >
       {text}
     </h2>
@@ -214,19 +249,35 @@ export function Welcome() {
           />
 
           <div className="relative mx-auto flex w-full max-w-xl flex-1 flex-col">
-            {/* Header: always-visible skip, so the flow can never trap */}
+            {/* Header: a way out is always visible, so the flow can never
+                trap anyone. A fresh visitor gets "skip"; a returning one
+                editing their greeting instead gets the deletion path. */}
             <div className="flex items-center justify-between gap-4">
               <p className="inline-flex items-center gap-2.5 text-[10px] font-bold uppercase tracking-[0.22em] text-dim">
                 <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
                 Welcome to Fast
               </p>
-              <button
-                type="button"
-                onClick={skip}
-                className="rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-faint transition-colors hover:text-brand"
-              >
-                Skip for now
-              </button>
+              {editing ? (
+                <button
+                  type="button"
+                  onClick={removeGreeting}
+                  className={`rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] transition-colors ${
+                    confirmRemove
+                      ? "bg-brand/15 text-brand"
+                      : "text-faint hover:text-brand"
+                  }`}
+                >
+                  {confirmRemove ? "Tap again to remove" : "Remove my greeting"}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={skip}
+                  className="rounded-lg px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-faint transition-colors hover:text-brand"
+                >
+                  Skip for now
+                </button>
+              )}
             </div>
 
             <div
