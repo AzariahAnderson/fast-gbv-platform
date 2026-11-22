@@ -143,7 +143,7 @@ export function sanitize(raw: unknown): LiveData {
     ? (obj.encouragement as unknown[])
         .map((e) => cleanText(e, 140))
         .filter(Boolean)
-        .slice(0, 5)
+        .slice(0, 12)
     : [];
 
   const tip = cleanText(obj.tip, 240);
@@ -160,13 +160,13 @@ export function sanitize(raw: unknown): LiveData {
 
 /* ------------------------------ shared prompt ---------------------------- */
 
-const SHAPE = `{"stats":[{"value":"","label":"","source":"","sourceUrl":""}],"news":[{"title":"","summary":"","source":"","sourceUrl":"","date":""}],"encouragement":["",""],"tip":""}`;
+const SHAPE = `{"stats":[{"value":"","label":"","source":"","sourceUrl":""}],"news":[{"title":"","summary":"","source":"","sourceUrl":"","date":""}],"encouragement":["","","","","","","","","",""],"tip":""}`;
 
 function buildRules(): string {
   return `Rules:
 - stats: exactly 4 items with verified South African gender-based violence figures from credible publishers (HSRC, SAMRC, WHO, SAPS, Stats SA, UNODC, government departments or major news investigations). "value" is a short display string such as "1 in 3". Each item carries the publishing organisation plus year in "source" and a real https page in "sourceUrl".
 - news: exactly 3 real items about GBV response, policy, shelters, prosecutions or prevention in South Africa, published by established outlets (SABC News, News24, Daily Maverick, IOL, eNCA, Mail & Guardian, EWN, government releases). Include the publication name, the article https URL and the publish date as YYYY-MM-DD. If you cannot ground an item, drop it rather than inventing it.
-- encouragement: exactly 4 short compassionate lines (max 16 words each) for survivors and for people choosing to stop harming. No numbers, no clichés.
+- encouragement: exactly 10 short compassionate lines (max 16 words each), a mix addressed to survivors, to people worried about someone else, and to people choosing to stop harming. No numbers, no clichés, no repeated openings.
 - tip: one practical personal-safety or support tip, max 30 words.
 - Never invent URLs, dates or figures. Omit a sourceUrl rather than fabricating one.
 - Answer with ONLY valid JSON, no markdown fences, in exactly this shape:

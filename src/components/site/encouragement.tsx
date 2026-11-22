@@ -103,7 +103,10 @@ export function Encouragement() {
             </AnimatePresence>
           </div>
           {messages.length > 1 ? (
-            <div className="flex items-center gap-2" aria-hidden="true">
+            <div
+              className="flex flex-wrap items-center gap-x-2 gap-y-1.5"
+              aria-hidden="true"
+            >
               {messages.map((_, i) => (
                 <span
                   key={i}
