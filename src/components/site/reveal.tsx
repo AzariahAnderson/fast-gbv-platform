@@ -43,11 +43,11 @@ export function Eyebrow({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-brand",
+        "inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-dim",
         className
       )}
     >
-      <span className="h-1.5 w-1.5 rotate-45 bg-brand" aria-hidden="true" />
+      <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
       {children}
     </span>
   );

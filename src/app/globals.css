@@ -43,8 +43,8 @@
   --color-taupe: var(--taupe);
   --color-ink-deep: var(--ink-deep);
   --color-cream: var(--cream);
-  /* Text tones, each one the lime or the grey from the palette at a lower
-     opacity over the background, so copy never reads as one flat colour */
+  /* Text tones, a ladder of warm greys mixed from the palette's own taupe,
+     so headings, body copy and labels each sit at a different depth */
   --color-body: var(--text-body);
   --color-dim: var(--text-dim);
   --color-faint: var(--text-faint);
@@ -54,34 +54,35 @@
   FAST design system.
   The palette is exactly four values, used everywhere on the site:
     #454040  page background, ink surfaces
-    #605B51  structure, borders, secondary surfaces, grey text tones
-    #D8D365  primary accent, actions, gold text
-    #E6F082  primary text, highlight accent
-  Every other shade is one of these four colours at a lower opacity blended
-  over the background, so no foreign hue can appear. Copy uses the full tonal
-  ladder: bright lime headlines, gold accents, sage grey body copy, dim
-  tertiary labels and taupe watermarks, never a single flat colour.
+    #605B51  structure, borders, secondary surfaces
+    #D8D365  gold accent, actions, phone numbers, one highlighted word per heading
+    #E6F082  lime, interactions only (hovers, borders, selection), never copy
+  Every other shade is one of these four colours blended over the background,
+  so no foreign hue can appear. Text never runs in the accent colours: copy
+  uses a warm grey ladder mixed from the taupe itself, near white headlines,
+  light grey body, mid grey labels, deep grey footnotes. Gold stays reserved
+  for the things a visitor must act on, which is what makes it stand out.
 */
 :root {
   --radius: 1.25rem;
 
   --background: #454040;
-  --foreground: #e6f082;
+  --foreground: #edebe6;
 
   --card: #454040;
-  --card-foreground: #e6f082;
+  --card-foreground: #edebe6;
 
   --popover: #454040;
-  --popover-foreground: #e6f082;
+  --popover-foreground: #edebe6;
 
   --primary: #d8d365;
   --primary-foreground: #454040;
 
   --secondary: #605b51;
-  --secondary-foreground: #e6f082;
+  --secondary-foreground: #edebe6;
 
   --muted: rgba(96, 91, 81, 0.3);
-  --muted-foreground: rgba(230, 240, 130, 0.62);
+  --muted-foreground: #a8a39a;
 
   --accent: #d8d365;
   --accent-foreground: #454040;
@@ -100,9 +101,12 @@
   --ink-deep: #454040;
   --cream: #e6f082;
 
-  --text-body: rgba(230, 240, 130, 0.62);
-  --text-dim: rgba(230, 240, 130, 0.45);
-  --text-faint: rgba(230, 240, 130, 0.32);
+  /* The warm grey text ladder, each step mixed from the taupe #605B51
+     toward white. Headlines 8.6:1, body 5.8:1, labels 3.9:1, notes 2.8:1
+     against the #454040 background. */
+  --text-body: #c7c3bb;
+  --text-dim: #a8a39a;
+  --text-faint: #8a857c;
 
   --chart-1: #d8d365;
   --chart-2: #e6f082;
@@ -111,7 +115,7 @@
   --chart-5: #e6f082;
 
   --sidebar: #454040;
-  --sidebar-foreground: #e6f082;
+  --sidebar-foreground: #edebe6;
   --sidebar-primary: #d8d365;
   --sidebar-primary-foreground: #454040;
   --sidebar-accent: #605b51;
@@ -195,7 +199,7 @@
 
   /*
     Card system. One surface recipe for the whole site so every card reads
-    identical: taupe fill, thick 3px taupe frame, soft lime top highlight.
+    identical: taupe fill, thick 3px taupe frame, soft neutral top highlight.
     Featured cards swap the frame to the gold accent. Hover lifts the card
     on a deep shadow cast in plain black so depth stays colour neutral.
   */
@@ -204,9 +208,9 @@
     border-radius: 28px;
     border: 3px solid #605b51;
     background:
-      linear-gradient(180deg, rgba(230, 240, 130, 0.05), rgba(230, 240, 130, 0) 38%),
+      linear-gradient(180deg, rgba(199, 195, 187, 0.04), rgba(199, 195, 187, 0) 38%),
       rgba(96, 91, 81, 0.26);
-    box-shadow: 0 1px 0 rgba(230, 240, 130, 0.04) inset;
+    box-shadow: 0 1px 0 rgba(199, 195, 187, 0.05) inset;
     transition:
       border-color 0.45s cubic-bezier(0.22, 1, 0.36, 1),
       transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
@@ -218,7 +222,7 @@
     transform: translateY(-4px);
     box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.5);
     background:
-      linear-gradient(180deg, rgba(230, 240, 130, 0.06), rgba(230, 240, 130, 0) 38%),
+      linear-gradient(180deg, rgba(199, 195, 187, 0.05), rgba(199, 195, 187, 0) 38%),
       rgba(96, 91, 81, 0.34);
   }
   .card-featured {

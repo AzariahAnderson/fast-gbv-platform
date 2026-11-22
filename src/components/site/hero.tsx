@@ -105,8 +105,8 @@ export function Hero() {
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-5 text-center sm:px-8">
         <motion.div {...anim(D + 0.05)}>
-          <span className="inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
-            <span className="h-1.5 w-1.5 rotate-45 bg-brand" aria-hidden="true" />
+          <span className="inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+            <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
             Free, confidential, answered 24 hours a day
           </span>
         </motion.div>
@@ -121,9 +121,9 @@ export function Hero() {
           <Word delay={D + 0.38}>most,</Word>
           <br />
           <Word delay={D + 0.46}>help</Word>{" "}
-          <Word delay={D + 0.52}>answers.</Word>{" "}
+          <Word delay={D + 0.52}>answers</Word>{" "}
           <Word delay={D + 0.6} className="text-brand">
-            Fast.
+            fast
           </Word>
         </motion.h1>
 
@@ -194,8 +194,8 @@ export function Hero() {
                 </span>
                 <p className="text-sm font-bold tracking-tight text-foreground">Fast Assist</p>
               </div>
-              <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
-                <span className="h-1.5 w-1.5 rotate-45 bg-brand" aria-hidden="true" />
+              <span className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-hidden="true" />
                 Counsellor available now
               </span>
             </div>

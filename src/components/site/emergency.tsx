@@ -1,5 +1,6 @@
 "use client";
 
+import { PhoneCall } from "lucide-react";
 import { Reveal, SectionHeading } from "./reveal";
 import { CallCard, CopyChip } from "./cards";
 
@@ -15,7 +16,7 @@ export function Emergency() {
           eyebrow="In danger right now"
           title={
             <>
-              One tap. <span className="text-brand">Real people.</span> Any hour.
+              One tap, <span className="text-brand">real people</span>, any hour
             </>
           }
           sub="Every number on this page is free, official and answered around the clock. Tap to dial, or copy the code and send it from any phone, including a borrowed one."
@@ -33,9 +34,9 @@ export function Emergency() {
               description="South Africa's national 24 hour crisis line for gender based violence. Trained counsellors speak all 11 official languages, assess your immediate danger and can send a mobile social worker, arrange shelter space or stay on the line while you contact the police."
               chips={["Toll free", "24 hours", "11 languages", "Social worker callback"]}
               icon={
-                <span className="h-2 w-2 rotate-45 bg-brand" aria-hidden="true" />
+                <PhoneCall className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
               }
-              iconLabel="Live line"
+              iconLabel="Live line, answered around the clock"
             />
           </Reveal>
 
@@ -46,7 +47,7 @@ export function Emergency() {
                 <h3 className="font-head text-lg font-black tracking-tight text-foreground">
                   Can&apos;t speak out loud?
                 </h3>
-                <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-brand">
+                <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-dim">
                   Silent
                 </span>
               </div>

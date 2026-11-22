@@ -1,7 +1,7 @@
 "use client";
 
 import { Reveal, SectionHeading } from "./reveal";
-import { PhoneCall, Compass, HandHeart } from "lucide-react";
+import { PhoneCall, Compass, HandHeart, ArrowRight } from "lucide-react";
 
 const STEPS = [
   {
@@ -37,7 +37,7 @@ export function Steps() {
           title={
             <>
               Three steps between
-              <span className="text-brand"> fear and safety.</span>
+              <span className="text-brand"> fear and safety</span>
             </>
           }
           align="center"
@@ -59,12 +59,10 @@ export function Steps() {
                 <h3 className="font-head text-2xl font-black tracking-tight text-foreground">{step.title}</h3>
                 <p className="text-sm font-medium leading-relaxed text-body">{step.body}</p>
                 {i < 2 ? (
-                  <span
+                  <ArrowRight
                     aria-hidden="true"
-                    className="absolute -right-[20px] top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 rotate-45 items-center justify-center border-[3px] border-taupe bg-background md:flex"
-                  >
-                    <span className="h-1.5 w-1.5 bg-brand" />
-                  </span>
+                    className="absolute -right-5 top-1/2 z-10 hidden h-5 w-5 -translate-y-1/2 text-taupe transition-colors duration-500 group-hover:text-brand md:block"
+                  />
                 ) : null}
               </div>
             </Reveal>

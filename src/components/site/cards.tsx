@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
  * Card system: one shared surface for the whole site so every card reads
  * identical. Fill is taupe over the ink background, the frame is a thick
  * 3px taupe border, featured cards swap the frame to the gold accent.
- * Titles run Inter black in bright lime, body copy in the sage grey tone,
- * numbers and actions use the two brand yellows only.
+ * Titles run Inter black in warm white, body copy in the light grey tone,
+ * phone numbers and actions are the only gold text on a card.
  */
 export function CallCard({
   title,

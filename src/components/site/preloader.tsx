@@ -89,7 +89,7 @@ export function Preloader() {
                       duration: 0.55,
                       ease: [0.22, 1, 0.36, 1],
                     }}
-                    className="text-sm font-bold tracking-wide text-brand-2/90"
+                    className="text-sm font-bold tracking-wide text-dim"
                   >
                     {word}
                   </motion.span>

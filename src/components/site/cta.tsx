@@ -17,8 +17,8 @@ export function Cta() {
             </div>
 
             <div className="relative flex flex-col items-center">
-              <span className="mb-6 inline-flex items-center gap-2 rounded-lg border-2 border-taupe bg-taupe/20 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand">
-                <span className="h-1.5 w-1.5 rotate-45 bg-brand" aria-hidden="true" />
+              <span className="mb-6 inline-flex items-center gap-2 rounded-lg border-2 border-taupe bg-taupe/20 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+                <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
                 Save this number today
               </span>
               <h2
@@ -26,7 +26,7 @@ export function Cta() {
                 className="text-balance font-display text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-6xl lg:text-7xl"
               >
                 One call can change
-                <span className="text-brand"> everything.</span>
+                <span className="text-brand"> everything</span>
               </h2>
               <p className="mt-6 max-w-xl text-balance text-base font-medium leading-relaxed text-body sm:text-lg">
                 Yours, or someone else&apos;s. Save the Command Centre in your

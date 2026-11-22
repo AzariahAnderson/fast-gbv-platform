@@ -51,7 +51,7 @@ export function Stats() {
       />
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-dim">
             The crisis, and why Fast exists
           </p>
           <h2
@@ -59,7 +59,7 @@ export function Stats() {
             className="mt-5 text-balance font-head text-4xl font-black leading-[1.02] tracking-tight text-foreground sm:text-5xl"
           >
             Silence is the most dangerous
-            <span className="text-brand"> number</span> of all.
+            <span className="text-brand"> number</span> of all
           </h2>
         </Reveal>
 
@@ -75,7 +75,7 @@ export function Stats() {
                   {stat.value}
                 </p>
                 {stat.unit ? (
-                  <p className="-mt-3 text-sm font-bold uppercase tracking-wide text-brand-2">
+                  <p className="-mt-3 text-sm font-bold uppercase tracking-wide text-dim">
                     {stat.unit}
                   </p>
                 ) : null}

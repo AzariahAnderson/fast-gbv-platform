@@ -51,9 +51,11 @@ export function Marquee() {
       aria-label="Emergency numbers ticker"
       className="marquee-pause relative z-10 overflow-hidden border-y-[3px] border-taupe bg-brand py-3.5"
     >
-      <div className="animate-marquee flex w-max">
-        {row("a", false)}
-        {row("b", true)}
+      <div className="bg-fade-x">
+        <div className="animate-marquee flex w-max">
+          {row("a", false)}
+          {row("b", true)}
+        </div>
       </div>
     </section>
   );

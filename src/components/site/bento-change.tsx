@@ -8,7 +8,7 @@ function CardLink({ href, children }: { href: string; children: React.ReactNode 
   return (
     <a
       href={href}
-      className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5 hover:text-brand-2"
+      className="inline-flex items-center gap-1.5 text-sm font-bold text-brand transition-all hover:gap-2.5"
     >
       {children}
       <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -29,7 +29,7 @@ export function BentoChange() {
           title={
             <>
               Real strength is
-              <span className="text-brand-2"> choosing to stop.</span>
+              <span className="text-brand"> choosing to stop</span>
             </>
           }
           sub="Owning it is the hardest thing you will ever do, and the bravest. Violence is learned behaviour, which means it can be unlearned. There is no judgement on this page, only accountability, support and a way out of the cycle."
@@ -71,7 +71,7 @@ export function BentoChange() {
                     key={step.n}
                     className="flex gap-4 rounded-2xl border-2 border-taupe bg-taupe/20 p-4 sm:p-5"
                   >
-                    <span className="text-lg font-black text-brand-2">{step.n}</span>
+                    <span className="text-lg font-black text-brand">{step.n}</span>
                     <div>
                       <p className="font-black tracking-tight text-foreground">{step.t}</p>
                       <p className="mt-1 text-[13px] font-medium leading-relaxed text-body">
@@ -92,7 +92,7 @@ export function BentoChange() {
               </div>
               <p className="font-head text-2xl font-bold leading-snug tracking-tight text-foreground sm:text-3xl">
                 &ldquo;The cycle ends{" "}
-                <span className="text-brand-2">with you</span>, not with
+                <span className="text-brand">with you</span>, not with
                 the next child who watches.&rdquo;
               </p>
               <p className="text-sm font-medium leading-relaxed text-body">

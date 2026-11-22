@@ -18,16 +18,12 @@ export function Logo({ className }: { className?: string }) {
     <a
       href="#top"
       className={cn(
-        "group inline-flex items-center gap-1.5 text-[1.35rem] font-black leading-none tracking-tight text-foreground",
+        "inline-flex items-center text-[1.35rem] font-black leading-none tracking-tight text-foreground transition-colors duration-300 hover:text-brand",
         className
       )}
       aria-label="Fast, back to top"
     >
       FAST
-      <span
-        className="h-[7px] w-[7px] rotate-45 bg-brand transition-transform duration-300 group-hover:scale-125"
-        aria-hidden="true"
-      />
     </a>
   );
 }
@@ -92,7 +88,7 @@ export function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="rounded-lg px-3.5 py-2 text-[15px] font-bold text-body transition-colors hover:bg-taupe/25 hover:text-foreground"
+                  className="relative rounded-lg px-3.5 py-2 text-[15px] font-bold text-body transition-colors duration-300 hover:text-foreground after:absolute after:inset-x-3.5 after:bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-brand after:transition-transform after:duration-300 after:ease-out hover:after:scale-x-100"
                 >
                   {link.label}
                 </a>

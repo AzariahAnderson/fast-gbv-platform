@@ -52,7 +52,7 @@ export function Faq() {
           title={
             <>
               The things you are
-              <span className="text-brand"> afraid to ask.</span>
+              <span className="text-brand"> afraid to ask</span>
             </>
           }
           align="center"

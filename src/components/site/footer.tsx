@@ -51,9 +51,8 @@ export function Footer() {
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-[1.2fr_2fr] lg:gap-16">
           <div className="flex flex-col gap-5">
-            <p className="inline-flex items-center gap-2 text-4xl font-black tracking-tight text-foreground">
+            <p className="inline-flex items-center text-4xl font-black tracking-tight text-foreground">
               FAST
-              <span className="h-2.5 w-2.5 rotate-45 bg-brand" aria-hidden="true" />
             </p>
             <p className="max-w-xs text-sm font-medium leading-relaxed text-body">
               A public awareness page that connects South Africans to official,
@@ -68,7 +67,7 @@ export function Footer() {
           >
             {COLUMNS.map((col) => (
               <div key={col.title} className="flex flex-col gap-3.5">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-dim">
                   {col.title}
                 </p>
                 <ul className="flex flex-col gap-2.5">
@@ -96,7 +95,7 @@ export function Footer() {
 
         <div className="mt-14 grid gap-4 border-t-[3px] border-taupe pt-8 sm:grid-cols-3">
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
               <ShieldCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Private by design
             </p>
@@ -106,7 +105,7 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
               <BadgeCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Official services only
             </p>
@@ -116,7 +115,7 @@ export function Footer() {
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-brand">
+            <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-dim">
               <BookOpenCheck className="h-3.5 w-3.5" aria-hidden="true" />
               Statistics you can check
             </p>

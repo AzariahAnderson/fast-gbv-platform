@@ -114,8 +114,8 @@ export function Resources() {
           eyebrow="The full directory"
           title={
             <>
-              Every service. <span className="text-brand">One page.</span> Zero
-              excuses.
+              Every service, one page,
+              <span className="text-brand"> zero excuses</span>
             </>
           }
           sub="Verified national and regional helplines. Save this page, screenshot the numbers, share them with someone who needs them today."
@@ -137,7 +137,7 @@ export function Resources() {
                   }`}
                 >
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-brand">
+                    <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-dim">
                       {r.tag}
                     </span>
                     <span className="font-black tracking-tight text-foreground">{r.name}</span>
