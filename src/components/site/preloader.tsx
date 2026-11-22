@@ -5,11 +5,14 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { markSplashShown, splashShownThisSession } from "@/lib/splash";
 
 /**
- * Splash screen. The wordmark rises in Inter black, the four values appear
- * as quiet chips in sequence, then the content drifts up and the curtain
- * lifts. Four seconds on the first visit of a browser session, skipped via
- * sessionStorage for repeat visits, no progress bar, no counters, no
- * pulsing indicators.
+ * Splash screen. The white wordmark rises in Inter black over the same ink
+ * the page itself sits on, one gold rule draws beneath it, the four values
+ * arrive as a single quiet line and the curtain lifts into the hero. Four
+ * seconds on the first visit of a browser session, skipped via
+ * sessionStorage for repeat visits. Composition follows the professional
+ * rules for launch screens: one centred idea, generous breathing space,
+ * motion that supports rather than decorates, and a look that matches the
+ * first screen so the lift feels continuous rather than like a page change.
  */
 const VALUES = ["Free", "Anonymous", "Safe", "Trusted"];
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -62,20 +65,6 @@ export function Preloader() {
           <div className="bg-fade-y pointer-events-none absolute inset-0 bg-grid opacity-30" />
           <div className="pointer-events-none absolute left-1/2 top-1/2 h-[30rem] w-[46rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/[0.09] blur-[130px]" />
 
-          {/* Quiet frame lines echo the site's thick-border card language */}
-          <motion.span
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ delay: 0.5, duration: 0.9, ease: EASE }}
-            className="absolute inset-x-6 top-6 h-[3px] origin-center bg-taupe/70 sm:inset-x-10 sm:top-10"
-          />
-          <motion.span
-            initial={reduce ? { opacity: 0 } : { opacity: 0, scaleX: 0 }}
-            animate={{ opacity: 1, scaleX: 1 }}
-            transition={{ delay: 0.65, duration: 0.9, ease: EASE }}
-            className="absolute inset-x-6 bottom-6 h-[3px] origin-center bg-taupe/70 sm:inset-x-10 sm:bottom-10"
-          />
-
           {/* Everything inside drifts up and fades while the curtain lifts */}
           <motion.div
             className="relative flex flex-col items-center"
@@ -106,9 +95,7 @@ export function Preloader() {
                     duration: 0.85,
                     ease: EASE,
                   }}
-                  className={`text-7xl font-black tracking-tight sm:text-8xl ${
-                    letter === "A" ? "text-brand" : "text-foreground"
-                  }`}
+                  className="text-7xl font-black tracking-tight text-foreground sm:text-8xl"
                 >
                   {letter}
                 </motion.span>
@@ -120,36 +107,47 @@ export function Preloader() {
             <motion.span
               initial={reduce ? { opacity: 0 } : { scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 1.1, duration: 0.9, ease: EASE }}
+              transition={{ delay: 1.15, duration: 0.9, ease: EASE }}
               className="-mt-px h-[3px] w-44 origin-left bg-brand sm:w-52"
             />
 
             <motion.p
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.35, duration: 0.6, ease: EASE }}
+              transition={{ delay: 1.5, duration: 0.6, ease: EASE }}
               className="mt-7 text-[11px] font-bold uppercase tracking-[0.34em] text-body"
             >
               South African GBV support, always on
             </motion.p>
 
-            {/* The four values as quiet chips, matching the site's bordered
-                eyebrow language */}
-            <div className="mt-9 flex items-center justify-center gap-2.5 sm:gap-3">
+            {/* The four values as one quiet dotted line, not a row of boxes:
+                four bordered chips read as UI, one line of small caps reads
+                as a promise, which is what a launch screen should carry. */}
+            <div className="mt-8 flex items-center justify-center gap-2.5 sm:gap-3">
               {VALUES.map((word, i) => (
-                <motion.span
-                  key={word}
-                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{
-                    delay: 2.1 + i * 0.28,
-                    duration: 0.55,
-                    ease: EASE,
-                  }}
-                  className="rounded-lg border-2 border-taupe bg-taupe/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-dim sm:text-[11px]"
-                >
-                  {word}
-                </motion.span>
+                <span key={word} className="flex items-center gap-2.5 sm:gap-3">
+                  {i > 0 && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 2.15 + i * 0.18, duration: 0.4 }}
+                      className="h-1 w-1 rounded-full bg-taupe"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <motion.span
+                    initial={reduce ? { opacity: 0 } : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      delay: 2.15 + i * 0.18,
+                      duration: 0.5,
+                      ease: EASE,
+                    }}
+                    className="text-[10px] font-bold uppercase tracking-[0.22em] text-dim sm:text-[11px]"
+                  >
+                    {word}
+                  </motion.span>
+                </span>
               ))}
             </div>
           </motion.div>

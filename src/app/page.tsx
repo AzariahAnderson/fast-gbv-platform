@@ -123,7 +123,12 @@ export default function Home() {
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()) }}
+        // The payload is fully static and contains no user input; escaping
+        // < keeps it that way even if a future field ever carries one, so
+        // the script tag can never be closed early from inside the data.
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData()).replace(/</g, "\\u003c"),
+        }}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { motion } from "framer-motion";
 import { Menu, Phone, X, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SPLASH_SKIPPED } from "@/lib/splash";
@@ -37,32 +37,24 @@ export function Logo({
 }
 
 export function Navbar() {
-  const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [entered, setEntered] = useState(false);
-  const lastY = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const openerRef = useRef<HTMLButtonElement>(null);
-  const { scrollY } = useScroll();
 
-  // useScroll syncs the restored position on mount, so the bar is styled
-  // correctly even when the page loads halfway down
-  useMotionValueEvent(scrollY, "change", (y) => {
-    setScrolled(y > 16);
-    if (lastY.current === 0) {
-      lastY.current = y;
-      return;
-    }
-    // Hide the bar while scrolling down past the hero, reveal on the way up.
-    // Never hides while the mobile menu is open on top of it.
-    const goingDown = y > lastY.current && y > 140;
-    const goingUp = y < lastY.current - 4;
-    if (goingDown && !open) setHidden(true);
-    else if (goingUp) setHidden(false);
-    lastY.current = y;
-  });
+  // The bar never hides. On a crisis page the one tap to "Get help now" has
+  // to stay reachable no matter how far a visitor has scrolled, and anchor
+  // navigation must never leave the bar stranded off-screen (the old
+  // hide-on-scroll-down logic did exactly that after clicking a nav link).
+  // A plain listener also styles the bar correctly when the page loads
+  // halfway down, without a framer-motion scroll subscription.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.overflow = open ? "hidden" : "";
@@ -112,17 +104,14 @@ export function Navbar() {
     <>
       <motion.header
         initial={{ y: "-90%", opacity: 0 }}
-        animate={{ y: hidden ? "-110%" : "0%", opacity: 1 }}
+        animate={{ y: "0%", opacity: 1 }}
         transition={
-          entered
-            ? { duration: 0.5, ease: [0.22, 1, 0.36, 1] }
-            : SPLASH_SKIPPED
-              ? { delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
-              : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+          SPLASH_SKIPPED
+            ? { delay: 0.2, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+            : { delay: 4.05, duration: 0.7, ease: [0.22, 1, 0.36, 1] }
         }
-        onAnimationComplete={() => setEntered(true)}
         className={cn(
-          "fixed inset-x-0 top-0 z-[100] pt-[env(safe-area-inset-top)] transition-colors duration-500",
+          "fixed inset-x-0 top-0 z-[100] pt-[env(safe-area-inset-top)] transition-[background-color,border-color,box-shadow] duration-500",
           scrolled
             ? "border-b-[3px] border-taupe bg-ink/95 shadow-[0_16px_40px_-24px_rgba(0,0,0,0.55)] supports-[backdrop-filter]:bg-ink/80 supports-[backdrop-filter]:backdrop-blur-xl"
             : "border-b-[3px] border-transparent bg-transparent"
@@ -130,7 +119,10 @@ export function Navbar() {
       >
         <nav
           aria-label="Main navigation"
-          className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-5 sm:px-8"
+          className={cn(
+            "mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-5 transition-[height] duration-500 sm:px-8",
+            scrolled ? "h-14" : "h-16"
+          )}
         >
           <Logo />
 

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * Refresh endpoint. Two callers, two rules:
+ * Refresh endpoint. Three callers, three rules:
  *
  * - GET (the hourly Vercel cron): when CRON_SECRET is configured in the
  *   environment, the request must carry `Authorization: Bearer <secret>`,
@@ -17,6 +17,10 @@ export const maxDuration = 60;
  * - POST (the manual refresh button on the live section): allowed without
  *   a token, because refreshLive itself rate limits real generations to
  *   roughly one every nine minutes, so neither path can run the key dry.
+ *   But the Origin must match the site, so a page on another origin cannot
+ *   make visitors silently trigger generations (classic CSRF); browsers
+ *   always attach Origin to same-origin POSTs, non-browser callers attach
+ *   none and stay welcome.
  */
 function cronAuthorized(req: Request): boolean {
   const secret = process.env.CRON_SECRET;
@@ -30,11 +34,28 @@ function cronAuthorized(req: Request): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
+/** Cross-site request forgery guard for the unauthenticated POST path. */
+function sameOrigin(req: Request): boolean {
+  const origin = req.headers.get("origin");
+  if (!origin) return true; // curl, cron and other non-browser callers
+  try {
+    return new URL(origin).host === req.headers.get("host");
+  } catch {
+    return false;
+  }
+}
+
 async function handler(req: Request) {
   if (req.method === "GET" && !cronAuthorized(req)) {
     return NextResponse.json(
       { error: "unauthorized" },
       { status: 401, headers: { "Cache-Control": "no-store" } },
+    );
+  }
+  if (req.method === "POST" && !sameOrigin(req)) {
+    return NextResponse.json(
+      { error: "forbidden" },
+      { status: 403, headers: { "Cache-Control": "no-store" } },
     );
   }
   try {
