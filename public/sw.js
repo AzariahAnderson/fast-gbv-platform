@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v8";
+const VERSION = "fast-v9";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -32,6 +32,10 @@ const PRECACHE = [
   "/emojis/1f91d-128.webp",
   "/emojis/1fac2-128.webp",
   "/emojis/1f49a-128.webp",
+  "/emojis/1f31e-128.webp",
+  "/emojis/1f49c-128.webp",
+  "/emojis/1f495-128.webp",
+  "/emojis/1f337-128.webp",
 ];
 
 self.addEventListener("install", (event) => {

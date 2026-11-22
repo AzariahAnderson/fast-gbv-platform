@@ -15,11 +15,15 @@ APP_DIR = os.path.join(ROOT, "src", "app")
 # Every shipped animation must be visible in all of its frames: the
 # seedling (1f331) grows out of nothing and the star (1f31f) twinks to
 # black mid-loop, and an emoji that vanishes reads as broken, not charming.
-# Hero frame: sparkling heart, cherry blossom, clover, folded hands.
+# Measured vanishing (rejected): 1f331 seedling, 1f31f star, 1f308 rainbow
+# (5/20 near-empty frames), 1f64c raised hands (2/20).
+# Hero frame: sparkling heart, cherry blossom, clover, folded hands and,
+# since beta.8, sun with face, purple heart, two hearts and a tulip.
 # Encouragement strip: sparkles, hearts, biceps, handshake, hug.
 KEEP = [
     "2728", "1f496", "1f338", "1f340", "1f64f",
     "1f49b", "1f4aa", "1f91d", "1fac2", "1f49a",
+    "1f31e", "1f49c", "1f495", "1f337",
 ]
 MAX_FRAMES = 24
 

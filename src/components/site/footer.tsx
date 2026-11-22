@@ -2,6 +2,7 @@
 
 import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
 import { SITE_VERSION } from "@/lib/site";
+import { WELCOME_OPEN_EVENT } from "@/lib/profile";
 
 /**
  * Footer navigation carries no phone numbers, every line hands off to the
@@ -66,6 +67,22 @@ export function Footer() {
               free gender based violence services. It is not a substitute for
               police, medical or legal services.
             </p>
+            {/* Re-opens the welcome flow (language, name, struggles). Lives
+                here because a personal greeting is the one thing on this
+                page a visitor can make their own. */}
+            <button
+              type="button"
+              onClick={() =>
+                window.dispatchEvent(new CustomEvent(WELCOME_OPEN_EVENT))
+              }
+              className="group inline-flex items-center gap-2 rounded-xl border-2 border-taupe bg-taupe/10 px-4 py-2.5 text-[11px] font-bold uppercase tracking-[0.16em] text-body transition-colors hover:border-brand hover:text-brand"
+            >
+              <Sparkles
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12"
+                aria-hidden="true"
+              />
+              Personalise your greeting
+            </button>
           </div>
 
           <nav
@@ -101,8 +118,9 @@ export function Footer() {
               Private by design
             </p>
             <p className="text-[13px] font-medium leading-relaxed text-body">
-              Fast is a static awareness page. No accounts, no tracking cookies
-              and no personal information collected or stored.
+              Fast is a static awareness page. No accounts and no tracking
+              cookies. What you type for your greeting stays on this device
+              only — it is never sent to us or stored anywhere else.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { markSplashShown, splashShownThisSession } from "@/lib/splash";
+import { markSplashDone, markSplashShown, splashShownThisSession } from "@/lib/splash";
 
 /**
  * Splash screen. The white wordmark rises in Inter black over the same ink
@@ -33,11 +33,16 @@ export function Preloader() {
       const r = requestAnimationFrame(() => {
         setSkip(true);
         setDone(true);
+        // The welcome flow listens for this to know the curtain lifted.
+        markSplashDone();
       });
       return () => cancelAnimationFrame(r);
     }
     markSplashShown();
-    const t = setTimeout(() => setDone(true), 4000);
+    const t = setTimeout(() => {
+      setDone(true);
+      markSplashDone();
+    }, 4000);
     return () => clearTimeout(t);
   }, []);
 

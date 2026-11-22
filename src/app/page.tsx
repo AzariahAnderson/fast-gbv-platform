@@ -1,4 +1,5 @@
 import { Preloader } from "@/components/site/preloader";
+import { Welcome } from "@/components/site/welcome";
 import { PwaRegister } from "@/components/site/pwa-register";
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
@@ -103,6 +104,10 @@ export default function Home() {
         Skip to the emergency numbers
       </a>
       <Preloader />
+      {/* The welcome flow opens once the splash lifts (first visit only):
+          language, then a compulsory appropriate name, then what the
+          visitor is going through — all kept on the device only. */}
+      <Welcome />
       <PwaRegister />
       <div className="noise-overlay" aria-hidden="true" />
       <Navbar />

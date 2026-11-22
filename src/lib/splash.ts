@@ -30,3 +30,24 @@ export function markSplashShown(): void {
  * On the server this is always false, which matches the SSR markup.
  */
 export const SPLASH_SKIPPED = splashShownThisSession();
+
+/**
+ * Splash-to-welcome handoff. The welcome flow must open only once the
+ * curtain has lifted, and only if it has not missed the moment (both the
+ * preloader and the welcome mount in the same tick). The preloader calls
+ * markSplashDone in every exit path; the welcome flow either receives the
+ * event or sees the flag already set and opens a beat later.
+ */
+export const SPLASH_DONE_EVENT = "fast:splash-done";
+
+let splashDoneFlag = false;
+
+export function markSplashDone(): void {
+  splashDoneFlag = true;
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(SPLASH_DONE_EVENT));
+}
+
+export function splashIsDone(): boolean {
+  return splashDoneFlag;
+}

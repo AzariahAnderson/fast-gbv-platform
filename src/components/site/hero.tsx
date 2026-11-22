@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useSyncExternalStore } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Phone,
@@ -10,6 +11,13 @@ import {
   PhoneCall,
 } from "lucide-react";
 import { SPLASH_SKIPPED } from "@/lib/splash";
+import { GREETINGS } from "@/lib/languages";
+import {
+  getProfileSnapshot,
+  greetingName,
+  subscribeProfile,
+  type FastProfile,
+} from "@/lib/profile";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 // The splash curtain starts lifting at 4.0s and the hero enters underneath
@@ -56,21 +64,25 @@ const TRUST = [
  * The animated emojis that frame the headline. Each one is a small local
  * webp (precached by the service worker), floated in the side gutters
  * where wide screens have room to spare and kept clear of the copy:
- * decoration lives in the margins, never on top of the words. Lg and up
- * only, because on narrower viewports the gutters disappear and an emoji
- * would sit on the text it is meant to celebrate.
+ * decoration lives in the margins, never on top of the words. Four are
+ * visible from lg, and a smaller inner ring of four appears from xl, so
+ * the frame deepens with the viewport instead of crowding narrow ones.
+ * On mobile the gutters disappear and only the sparkle beside "fast"
+ * stays, because there an emoji would sit on the text it celebrates.
  * Every pick is an always-visible animation (measured frame by frame in
  * scripts/fetch-emojis.py) and every pick carries the section's message:
  * a sparkling heart for love, a cherry blossom for gentleness, a clover
- * for hope and folded hands for support. The seedling and the star were
- * rejected for blinking fully transparent mid-loop; the bouquet and the
- * dizzy swoosh were rejected as too busy at 44px.
+ * for hope, folded hands for support, a sun for warmth, a purple heart
+ * for courage, two hearts for care and a tulip for kindness. The seedling,
+ * the star, the rainbow and the raised hands were all rejected for
+ * blinking fully transparent mid-loop.
  */
 const FLOATS = [
   {
     src: "/emojis/1f496-128.webp",
     pos: "left-[2%] top-[7%]",
     size: "lg:h-11 lg:w-11",
+    show: "hidden lg:block",
     rotate: -8,
     bob: "7s",
     bobDelay: "0s",
@@ -79,6 +91,7 @@ const FLOATS = [
     src: "/emojis/1f338-128.webp",
     pos: "right-[2.5%] top-[7%]",
     size: "lg:h-11 lg:w-11",
+    show: "hidden lg:block",
     rotate: 10,
     bob: "6.4s",
     bobDelay: "0.9s",
@@ -87,6 +100,7 @@ const FLOATS = [
     src: "/emojis/1f340-128.webp",
     pos: "left-[3.5%] top-[34%]",
     size: "lg:h-10 lg:w-10",
+    show: "hidden lg:block",
     rotate: -6,
     bob: "6.8s",
     bobDelay: "1.7s",
@@ -95,9 +109,47 @@ const FLOATS = [
     src: "/emojis/1f64f-128.webp",
     pos: "right-[3.5%] top-[37%]",
     size: "lg:h-12 lg:w-12",
+    show: "hidden lg:block",
     rotate: 8,
     bob: "7.6s",
     bobDelay: "2.4s",
+  },
+  // Inner ring: smaller, tilted a little more, visible from xl only.
+  {
+    src: "/emojis/1f31e-128.webp",
+    pos: "left-[6.5%] top-[16%]",
+    size: "xl:h-9 xl:w-9",
+    show: "hidden xl:block",
+    rotate: -14,
+    bob: "6.2s",
+    bobDelay: "0.5s",
+  },
+  {
+    src: "/emojis/1f49c-128.webp",
+    pos: "right-[6%] top-[19%]",
+    size: "xl:h-8 xl:w-8",
+    show: "hidden xl:block",
+    rotate: 12,
+    bob: "7.1s",
+    bobDelay: "1.3s",
+  },
+  {
+    src: "/emojis/1f337-128.webp",
+    pos: "left-[5%] top-[55%]",
+    size: "xl:h-9 xl:w-9",
+    show: "hidden xl:block",
+    rotate: -10,
+    bob: "6.9s",
+    bobDelay: "2.1s",
+  },
+  {
+    src: "/emojis/1f495-128.webp",
+    pos: "right-[4.5%] top-[57%]",
+    size: "xl:h-8 xl:w-8",
+    show: "hidden xl:block",
+    rotate: 14,
+    bob: "6.6s",
+    bobDelay: "2.9s",
   },
 ];
 
@@ -111,6 +163,45 @@ export function Hero() {
           animate: { opacity: 1, y: 0, filter: "blur(0px)" },
           transition: { delay, duration: 0.85, ease: EASE },
         };
+
+  // The on-device profile drives the greeting eyebrow. It is an external
+  // store read through useSyncExternalStore: null on the server and during
+  // hydration (so the markup stays hydration-safe), the real profile after
+  // that. A profile saved while the page is open (the welcome flow just
+  // finished) is "late" and reveals immediately; one that existed before
+  // this page loaded lands with the rest of the choreography at D.
+  const [mountedAt] = useState(() => Date.now());
+  const profile = useSyncExternalStore(
+    subscribeProfile,
+    getProfileSnapshot,
+    () => null,
+  );
+  const late =
+    !!profile && new Date(profile.completedAt).getTime() > mountedAt;
+
+  const greetingEl = profile ? (
+    <motion.p
+      {...(late
+        ? {
+            initial: { opacity: 0, y: 12 },
+            animate: { opacity: 1, y: 0 },
+            transition: { delay: 0.3, duration: 0.6, ease: EASE },
+          }
+        : anim(D + 0.0))}
+      className="relative z-10 inline-flex items-center gap-2 rounded-lg border-2 border-brand/50 bg-brand/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-brand sm:text-[13px]"
+    >
+      {GREETINGS[profile.lang] ?? "Welcome"}, {greetingName(profile)}
+      <img
+        src="/emojis/1f338-128.webp"
+        alt=""
+        width={88}
+        height={88}
+        draggable={false}
+        className="animate-bob h-4 w-4"
+        style={{ animationDuration: "5s" }}
+      />
+    </motion.p>
+  ) : null;
 
   return (
     <section
@@ -127,7 +218,7 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-5 text-center sm:px-8">
-        {/* The emoji frame: four gentle companions drifting in the gutters
+        {/* The emoji frame: eight gentle companions drifting in the gutters
             around the headline, arriving just after the words land. The
             framer span owns the entrance (scale and tilt), the img inside
             owns the endless bob, so the two transforms never fight. */}
@@ -135,7 +226,7 @@ export function Hero() {
           <motion.span
             key={f.src}
             aria-hidden="true"
-            className={`pointer-events-none absolute z-10 hidden lg:block ${f.pos}`}
+            className={`pointer-events-none absolute z-10 ${f.show} ${f.pos}`}
             initial={
               reduce
                 ? { opacity: 0 }
@@ -167,7 +258,11 @@ export function Hero() {
           </motion.span>
         ))}
 
-        <motion.div {...anim(D + 0.05)}>
+        {/* Personal greeting, when the visitor set one up in the welcome
+            flow. Above the badge, because it is a hello, not a claim. */}
+        {greetingEl}
+
+        <motion.div {...anim(D + 0.05)} className={profile ? "mt-6" : undefined}>
           <span className="inline-flex items-center gap-2.5 rounded-lg border-2 border-taupe bg-taupe/15 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
             <span className="h-px w-3.5 bg-brand" aria-hidden="true" />
             Free, confidential, answered 24 hours a day
