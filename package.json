@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:directory": "bun test tests/directory-integrity.test.ts",
     "test:i18n": "bun test tests/i18n.test.ts",
-    "test": "bun test tests/directory-integrity.test.ts tests/i18n.test.ts tests/live-sanitize.test.ts",
+    "test": "bun test tests/directory-integrity.test.ts tests/i18n.test.ts tests/live-sanitize.test.ts tests/thumb-extract.test.ts",
     "test:e2e": "playwright test",
     "db:push": "echo '[fast] no database: FAST keeps no server-side data store; this no-op exists so the sandbox dev harness keeps working'"
   },

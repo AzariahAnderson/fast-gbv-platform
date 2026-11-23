@@ -205,7 +205,11 @@ test.describe("mobile", () => {
     await page.getByRole("button", { name: /Personalise/i }).click();
     await page.getByRole("button", { name: "Remove my greeting" }).click();
     await page.getByRole("button", { name: "Tap again to remove" }).click();
-    await expect(page.getByText("Greeting removed.")).toBeVisible();
+    // Exact match: the visible toast is "Greeting removed." while the
+    // accessibility live region announces a longer sentence ("Notification
+    // Greeting removed. The language, names…"). A substring locator would
+    // match both and trip Playwright's strict mode.
+    await expect(page.getByText("Greeting removed.", { exact: true })).toBeVisible();
     await expect(page.getByText(/THANDI/i)).toHaveCount(0);
   });
 });
