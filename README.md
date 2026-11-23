@@ -165,6 +165,10 @@ docs/
   SECURITY.md                           security posture + reporting
   EMERGENCY_DIRECTORY_VERIFICATION.md   human verification workflow
   LOCALISATION.md                       localisation architecture
+  launch/                               the complete launch system (checklist,
+                                        16-day campaign, school/NGO/media
+                                        packages, WhatsApp, QR, ambassadors,
+                                        partnerships, measurement policy)
 ```
 
 ## Getting started
