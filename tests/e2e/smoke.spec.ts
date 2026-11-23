@@ -123,6 +123,16 @@ test.describe("desktop", () => {
     await page.keyboard.press("Tab");
     await expect(page.locator("a.skip-link")).toBeFocused();
   });
+
+  test("404 keeps the crisis path reachable", async ({ page }) => {
+    const response = await page.goto("/definitely-not-a-page");
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    // A wrong URL must never become a dead end: the verified Command
+    // Centre dial link and the directory-presented number stay on screen.
+    await expect(page.locator(`a[href="${CRISIS_TEL}"]:visible`).first()).toBeVisible();
+    await expect(page.getByText(CRISIS_LINE.display).first()).toBeVisible();
+  });
 });
 
 test.describe("mobile", () => {
