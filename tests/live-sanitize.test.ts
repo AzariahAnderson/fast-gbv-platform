@@ -57,7 +57,7 @@ describe("live data failure modes", () => {
     expect(result.stats[1].sourceUrl).toBe("https://news.example/article");
   });
 
-  it("invalid dates are dropped", () => {
+  it("invalid dates are dropped and dated news sorts latest first", () => {
     const result = sanitizeData({
       news: [
         { title: "t", summary: "s", source: "src", date: "13/45/2024" },
@@ -65,9 +65,64 @@ describe("live data failure modes", () => {
         { title: "t3", summary: "s3", source: "src3", date: "2024-03-05" },
       ],
     });
-    expect(result.news[0].date).toBeUndefined();
+    // The two invalid dates are gone; the valid one now leads the cards.
+    expect(result.news[0].date).toBe("2024-03-05");
     expect(result.news[1].date).toBeUndefined();
-    expect(result.news[2].date).toBe("2024-03-05");
+    expect(result.news[2].date).toBeUndefined();
+  });
+
+  it("news sorts latest first, undated items last", () => {
+    const result = sanitizeData({
+      news: [
+        { title: "older", summary: "s", source: "a", date: "2024-01-10" },
+        { title: "newest", summary: "s", source: "b", date: "2024-05-02" },
+        { title: "undated", summary: "s", source: "c" },
+        { title: "mid", summary: "s", source: "d", date: "2024-03-01" },
+      ],
+    });
+    expect(result.news.map((n) => n.title)).toEqual(["newest", "mid", "older", "undated"]);
+  });
+
+  it("thumbnail URLs pass the same https validation as source URLs", () => {
+    const result = sanitizeData({
+      news: [
+        { title: "a", summary: "s", source: "x", image: "javascript:alert(1)" },
+        { title: "b", summary: "s", source: "y", image: "http://cdn.example/pic.jpg" },
+        { title: "c", summary: "s", source: "z", image: "https://cdn.example/pic.jpg" },
+        { title: "d", summary: "s", source: "w" },
+      ],
+    });
+    expect(result.news[0].image).toBeUndefined();
+    expect(result.news[1].image).toBeUndefined();
+    expect(result.news[2].image).toBe("https://cdn.example/pic.jpg");
+    expect(result.news[3].image).toBeUndefined();
+  });
+
+  it("a cached payload keeps its verified thumbnail", () => {
+    const cached = sanitizeData({
+      news: [
+        {
+          title: "a",
+          summary: "s",
+          source: "x",
+          sourceUrl: "https://news.example/a",
+          image: "https://cdn.example/pic.jpg",
+        },
+      ],
+      stats: BASELINE.stats,
+    });
+    const restored = sanitizeData(cached);
+    expect(restored.news[0].image).toBe("https://cdn.example/pic.jpg");
+  });
+
+  it("long signed CDN image URLs are kept intact", () => {
+    // Signed CDN links run far beyond the 300-char article cap; a truncated
+    // signature is a dead link, so image URLs get a wider limit.
+    const long = `https://cdn.example/pic.jpg?sig=${"a".repeat(500)}`;
+    const result = sanitizeData({
+      news: [{ title: "a", summary: "s", source: "x", image: long }],
+    });
+    expect(result.news[0].image).toBe(long);
   });
 
   it("oversized text is truncated to the display limits", () => {

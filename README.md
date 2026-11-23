@@ -51,12 +51,13 @@ Design principles, treated as hard rules rather than preferences:
 Fourteen sections, in order: a preloader splash; a welcome flow that offers
 the visitor one of South Africa's eleven official languages, a compulsory
 appropriateness-checked name and a private, optional multi-select of what
-they are going through; service-worker registration; a navbar with a
-persistent crisis call button; a hero with the crisis line and an animated
-emoji frame; a rotating encouragement strip; the full emergency directory
-with featured lines, silent channels (please-call-me and SMS) and a grouped,
-collapsible directory; survivor pathways; live data (verified statistics and
-news with sources); a behaviour-change section for those who cause harm; a
+they are going through; service-worker registration; a link-free sticky bar
+with a persistent crisis call button; a hero with the crisis line and an
+animated emoji frame; a rotating encouragement strip; the full emergency
+directory with featured lines, silent channels (please-call-me and SMS) and
+a grouped, collapsible directory; survivor pathways; live data (verified
+statistics and the latest news with sources and the articles' own preview
+images); a behaviour-change section for those who cause harm; a
 step-by-step "how Fast works"; an FAQ; a closing call to action; and a
 footer that repeats the crisis line.
 
@@ -88,22 +89,35 @@ hourly cron (Vercel, 0 * * * *)        manual refresh button
    4. verified baseline             <- if every engine fails
             |
             v
-   memory cache -> disk cache (/tmp on Vercel) -> baseline
+   thumbnail enrichment             <- og:image scraped from each article,
+      (server-side, best effort)       dropped when it cannot be verified
             |
             v
-        /api/live  (public read, s-maxage=600, stale-while-revalidate)
+   memory cache -> disk cache (/tmp on Vercel) -> baseline
+            |                                   |
+            v                                   v
+        /api/live                          /api/image (constrained proxy:
+  (public read, s-maxage=600,           serves only URLs the live cache
+   stale-while-revalidate)              already holds, so publisher servers
+                                        never see a visitor's IP and the
+                                        CSP img-src stays locked to 'self')
 ```
 
 Every statistic carries an organisation, a year where applicable and a real
 https source URL; every news item carries a publisher, a date and a real
-article URL. The sanitiser drops anything ungrounded: malformed JSON, invalid
-URLs, bad dates, redirect-wrapped links, oversized text, empty lists. The
-verified baseline renders instantly on first paint, so the section is never
-empty and never shows a spinner instead of help.
+article URL, sorted latest first. When the article page can be fetched, its
+own og:image is stored as the card's preview image — never an AI-suggested
+URL — and it is re-served same-origin through `/api/image`. The sanitiser
+drops anything ungrounded: malformed JSON, invalid URLs (including image
+URLs: http, redirect wrappers and truncated signatures never ship), bad
+dates, oversized text, empty lists. A card whose image fails verification
+renders a quiet fallback tile; a card whose article cannot be verified is
+dropped entirely. The verified baseline renders instantly on first paint,
+so the section is never empty and never shows a spinner instead of help.
 
 ### Offline behaviour
 
-The service worker (`fast-v11`) precaches the offline fallback, the manifest,
+The service worker (`fast-v13`) precaches the offline fallback, the manifest,
 icons and every local emoji animation on install, using `cache:"reload"` so
 version bumps always install true bytes. Visited pages are cached
 network-first with a hard timeout; the `/api/live` payload falls back to the
@@ -123,6 +137,7 @@ src/
     global-error.tsx    root error boundary (self-contained, numbers pinned)
     api/live/           public read path for the live payload
     api/refresh/        hourly cron + manual refresh (authenticated)
+    api/image/          constrained thumbnail proxy (live-cache URLs only)
     robots.ts, sitemap.ts, globals.css, icons
   components/
     site/               preloader, welcome, navbar, hero, emergency, live, ...
@@ -131,6 +146,9 @@ src/
   lib/
     numbers.ts          THE emergency directory (single source of truth)
     live-fetch.ts       engine chain + sanitiser + caching (server-only)
+    live-images.ts      best-effort article thumbnail scraping (server-only)
+    thumb-extract.ts    pure og:image extractor (unit tested)
+    live-sanitize.ts    the defensive normaliser every payload passes
     live-types.ts       shared contract + verified baseline content
     i18n/en.ts          English source catalogue (localisation stage 1)
     profile.ts          device-only welcome profile (localStorage)
@@ -139,6 +157,7 @@ src/
     motion.ts, splash.ts, site.ts, faqs.ts, struggles.ts, utils.ts
 tests/
   directory-integrity.test.ts   the safety-critical directory guard
+  thumb-extract.test.ts         preview-image extraction rules
   i18n.test.ts                  catalogue integrity
 public/
   sw.js, offline.html, manifest.webmanifest, emojis/, icons/, images/
@@ -233,6 +252,8 @@ bunx playwright test
 4. Deploy, then verify on the production domain:
    - the security headers (see docs/SECURITY.md) are present;
    - `/robots.txt` and `/sitemap.xml` resolve to the real domain;
+   - the live section renders the latest news cards, each with the
+     article's preview image or the fallback tile (no broken images);
    - the emergency section dials correctly from a real phone;
    - airplane mode: reload -> the cached page or the offline fallback keeps
      the crisis numbers tappable.

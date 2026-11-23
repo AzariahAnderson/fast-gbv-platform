@@ -87,9 +87,10 @@ test.describe("desktop", () => {
 
   test("emergency navigation reaches the verified directory", async ({ page }) => {
     await page.goto("/");
-    // Scope to the banner: the closed mobile drawer also carries an
-    // "Emergency" link that sits off-screen and cannot be clicked.
-    await page.getByRole("banner").getByRole("link", { name: "Emergency" }).click();
+    // The desktop sticky bar is intentionally free of section links; the
+    // hero's "In danger right now" link is the path a visitor in crisis
+    // sees first, and it must land on the verified directory.
+    await page.getByRole("link", { name: /In danger right now/ }).click();
     const emergency = page.locator("#emergency");
     await expect(emergency).toBeVisible();
     await expect(emergency.getByText(CRISIS_LINE.name).first()).toBeVisible();

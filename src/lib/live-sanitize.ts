@@ -15,7 +15,15 @@ function cleanText(input: unknown, max: number): string {
   return input.replace(/\s+/g, " ").trim().slice(0, max);
 }
 
-function cleanUrl(input: unknown): string | undefined {
+/**
+ * Keep only genuine https links: anything else (http, javascript:, redirect
+ * wrappers) is dropped rather than shown to a visitor. Exported so the
+ * thumbnail extractor applies exactly the same rules to scraped image URLs.
+ * Article links are capped at 300 characters; image URLs may carry up to
+ * 700, because signed CDN links (fbcdn, Akamai tokens) run far longer than
+ * an article path and a truncated signature is a dead link.
+ */
+export function cleanUrl(input: unknown, max = 300): string | undefined {
   if (typeof input !== "string") return undefined;
   const url = input.trim();
   if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) return undefined;
@@ -25,7 +33,7 @@ function cleanUrl(input: unknown): string | undefined {
   // wrapper too.
   if (/^https:\/\/(www\.)?google\.[a-z.]+\/(goto|url)\?/i.test(url)) return undefined;
   if (/\?.*https?:\/\//i.test(url)) return undefined;
-  return url.slice(0, 300);
+  return url.slice(0, max);
 }
 
 function cleanDate(input: unknown): string | undefined {
@@ -79,8 +87,12 @@ export function sanitizeData(raw: unknown, previous?: LiveData): LiveData {
           source: cleanText(n?.source, 120),
           sourceUrl: cleanUrl(n?.sourceUrl),
           date: cleanDate(n?.date),
+          image: cleanUrl(n?.image, 700),
         }))
         .filter((n) => n.title && n.summary && n.source)
+        // Latest reporting leads: dated items sort newest first and undated
+        // items sink to the end instead of breaking the reading order.
+        .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
         .slice(0, 4)
     : [];
 

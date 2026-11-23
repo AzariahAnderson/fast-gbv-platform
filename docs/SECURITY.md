@@ -26,7 +26,7 @@ supported.
 
 | Layer | Status |
 | --- | --- |
-| Content-Security-Policy | `default-src 'self'`; every directive locked to `'self'`; `frame-src 'none'`, `object-src 'none'`, `frame-ancestors 'none'`. See the rationale below. |
+| Content-Security-Policy | `default-src 'self'`; every directive locked to `'self'`; `frame-src 'none'`, `object-src 'none'`, `frame-ancestors 'none'`. Article preview images are served same-origin through the constrained `/api/image` proxy, so even `img-src` stays `'self'` — no third-party image origins were added when thumbnails shipped. See the rationale below. |
 | Permissions-Policy | Camera, microphone, geolocation and ~22 other capabilities denied outright — a support page never needs them, so a survivor is never prompted for one. |
 | Referrer-Policy | `no-referrer`: outbound clicks to news sources and services never reveal that the visitor came from a GBV support page. |
 | Frame protection | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, CORP `same-origin`, COOP `same-origin`. |
@@ -53,6 +53,15 @@ in `next.config.ts` and was evaluated deliberately rather than inherited.
 - **Vercel cron -> `/api/refresh` (GET)**: when `CRON_SECRET` is configured,
   the request must carry `Authorization: Bearer <secret>`, compared with a
   timing-safe equality check.
+- **Server -> publisher article pages** (once per hourly refresh): the
+  server fetches each grounded news article to read its own `og:image`,
+  with a short timeout and a descriptive user agent. Only https URLs that
+  pass the sanitiser's redirect-wrapper rules are stored, and a failed
+  scrape simply leaves the card imageless.
+- **Browser -> `/api/image`**: same-origin thumbnail proxy. It serves a URL
+  only when it is byte-for-byte an image URL already held in the server's
+  live cache, so it is not an open proxy; publisher CDNs see the server's
+  request, never the visitor's IP, and responses are edge-cached.
 - **Visitor profile** (language, name, struggles): stored in `localStorage`
   on the visitor's device only. It is never transmitted to any server, and
   the welcome flow includes a two-tap "Remove my greeting" path that deletes

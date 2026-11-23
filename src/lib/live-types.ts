@@ -21,6 +21,13 @@ export type LiveNews = {
   sourceUrl?: string;
   /** YYYY-MM-DD when the item carries a date */
   date?: string;
+  /**
+   * The article's own og:image, scraped server-side from the publisher
+   * page at refresh time and served through the constrained /api/image
+   * proxy. Undefined when no image could be verified — a missing image
+   * renders the fallback tile and is never replaced by an invented URL.
+   */
+  image?: string;
 };
 
 export type LiveData = {

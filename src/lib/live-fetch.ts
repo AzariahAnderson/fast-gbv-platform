@@ -5,6 +5,7 @@ import path from "path";
 import type { LiveData } from "./live-types";
 import { BASELINE } from "./live-types";
 import { sanitizeData } from "./live-sanitize";
+import { withThumbnails } from "./live-images";
 
 /**
  * Hourly AI data service with a three engine chain.
@@ -254,7 +255,12 @@ async function generate(): Promise<LiveData> {
         ];
     for (const [name, run] of attempts) {
       try {
-        const data = await run();
+        const fresh = await run();
+        // Publisher thumbnails are scraped from the linked articles once
+        // per successful generation, for Gemini and web-search output
+        // alike. A failed scrape leaves the item imageless (fallback tile)
+        // and never blocks or fails the refresh itself.
+        const data = await withThumbnails(fresh);
         state().data = data;
         state().fetchedAt = Date.now();
         await writeCacheFile(data);

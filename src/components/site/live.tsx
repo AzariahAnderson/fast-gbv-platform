@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowUpRight, RefreshCw, Radio, ShieldCheck, Lightbulb } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, RefreshCw, Radio, ShieldCheck, Lightbulb, Newspaper } from "lucide-react";
 import { Reveal } from "./reveal";
 import { useLive } from "@/hooks/use-live";
 import { useToast } from "@/hooks/use-toast";
@@ -54,9 +55,45 @@ function StatCard({ stat, i }: { stat: LiveData["stats"][number]; i: number }) {
   );
 }
 
+/**
+ * The article's own preview image, served same-origin through the
+ * constrained /api/image proxy so a publisher never sees a visitor's IP.
+ * The container keeps a fixed 16:9 aspect ratio, so cards stay aligned in
+ * the grid whether an image was verified or not, and nothing shifts when
+ * one loads or fails. A broken or missing image swaps to the fallback
+ * tile — never a broken-image glyph, never a layout jump.
+ */
+function NewsMedia({ item }: { item: LiveData["news"][number] }) {
+  const [failed, setFailed] = useState(false);
+  const showImage = Boolean(item.image) && !failed;
+  return (
+    <div
+      className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border-2 border-taupe bg-taupe/20"
+      data-testid="news-media"
+    >
+      {showImage ? (
+        <img
+          src={`/api/image?u=${encodeURIComponent(item.image as string)}`}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          referrerPolicy="no-referrer"
+          onError={() => setFailed(true)}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div aria-hidden="true" className="flex h-full w-full items-center justify-center">
+          <Newspaper className="h-7 w-7 text-dim" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NewsCard({ item }: { item: LiveData["news"][number] }) {
   return (
     <article className="card-hover card-surface group flex h-full flex-col gap-3 p-6 sm:p-7">
+      <NewsMedia item={item} />
       <div className="flex items-center justify-between gap-3">
         {item.date ? (
           <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-dim">

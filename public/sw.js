@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v12";
+const VERSION = "fast-v13";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
