@@ -60,11 +60,15 @@ function StatCard({ stat, i }: { stat: LiveData["stats"][number]; i: number }) {
  * constrained /api/image proxy so a publisher never sees a visitor's IP.
  * The container keeps a fixed 16:9 aspect ratio, so cards stay aligned in
  * the grid whether an image was verified or not, and nothing shifts when
- * one loads or fails. A broken or missing image swaps to the fallback
- * tile — never a broken-image glyph, never a layout jump.
+ * one loads or fails. The image itself is contain-fitted on a warm taupe
+ * backdrop, so the whole picture is visible — no cropping, no stretched
+ * edges; the letterboxing reads as part of the card. A broken or missing
+ * image swaps to the fallback tile — never a broken-image glyph, never a
+ * layout jump.
  */
 function NewsMedia({ item }: { item: LiveData["news"][number] }) {
   const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const showImage = Boolean(item.image) && !failed;
   return (
     <div
@@ -72,15 +76,26 @@ function NewsMedia({ item }: { item: LiveData["news"][number] }) {
       data-testid="news-media"
     >
       {showImage ? (
-        <img
-          src={`/api/image?u=${encodeURIComponent(item.image as string)}`}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-          onError={() => setFailed(true)}
-          className="h-full w-full object-cover"
-        />
+        <>
+          {/* Warm backdrop that sits behind the contain-fitted photo and
+              stays visible while the image streams in. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_20%,rgba(216,211,101,0.10),rgba(96,91,81,0.35))] "
+          />
+          <img
+            src={`/api/image?u=${encodeURIComponent(item.image as string)}`}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            referrerPolicy="no-referrer"
+            onError={() => setFailed(true)}
+            onLoad={() => setLoaded(true)}
+            className={`relative h-full w-full object-contain transition-opacity duration-500 ${
+              loaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        </>
       ) : (
         <div aria-hidden="true" className="flex h-full w-full items-center justify-center">
           <Newspaper className="h-7 w-7 text-dim" />

@@ -136,6 +136,22 @@ export function Navbar() {
           <Logo />
 
           <div className="flex items-center gap-2.5">
+            {/* The restrained entry point into the signed-in product. It
+                never competes with the crisis CTA: quiet text links beside
+                one gold button. */}
+            <a
+              href="/login"
+              className="lift hidden min-h-10 items-center rounded-xl px-3 text-sm font-semibold text-body transition-colors hover:text-brand md:inline-flex"
+            >
+              Sign in
+            </a>
+            <a
+              href="/home"
+              className="lift hidden min-h-10 items-center gap-1.5 rounded-xl border-2 border-taupe bg-taupe/15 px-4 text-sm font-bold text-foreground transition-colors hover:border-brand hover:text-brand md:inline-flex"
+            >
+              Open FAST
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </a>
             <a
               href={CRISIS_TEL_HREF}
               className="lift group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold tracking-tight text-ink hover:bg-brand-2 sm:inline-flex"
@@ -224,6 +240,27 @@ export function Navbar() {
                   />
                 </motion.a>
               ))}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5, ease: EASE }}
+                className="mt-6 flex flex-col gap-3"
+              >
+                <a
+                  href="/home"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-13 items-center justify-center rounded-2xl border-[3px] border-taupe bg-taupe/15 text-base font-bold text-foreground"
+                >
+                  Open FAST
+                </a>
+                <a
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-13 items-center justify-center text-base font-bold text-brand underline-offset-4"
+                >
+                  Sign in
+                </a>
+              </motion.div>
             </nav>
 
             <motion.div

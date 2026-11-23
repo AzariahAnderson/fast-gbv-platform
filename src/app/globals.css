@@ -318,6 +318,70 @@
   }
 }
 
+/* ---------- FAST map markers ---------- */
+
+/* One marker language: a warm gold dot for "me", a taupe dot with a slow
+   breathing ring for family members. Subtle by design — presence, not
+   alert. Under reduced motion the ring holds still. */
+.fast-marker {
+  position: relative;
+  width: 18px;
+  height: 18px;
+}
+.fast-marker-dot {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 9999px;
+  background: var(--taupe);
+  border: 2px solid var(--ink);
+  box-shadow: 0 0 0 1px rgba(199, 195, 187, 0.25);
+}
+.fast-marker-dot-mine {
+  background: var(--brand);
+}
+.fast-marker-ring {
+  position: absolute;
+  inset: -7px;
+  border-radius: 9999px;
+  border: 1.5px solid rgba(96, 91, 81, 0.55);
+  animation: map-ring 3.2s ease-in-out infinite;
+}
+@keyframes map-ring {
+  0% { transform: scale(0.7); opacity: 0.9; }
+  70% { transform: scale(1.25); opacity: 0.15; }
+  100% { transform: scale(0.7); opacity: 0.9; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fast-marker-ring {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* The MapLibre surface is a dark canvas; keep the map chrome quiet too. */
+.maplibregl-ctrl-group {
+  background: var(--ink) !important;
+  border: 2px solid var(--taupe) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 2px solid var(--taupe) !important;
+}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(0.85);
+}
+.maplibregl-ctrl-attrib.maplibregl-compact {
+  background: rgba(69, 64, 64, 0.9) !important;
+  border-radius: 10px !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--text-body) !important;
+}
+
 /* ---------- Keyframes ---------- */
 
 /* Gentle bob for the animated emoji in the encouragement strip */
