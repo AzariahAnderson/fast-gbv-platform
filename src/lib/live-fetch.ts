@@ -2,8 +2,9 @@ import "server-only";
 
 import { promises as fs } from "fs";
 import path from "path";
-import type { LiveData, LiveNews, LiveStat } from "./live-types";
+import type { LiveData } from "./live-types";
 import { BASELINE } from "./live-types";
+import { sanitizeData } from "./live-sanitize";
 
 /**
  * Hourly AI data service with a three engine chain.
@@ -80,91 +81,14 @@ async function writeCacheFile(data: LiveData): Promise<void> {
 
 /* ------------------------------ sanitising ------------------------------ */
 
-function cleanText(input: unknown, max: number): string {
-  if (typeof input !== "string") return "";
-  return input.replace(/\s+/g, " ").trim().slice(0, max);
-}
-
-function cleanUrl(input: unknown): string | undefined {
-  if (typeof input !== "string") return undefined;
-  const url = input.trim();
-  if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) return undefined;
-  // Search providers sometimes wrap results in redirect links; those are not
-  // real sources, so they are dropped rather than shown to a visitor.
-  if (/^https:\/\/(www\.)?google\.[a-z.]+\/goto/i.test(url)) return undefined;
-  if (/^https:\/\/(www\.)?google\.[a-z.]+\/url\?/i.test(url)) return undefined;
-  return url.slice(0, 300);
-}
-
-function cleanDate(input: unknown): string | undefined {
-  const date = cleanText(input, 10);
-  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : undefined;
-}
-
-/** Defensively normalise anything an engine returns before it reaches a visitor. */
+/**
+ * The normaliser every payload passes through. The pure implementation
+ * lives in live-sanitize.ts (dependency free, unit tested against every
+ * failure mode); here it is wired to the in-memory cache so a partially
+ * valid payload keeps the last good fields instead of losing them.
+ */
 export function sanitize(raw: unknown): LiveData {
-  const prev = state().data;
-  const fallback: LiveData = {
-    updatedAt: prev?.updatedAt || BASELINE.updatedAt,
-    generator: prev?.generator || "baseline",
-    stats: prev?.stats?.length ? prev.stats : BASELINE.stats,
-    news: prev?.news?.length ? prev.news : BASELINE.news,
-    encouragement: prev?.encouragement?.length ? prev.encouragement : BASELINE.encouragement,
-    tip: prev?.tip || BASELINE.tip,
-  };
-  if (!raw || typeof raw !== "object") return fallback;
-  const obj = raw as Record<string, unknown>;
-
-  // Fresh engine output carries no timestamp; a payload restored from the
-  // cache does. Preserve the original so "updated at" reflects when the
-  // data was actually generated, not when the cache happened to be read.
-  const restoredAt =
-    typeof obj.updatedAt === "string" && !Number.isNaN(Date.parse(obj.updatedAt))
-      ? obj.updatedAt
-      : new Date().toISOString();
-
-  const stats: LiveStat[] = Array.isArray(obj.stats)
-    ? (obj.stats as Record<string, unknown>[])
-        .map((s) => ({
-          value: cleanText(s?.value, 40),
-          label: cleanText(s?.label, 220),
-          source: cleanText(s?.source, 120),
-          sourceUrl: cleanUrl(s?.sourceUrl),
-        }))
-        .filter((s) => s.value && s.label && s.source)
-        .slice(0, 4)
-    : [];
-
-  const news: LiveNews[] = Array.isArray(obj.news)
-    ? (obj.news as Record<string, unknown>[])
-        .map((n) => ({
-          title: cleanText(n?.title, 160),
-          summary: cleanText(n?.summary, 320),
-          source: cleanText(n?.source, 120),
-          sourceUrl: cleanUrl(n?.sourceUrl),
-          date: cleanDate(n?.date),
-        }))
-        .filter((n) => n.title && n.summary && n.source)
-        .slice(0, 4)
-    : [];
-
-  const encouragement = Array.isArray(obj.encouragement)
-    ? (obj.encouragement as unknown[])
-        .map((e) => cleanText(e, 140))
-        .filter(Boolean)
-        .slice(0, 16)
-    : [];
-
-  const tip = cleanText(obj.tip, 240);
-
-  return {
-    updatedAt: restoredAt,
-    generator: obj.generator === "websearch" ? "websearch" : "gemini",
-    stats: stats.length >= 2 ? stats : fallback.stats,
-    news: news.length >= 1 ? news : fallback.news,
-    encouragement: encouragement.length >= 2 ? encouragement : fallback.encouragement,
-    tip: tip || fallback.tip,
-  };
+  return sanitizeData(raw, state().data);
 }
 
 /* ------------------------------ shared prompt ---------------------------- */

@@ -12,6 +12,7 @@ import {
   DIRECTORY,
   DIRECTORY_GROUPS,
   telHref,
+  telOf,
   type DirectoryEntry,
 } from "@/lib/numbers";
 
@@ -66,17 +67,21 @@ export function Emergency() {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
 
-  // The featured cards read their numbers from the directory (never
-  // hardcoded here), looked up by their digits-only tel value.
-  const entry = (tel: string): DirectoryEntry => {
-    const found = DIRECTORY.find((d) => d.tel === tel);
-    if (!found) throw new Error(`Directory is missing the ${tel} entry`);
+  // The featured cards and the silent channels read their numbers from the
+  // directory (never hardcoded here), looked up by their official name so a
+  // renamed entry fails loudly instead of silently diverging.
+  const entry = (name: string): DirectoryEntry => {
+    const found = DIRECTORY.find((d) => d.name === name);
+    if (!found) throw new Error(`Directory is missing the "${name}" entry`);
     return found;
   };
-  const crisis = entry(CRISIS_LINE.tel);
-  const saps = entry("10111");
-  const ambulance = entry("10177");
-  const childline = entry("116");
+  const crisis = entry(CRISIS_LINE.name);
+  const saps = entry("SAPS, South African Police Service");
+  const ambulance = entry("Ambulance and fire");
+  const childline = entry("Childline South Africa");
+  const cellphone = entry("Cellphone emergency");
+  const pleaseCallMe = entry("GBV Command Centre Please Call Me");
+  const smsHelp = entry("GBV Command Centre SMS");
 
   return (
     <section
@@ -103,7 +108,7 @@ export function Emergency() {
               title={crisis.name}
               tagline="Department of Social Development"
               number={crisis.number}
-              href={telHref(crisis.tel ?? CRISIS_LINE.tel)}
+              href={telHref(telOf(crisis))}
               featured
               description="South Africa's national 24 hour crisis line for gender based violence. Trained counsellors speak all 11 official languages, assess your immediate danger and can send a mobile social worker, arrange shelter space or stay on the line while you contact the police."
               chips={["Toll free", "24 hours", "11 languages", "Social worker callback"]}
@@ -131,8 +136,8 @@ export function Emergency() {
                     Please Call Me, free callback
                   </p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <span className="text-2xl font-black tracking-tight text-brand">*120*7867#</span>
-                    <CopyChip value="*120*7867#" />
+                    <span className="text-2xl font-black tracking-tight text-brand">{pleaseCallMe.number}</span>
+                    <CopyChip value={pleaseCallMe.number} />
                   </div>
                 </div>
                 <div className="rounded-2xl border-2 border-taupe bg-taupe/20 p-4">
@@ -140,8 +145,8 @@ export function Emergency() {
                     SMS the word Help to
                   </p>
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <span className="text-2xl font-black tracking-tight text-brand">31531</span>
-                    <CopyChip value="31531" />
+                    <span className="text-2xl font-black tracking-tight text-brand">{smsHelp.number}</span>
+                    <CopyChip value={smsHelp.number} />
                   </div>
                 </div>
               </div>
@@ -157,7 +162,7 @@ export function Emergency() {
             <CallCard
               title="SAPS, police"
               number={saps.number}
-              href={telHref(saps.tel ?? "10111")}
+              href={telHref(telOf(saps))}
               description="For life threatening emergencies. Police must respond to every domestic violence complaint, help you reach a place of safety and assist with a protection order. Dedicated Family Violence, Child Protection and Sexual Offences units handle these cases."
               chips={["24 hours", "Free", "FCS units"]}
             />
@@ -168,9 +173,9 @@ export function Emergency() {
             <CallCard
               title="Ambulance and fire"
               number={ambulance.number}
-              href={telHref(ambulance.tel ?? "10177")}
-              description="Medical emergencies and serious injuries. From any cellphone you can also dial 112, which works on MTN, Vodacom, Cell C and Telkom even without airtime."
-              chips={["24 hours", "Free", "Cellphone: 112"]}
+              href={telHref(telOf(ambulance))}
+              description={`Medical emergencies and serious injuries. From any cellphone you can also dial ${cellphone.number}, which works on MTN, Vodacom, Cell C and Telkom even without airtime.`}
+              chips={["24 hours", "Free", `Cellphone: ${cellphone.number}`]}
             />
           </Reveal>
 
@@ -179,7 +184,7 @@ export function Emergency() {
             <CallCard
               title="Childline SA"
               number={childline.number}
-              href={telHref(childline.tel ?? "116")}
+              href={telHref(telOf(childline))}
               description="For children and young people facing abuse or neglect, and for adults reporting a child at risk. Toll free from every network, any time of day."
               chips={["Toll free", "24 hours", "Children and teens"]}
             />

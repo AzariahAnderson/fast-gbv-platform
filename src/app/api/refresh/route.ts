@@ -65,8 +65,11 @@ async function handler(req: Request) {
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (err) {
+    // Details stay in the server log only: a public endpoint must never
+    // echo internal error text back to a visitor.
+    console.error("[refresh] failed:", (err as Error).message);
     return NextResponse.json(
-      { ...BASELINE, refreshed: false, refreshError: (err as Error).message },
+      { ...BASELINE, refreshed: false },
       { status: 200 },
     );
   }

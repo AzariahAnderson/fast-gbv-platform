@@ -30,7 +30,7 @@ import { useToast } from "@/hooks/use-toast";
  *    stays on the device and is never rendered on screen.
  *
  * Crisis-first rules the flow must never break:
- * - "Skip for now" and Escape always work, and the 0800 428 428 line is
+ * - "Skip for now" and Escape always work, and the crisis line is
  *   pinned on every step, so onboarding can never trap someone in danger.
  * - The overlay only opens after the splash lifts, and only when no
  *   profile exists and none was skipped before.

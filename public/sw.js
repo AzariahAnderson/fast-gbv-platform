@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v11";
+const VERSION = "fast-v12";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -89,7 +89,10 @@ async function networkFirst(request, cacheName, fallbackUrl, timeoutMs) {
     const cached = await cache.match(request);
     if (cached) return cached;
     if (fallbackUrl) {
-      const fallback = await cache.match(fallbackUrl);
+      // The fallback page lives in the install precache (STATIC_CACHE), not
+      // in this request's own cache: before this fix an offline first visit
+      // could never reach offline.html and died on the last-resort page.
+      const fallback = await caches.open(STATIC_CACHE).then((c) => c.match(fallbackUrl));
       if (fallback) return fallback;
     }
     throw new Error("offline and uncached");

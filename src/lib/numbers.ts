@@ -21,6 +21,13 @@ export type DirectoryEntry = {
   number: string;
   /** Digits only for the tel: scheme; undefined for USSD/SMS short codes. */
   tel?: string;
+  /** International (E.164-style) form for structured data. Verified, never
+   *  derived at use sites — only entries that have one carry it. */
+  international?: string;
+  /** How the contact channel is used: "call" dials via tel:, "sms" and
+   *  "ussd" are copied or sent, never dialed. Self-describing on purpose:
+   *  a short code like 31531 is all digits but must never be dialed. */
+  channel: "call" | "sms" | "ussd";
   hours: string;
   tag: string;
   group: string;
@@ -36,6 +43,8 @@ export const CRISIS_LINE = {
   display: "0800 428 428",
   /** Digits-only value for the tel: scheme. */
   tel: "0800428428",
+  /** International form for structured data (schema.org ContactPoint). */
+  international: "+27-800-428-428",
 } as const;
 
 /** Build a dial link from a digits-only number. */
@@ -46,12 +55,24 @@ export function telHref(tel: string): string {
 /** Convenience: the crisis line's dial link. */
 export const CRISIS_TEL_HREF = telHref(CRISIS_LINE.tel);
 
+/**
+ * Digits for a dial link from a directory entry. Throws when an entry was
+ * defined without tel digits, so a broken directory fails loudly in the
+ * integrity test instead of silently rendering a dead button.
+ */
+export function telOf(entry: DirectoryEntry): string {
+  if (!entry.tel) throw new Error(`Directory entry "${entry.name}" has no tel digits`);
+  return entry.tel;
+}
+
 export const DIRECTORY: DirectoryEntry[] = [
   {
     name: "GBV Command Centre",
     what: "Crisis counselling, social workers, shelters and referrals, for survivors and abusers",
     number: "0800 428 428",
     tel: "0800428428",
+    international: "+27-800-428-428",
+    channel: "call",
     hours: "24 hours, free",
     tag: "First call",
     group: "Urgent and first call",
@@ -61,6 +82,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Emergencies, opening a case, protection order enforcement, FCS units for sexual offences",
     number: "10111",
     tel: "10111",
+    channel: "call",
     hours: "24 hours, free",
     tag: "Emergency",
     group: "Urgent and first call",
@@ -70,6 +92,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Routes you to the nearest police, ambulance or fire service from any cellphone",
     number: "112",
     tel: "112",
+    channel: "call",
     hours: "24 hours, free",
     tag: "No airtime",
     group: "Urgent and first call",
@@ -79,14 +102,34 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Medical emergencies, serious injuries and firefighting response",
     number: "10177",
     tel: "10177",
+    channel: "call",
     hours: "24 hours, free",
     tag: "Emergency",
     group: "Urgent and first call",
   },
   {
+    name: "GBV Command Centre Please Call Me",
+    what: "Send a free please-call-me and a counsellor calls you back, even with no airtime",
+    number: "*120*7867#",
+    channel: "ussd",
+    hours: "24 hours, free",
+    tag: "Silent help",
+    group: "Silent and anonymous help",
+  },
+  {
+    name: "GBV Command Centre SMS",
+    what: "SMS the word Help and a counsellor replies, without a voice call",
+    number: "31531",
+    channel: "sms",
+    hours: "24 hours",
+    tag: "Silent help",
+    group: "Silent and anonymous help",
+  },
+  {
     name: "TEARS Foundation",
     what: "Free SMS helpline for survivors of gender based and sexual violence",
     number: "*134*7355#",
+    channel: "sms",
     hours: "24 hours, free",
     tag: "Silent help",
     group: "Silent and anonymous help",
@@ -96,6 +139,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Report crime anonymously, no names taken and no court appearances required",
     number: "0860 010 111",
     tel: "0860010111",
+    channel: "call",
     hours: "24 hours, free",
     tag: "Anonymous",
     group: "Silent and anonymous help",
@@ -105,6 +149,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Counselling, shelters and court support for women experiencing abuse",
     number: "011 642 4345",
     tel: "0116424345",
+    channel: "call",
     hours: "Office hours",
     tag: "Shelter",
     group: "Counselling, shelters and families",
@@ -114,6 +159,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Emotional counselling for anyone, survivors, witnesses and those who cause harm",
     number: "0861 322 322",
     tel: "0861322322",
+    channel: "call",
     hours: "24 hours, free",
     tag: "Counselling",
     group: "Counselling, shelters and families",
@@ -123,6 +169,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Professional individual, relationship and family counselling in Johannesburg",
     number: "011 788 4784",
     tel: "0117884784",
+    channel: "call",
     hours: "Mon to Fri, 08:00 to 17:00",
     tag: "Counselling",
     group: "Counselling, shelters and families",
@@ -132,6 +179,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Child abuse, neglect and support for children and teenagers",
     number: "116",
     tel: "116",
+    channel: "call",
     hours: "24 hours, free",
     tag: "Children",
     group: "Children and young people",
@@ -141,6 +189,7 @@ export const DIRECTORY: DirectoryEntry[] = [
     what: "Men's behaviour change groups and gender justice advocacy",
     number: "011 339 3589",
     tel: "0113393589",
+    channel: "call",
     hours: "Office hours",
     tag: "Change",
     group: "For those who cause harm",

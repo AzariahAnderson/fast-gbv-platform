@@ -59,11 +59,11 @@ export function CallCard({
           </h3>
         </div>
         {icon ? (
-          <div
-            className="inline-flex shrink-0 items-center gap-2 rounded-lg border-2 border-taupe bg-taupe/20 px-3 py-1.5"
-            aria-label={iconLabel}
-          >
+          // Generic elements cannot carry aria-label (axe: aria-prohibited-attr);
+          // the label text goes to the accessibility tree as sr-only content.
+          <div className="inline-flex shrink-0 items-center gap-2 rounded-lg border-2 border-taupe bg-taupe/20 px-3 py-1.5">
             {icon}
+            {iconLabel ? <span className="sr-only">{iconLabel}</span> : null}
           </div>
         ) : null}
       </div>

@@ -2,7 +2,19 @@
 
 import { useEffect } from "react";
 import { Phone, RotateCcw, LifeBuoy } from "lucide-react";
-import { CRISIS_LINE, CRISIS_TEL_HREF } from "@/lib/numbers";
+import {
+  CRISIS_LINE,
+  CRISIS_TEL_HREF,
+  DIRECTORY,
+  telHref,
+  telOf,
+} from "@/lib/numbers";
+
+// Secondary lines resolve from the single verified directory. If a rename
+// ever breaks a lookup the directory integrity test fails before shipping;
+// here the buttons simply disappear rather than ever showing a wrong number.
+const police = DIRECTORY.find((d) => d.name === "SAPS, South African Police Service");
+const cellphone = DIRECTORY.find((d) => d.name === "Cellphone emergency");
 
 /**
  * Route-level error boundary. If the page ever crashes here it must never
@@ -41,20 +53,22 @@ export default function Error({
           <Phone className="h-5 w-5" aria-hidden="true" />
           {CRISIS_LINE.name} {CRISIS_LINE.display}
         </a>
-        <div className="grid grid-cols-2 gap-3">
-          <a
-            href="tel:10111"
-            className="lift inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-[3px] border-taupe bg-taupe/20 text-base font-black tracking-tight text-brand"
-          >
-            Police 10111
-          </a>
-          <a
-            href="tel:112"
-            className="lift inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-[3px] border-taupe bg-taupe/20 text-base font-black tracking-tight text-brand"
-          >
-            Emergency 112
-          </a>
-        </div>
+        {police && cellphone && (
+          <div className="grid grid-cols-2 gap-3">
+            <a
+              href={telHref(telOf(police))}
+              className="lift inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-[3px] border-taupe bg-taupe/20 text-base font-black tracking-tight text-brand"
+            >
+              Police {police.number}
+            </a>
+            <a
+              href={telHref(telOf(cellphone))}
+              className="lift inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border-[3px] border-taupe bg-taupe/20 text-base font-black tracking-tight text-brand"
+            >
+              Emergency {cellphone.number}
+            </a>
+          </div>
+        )}
         <button
           onClick={reset}
           className="lift inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 border-taupe px-4 text-xs font-bold uppercase tracking-[0.14em] text-dim transition-colors hover:border-brand hover:text-brand"

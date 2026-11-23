@@ -15,6 +15,7 @@ import { Footer } from "@/components/site/footer";
 import { FAQS } from "@/lib/faqs";
 import { LANGUAGES } from "@/lib/languages";
 import { SITE_URL } from "@/lib/site";
+import { CRISIS_LINE } from "@/lib/numbers";
 
 /**
  * Structured data, kept strictly truthful:
@@ -53,7 +54,9 @@ function structuredData() {
         contactPoint: {
           "@type": "ContactPoint",
           contactType: "crisis hotline",
-          telephone: "+27-800-428-428",
+          // The international form is verified data on the directory entry,
+          // so structured data and the visible page can never disagree.
+          telephone: CRISIS_LINE.international,
           availableLanguage: languages,
           hoursAvailable: {
             "@type": "OpeningHoursSpecification",

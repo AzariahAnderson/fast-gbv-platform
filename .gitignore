@@ -57,3 +57,16 @@ server.log
 /download/
 /.data/
 tool-results
+
+# sandbox/dev-environment infrastructure (kept local, never published)
+/.zscripts/
+/Caddyfile
+/examples/
+/mini-services/
+/db/
+/prisma/
+/tests/runtime-*.sh
+
+# playwright
+/test-results/
+/playwright-report/

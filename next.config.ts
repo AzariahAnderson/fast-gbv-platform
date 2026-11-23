@@ -62,8 +62,12 @@ const securityHeaders = [
     // including the ones browsers default to allowing on any page: a
     // survivor must never be asked for camera, microphone or location,
     // and no embed can opt into advertising or federated identity APIs.
+    // Bluetooth and web-share are deliberately absent: Chromium does not
+    // recognise them as policy features, so listing them enforces nothing
+    // and only logs a console warning on every load. Browsers that do not
+    // know a feature ignore it, so the safe default holds regardless.
     value:
-      "camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=(), bluetooth=(), magnetometer=(), accelerometer=(), gyroscope=(), idle-detection=(), screen-wake-lock=(), display-capture=(), midi=(), serial=(), hid=(), web-share=(), window-management=(), local-fonts=(), storage-access=(), publickey-credentials-create=(), publickey-credentials-get=(), xr-spatial-tracking=(), compute-pressure=()",
+      "camera=(), microphone=(), geolocation=(), interest-cohort=(), browsing-topics=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=(), idle-detection=(), screen-wake-lock=(), display-capture=(), midi=(), serial=(), hid=(), window-management=(), local-fonts=(), storage-access=(), publickey-credentials-create=(), publickey-credentials-get=(), xr-spatial-tracking=(), compute-pressure=()",
   },
   // Legacy plug-in policy header; 'none' is the only sane value today and
   // silences scanners that still probe for it.

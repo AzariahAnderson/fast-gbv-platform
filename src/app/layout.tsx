@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { SITE_URL } from "@/lib/site";
+import { CRISIS_LINE } from "@/lib/numbers";
 
 /**
  * Inter is the single family for the whole site. The variable font carries
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "Fast | Free, 24/7 GBV Support for South Africa",
   description:
-    "Fast routes survivors, witnesses and those who cause harm to South Africa's free, confidential 24/7 gender-based-violence services: counselling, shelters, legal protection and behaviour-change programmes. In danger now? Call 0800 428 428.",
+    `Fast routes survivors, witnesses and those who cause harm to South Africa's free, confidential 24/7 gender-based-violence services: counselling, shelters, legal protection and behaviour-change programmes. In danger now? Call ${CRISIS_LINE.display}.`,
   keywords: [
     "GBV South Africa",
     "gender-based violence help",
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Fast | Help that answers, fast",
     description:
-      "Free, confidential, 24/7 GBV support for South Africa. Call 0800 428 428.",
+      `Free, confidential, 24/7 GBV support for South Africa. Call ${CRISIS_LINE.display}.`,
     images: ["/images/og.png"],
   },
 };

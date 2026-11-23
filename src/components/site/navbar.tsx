@@ -206,7 +206,7 @@ export function Navbar() {
 
           <div className="flex items-center gap-2.5">
             <a
-              href="tel:0800428428"
+              href={CRISIS_TEL_HREF}
               className="lift group hidden min-h-10 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold tracking-tight text-ink hover:bg-brand-2 sm:inline-flex"
             >
               <Phone
@@ -216,7 +216,7 @@ export function Navbar() {
               Get help now
             </a>
             <a
-              href="tel:0800428428"
+              href={CRISIS_TEL_HREF}
               aria-label="Call the GBV Command Centre now"
               className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-ink sm:hidden"
             >

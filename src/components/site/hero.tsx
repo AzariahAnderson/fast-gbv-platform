@@ -381,7 +381,9 @@ export function Hero() {
         <motion.a
           {...anim(D + 1.04)}
           href="#emergency"
-          aria-label="Scroll to emergency numbers"
+          // The accessible name must contain the visible text (axe:
+          // label-content-name-mismatch), so the eyebrow words come first.
+          aria-label="In danger right now — scroll to the emergency numbers"
           className="group mt-20 inline-flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-dim transition-colors hover:text-brand"
         >
           In danger right now
