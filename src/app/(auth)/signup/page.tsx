@@ -10,10 +10,9 @@ import { AuthSplit } from "@/components/app/auth-split";
 /**
  * Create an account. Email confirmation is OFF on the Supabase project
  * (mailer_autoconfirm), so password sign-up returns a session straight
- * away and the very next screen is onboarding — no email to wait for.
- * The email-code path stays available for people who prefer not to
- * remember a password; it sends a one-time code, which is a sign-in
- * method, not a confirmation hoop.
+ * away and the very next screen is onboarding — no email to wait for,
+ * and no verification codes anywhere: no emailed one-time codes, no
+ * phone OTP. One email, one password, in.
  */
 export default function SignupPage() {
   if (!isSupabaseConfigured()) {
@@ -23,9 +22,8 @@ export default function SignupPage() {
 }
 
 function SignupForm() {
-  // Password first: with confirmation off it is the fastest way in —
-  // one step, one screen, straight to onboarding.
-  const [mode, setMode] = useState<"code" | "password">("password");
+  // Password only: with confirmation off it is the fastest way in —
+  // one step, one screen, straight to onboarding. No codes are ever sent.
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -37,18 +35,6 @@ function SignupForm() {
     setBusy(true);
     try {
       const supabase = createClient();
-      if (mode === "code") {
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-          options: {
-            shouldCreateUser: true,
-            emailRedirectTo: `${window.location.origin}/verify?signup=1`,
-          },
-        });
-        if (error) throw error;
-        window.location.href = `/verify?email=${encodeURIComponent(email)}&signup=1`;
-        return;
-      }
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       if (data.session) {
@@ -56,8 +42,11 @@ function SignupForm() {
         return;
       }
       // Defensive only: with confirmation off Supabase always returns a
-      // session here. If it is ever re-enabled, the code screen returns.
-      window.location.href = `/verify?email=${encodeURIComponent(email)}&signup=1`;
+      // session here. If it ever does not, say so honestly — there is no
+      // code screen to fall back to.
+      throw new Error(
+        "Your account was created but sign-in did not start. Please sign in with your new password.",
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "That did not work. Please try again.");
     } finally {
@@ -102,23 +91,6 @@ function SignupForm() {
         </p>
 
         <form onSubmit={submit} className="card-surface mt-8 flex flex-col gap-5 p-6 sm:p-7">
-          <div className="grid grid-cols-2 gap-2 rounded-2xl border-2 border-taupe bg-taupe/15 p-1.5" role="tablist" aria-label="Sign-up method">
-            {(["password", "code"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                role="tab"
-                aria-selected={mode === m}
-                onClick={() => setMode(m)}
-                className={`min-h-11 rounded-xl text-sm font-bold transition-colors duration-300 ${
-                  mode === m ? "bg-brand text-ink" : "text-body hover:text-foreground"
-                }`}
-              >
-                {m === "code" ? "Email code" : "Password"}
-              </button>
-            ))}
-          </div>
-
           <label className="flex flex-col gap-2">
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">Email</span>
             <input
@@ -132,22 +104,20 @@ function SignupForm() {
             />
           </label>
 
-          {mode === "password" && (
-            <label className="flex flex-col gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
-                Password <span className="font-medium normal-case tracking-normal text-faint">(10+ characters)</span>
-              </span>
-              <input
-                type="password"
-                required
-                minLength={10}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground focus:border-brand focus:outline-none"
-              />
-            </label>
-          )}
+          <label className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+              Password <span className="font-medium normal-case tracking-normal text-faint">(10+ characters)</span>
+            </span>
+            <input
+              type="password"
+              required
+              minLength={10}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground focus:border-brand focus:outline-none"
+            />
+          </label>
 
           {error && (
             <p role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
@@ -163,12 +133,10 @@ function SignupForm() {
             {busy ? "One moment…" : "Continue"}
           </button>
 
-          {mode === "password" && (
-            <p className="text-xs leading-relaxed text-dim">
-              Email confirmation is off: the moment this succeeds you are
-              signed in and Fast moves straight to choosing your name.
-            </p>
-          )}
+          <p className="text-xs leading-relaxed text-dim">
+            Email confirmation is off: the moment this succeeds you are
+            signed in and Fast moves straight to choosing your name.
+          </p>
         </form>
 
         <p className="mt-6 text-sm text-body">
@@ -179,9 +147,8 @@ function SignupForm() {
         </p>
 
         <p className="mt-8 rounded-2xl border-2 border-taupe/60 bg-taupe/10 px-4 py-3 text-xs leading-relaxed text-dim">
-          Prefer nothing to remember? The email-code path sends a one-time
-          code instead of using a password — it is a sign-in method, not an
-          email confirmation.
+          No verification codes, ever — your password is the only thing Fast
+          will ever ask you to remember.
         </p>
       </div>
     </AuthSplit>

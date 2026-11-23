@@ -83,9 +83,16 @@ export function ChatThread({
     const unsub = subscribeThread(conversationId, meId, {
       onInsert: (m) => {
         setMessages((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
-        setPending((prev) =>
-          m.sender_id === meId && prev.length ? prev.slice(1) : prev,
-        );
+        setPending((prev) => {
+          // Reconcile by body, not by blind FIFO: the same account can be
+          // signed in on two devices or tabs at once (a real situation for
+          // this audience), and the other session's own-message insert
+          // also reaches this page. A blind slice(1) would then consume
+          // the wrong optimistic row — or leave the real one stuck at
+          // "not sent" forever.
+          const idx = m.sender_id === meId ? prev.findIndex((x) => x.body === m.body) : -1;
+          return idx === -1 ? prev : prev.filter((_, i) => i !== idx);
+        });
       },
       onUpdate: (m) => {
         setMessages((prev) => prev.map((x) => (x.id === m.id ? m : x)));

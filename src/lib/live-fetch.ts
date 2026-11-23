@@ -5,7 +5,6 @@ import path from "path";
 import type { LiveData } from "./live-types";
 import { BASELINE } from "./live-types";
 import { sanitizeData } from "./live-sanitize";
-import { withThumbnails } from "./live-images";
 
 /**
  * Hourly AI data service with a three engine chain.
@@ -94,12 +93,11 @@ export function sanitize(raw: unknown): LiveData {
 
 /* ------------------------------ shared prompt ---------------------------- */
 
-const SHAPE = `{"stats":[{"value":"","label":"","source":"","sourceUrl":""}],"news":[{"title":"","summary":"","source":"","sourceUrl":"","date":""}],"encouragement":["","","","","","","","","",""],"tip":""}`;
+const SHAPE = `{"stats":[{"value":"","label":"","source":"","sourceUrl":""}],"encouragement":["","","","","","","","","",""],"tip":""}`;
 
 function buildRules(): string {
   return `Rules:
 - stats: exactly 4 items with verified South African gender-based violence figures from credible publishers (HSRC, SAMRC, WHO, SAPS, Stats SA, UNODC, government departments or major news investigations). "value" is a short display string such as "1 in 3". Each item carries the publishing organisation plus year in "source" and a real https page in "sourceUrl".
-- news: exactly 3 real items about GBV response, policy, shelters, prosecutions or prevention in South Africa, published by established outlets (SABC News, News24, Daily Maverick, IOL, eNCA, Mail & Guardian, EWN, government releases). Include the publication name, the article https URL and the publish date as YYYY-MM-DD. If you cannot ground an item, drop it rather than inventing it.
 - encouragement: exactly 10 short compassionate lines (max 16 words each), a mix addressed to survivors, to people worried about someone else, and to people choosing to stop harming. No numbers, no clichés, no repeated openings.
 - tip: one practical personal-safety or support tip, max 30 words.
 - Never invent URLs, dates or figures. Omit a sourceUrl rather than fabricating one.
@@ -185,18 +183,11 @@ async function callSearchEngine(): Promise<LiveData> {
   const mod = await import("z-ai-web-dev-sdk");
   const zai = await mod.default.create();
 
-  const [statResults, newsResults] = await Promise.all([
-    zai.functions.invoke("web_search", {
-      query: "South Africa gender-based violence statistics femicide prevalence HSRC study",
-      num: 8,
-      recency_days: 365,
-    }),
-    zai.functions.invoke("web_search", {
-      query: "gender-based violence South Africa news shelters protection order",
-      num: 10,
-      recency_days: 45,
-    }),
-  ]);
+  const statResults = await zai.functions.invoke("web_search", {
+    query: "South Africa gender-based violence statistics femicide prevalence HSRC study",
+    num: 8,
+    recency_days: 365,
+  });
 
   const shape = (items: SearchItem[] | undefined) =>
     (items ?? [])
@@ -220,10 +211,7 @@ ${buildRules()}
 Statistics search results:
 ${shape(statResults as SearchItem[])}
 
-News search results:
-${shape(newsResults as SearchItem[])}
-
-For the news section choose the 3 most relevant and most recent items from the news search results above and copy their publisher, url and date exactly. Prefer mainstream outlets (SABC News, SAnews, News24, Daily Maverick, IOL, eNCA, EWN, government sites) and skip social media links when a news site or government page is available. For the statistics section prefer figures stated in the results; if none carry a figure, use the most established published national statistics you are certain of and link the official publisher domain (https://www.hsrc.ac.za, https://www.samrc.ac.za, https://www.who.int, https://www.saps.gov.za).`,
+For the statistics section prefer figures stated in the results; if none carry a figure, use the most established published national statistics you are certain of and link the official publisher domain (https://www.hsrc.ac.za, https://www.samrc.ac.za, https://www.who.int, https://www.saps.gov.za).`,
       },
     ],
     thinking: { type: "disabled" },
@@ -256,16 +244,11 @@ async function generate(): Promise<LiveData> {
     for (const [name, run] of attempts) {
       try {
         const fresh = await run();
-        // Publisher thumbnails are scraped from the linked articles once
-        // per successful generation, for Gemini and web-search output
-        // alike. A failed scrape leaves the item imageless (fallback tile)
-        // and never blocks or fails the refresh itself.
-        const data = await withThumbnails(fresh);
-        state().data = data;
+        state().data = fresh;
         state().fetchedAt = Date.now();
-        await writeCacheFile(data);
+        await writeCacheFile(fresh);
         console.log(`[live] refreshed via ${name}`);
-        return data;
+        return fresh;
       } catch (err) {
         console.error(`[live] ${name} failed:`, (err as Error).message);
       }

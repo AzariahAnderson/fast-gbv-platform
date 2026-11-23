@@ -42,7 +42,6 @@ const COLUMNS = [
     title: "About the data",
     links: [
       { label: "Live figures, refreshed hourly", href: "#live" },
-      { label: "News with sources", href: "#live" },
       { label: "The full directory", href: "#emergency" },
       { label: "Today's safety tip", href: "#live" },
     ],
@@ -140,9 +139,9 @@ export function Footer() {
               Statistics you can check
             </p>
             <p className="text-[13px] font-medium leading-relaxed text-body">
-              Figures and headlines refresh hourly with Google Search grounding
-              and every card links to its publishing source. Emergency numbers
-              are always the verified official ones.
+              Figures refresh hourly with Google Search grounding and every
+              card links to its publishing source. Emergency numbers are
+              always the verified official ones.
             </p>
           </div>
         </div>

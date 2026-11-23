@@ -528,3 +528,159 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* FAST Guide — rich answer rendering (markdown + syntax highlighting).
+   Every colour is one of the four brand values or the warm-grey ladder
+   mixed from taupe, so no foreign hue ever enters the design. Type stays
+   on the Inter ladder; code surfaces use the platform mono stack because
+   proportional type cannot represent code honestly. */
+.guide-md {
+  color: var(--text-body);
+  font-size: 0.875rem;
+  line-height: 1.7;
+}
+.guide-md > :first-child { margin-top: 0; }
+.guide-md > :last-child { margin-bottom: 0; }
+.guide-md p { margin: 0.65em 0; }
+.guide-md h1, .guide-md h2, .guide-md h3, .guide-md h4 {
+  color: var(--foreground);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  margin: 1.2em 0 0.4em;
+}
+.guide-md h1 { font-size: 1.3rem; }
+.guide-md h2 { font-size: 1.15rem; }
+.guide-md h3 { font-size: 1.02rem; }
+.guide-md h4 { font-size: 0.95rem; }
+.guide-md ul, .guide-md ol {
+  margin: 0.65em 0;
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+.guide-md ul { list-style: disc; }
+.guide-md ol { list-style: decimal; }
+.guide-md li::marker { color: var(--brand); font-weight: 700; }
+.guide-md li > ul, .guide-md li > ol { margin: 0.3em 0 0; }
+.guide-md strong { color: var(--foreground); font-weight: 800; }
+.guide-md em { color: var(--foreground); }
+.guide-md blockquote {
+  margin: 0.8em 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid var(--taupe);
+  background: rgba(96, 91, 81, 0.18);
+  border-radius: 0.75rem;
+  color: var(--text-dim);
+}
+.guide-md hr {
+  border: 0;
+  border-top: 2px solid rgba(96, 91, 81, 0.6);
+  margin: 1.2em 0;
+}
+.guide-md a {
+  color: var(--brand);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-md :not(pre) > code {
+  background: rgba(96, 91, 81, 0.3);
+  border: 1px solid rgba(96, 91, 81, 0.7);
+  border-radius: 0.5rem;
+  padding: 0.1em 0.4em;
+  font-weight: 700;
+  color: var(--foreground);
+  font-size: 0.85em;
+}
+.guide-md img { max-width: 100%; border-radius: 1rem; }
+
+.guide-table-wrap {
+  overflow-x: auto;
+  margin: 0.8em 0;
+  border: 2px solid rgba(96, 91, 81, 0.7);
+  border-radius: 1rem;
+}
+.guide-md table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+.guide-md th {
+  text-align: left;
+  padding: 0.55em 0.8em;
+  background: rgba(96, 91, 81, 0.3);
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+.guide-md td { padding: 0.55em 0.8em; border-top: 1px solid rgba(96, 91, 81, 0.6); }
+
+/* Fenced code blocks — the FAST console surface */
+.guide-code {
+  margin: 0.8em 0;
+  border: 2px solid rgba(96, 91, 81, 0.7);
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #454040;
+}
+.guide-code-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 2px solid rgba(96, 91, 81, 0.5);
+  background: rgba(96, 91, 81, 0.25);
+}
+.guide-code-lang {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+}
+.guide-code pre {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  background: transparent;
+}
+.guide-code code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  line-height: 1.65;
+  color: var(--text-body);
+}
+
+/* Syntax token palette — gold for keywords, lime for strings and values,
+   the grey ladder for everything quiet. Nothing outside the four brand
+   colours and its own text ladder. */
+.guide-md .hljs-comment,
+.guide-md .hljs-quote { color: var(--text-faint); font-style: italic; }
+.guide-md .hljs-keyword,
+.guide-md .hljs-selector-tag,
+.guide-md .hljs-tag,
+.guide-md .hljs-name { color: var(--brand); font-weight: 700; }
+.guide-md .hljs-string,
+.guide-md .hljs-regexp,
+.guide-md .hljs-addition { color: var(--brand-2); }
+.guide-md .hljs-number,
+.guide-md .hljs-literal,
+.guide-md .hljs-built_in,
+.guide-md .hljs-attr,
+.guide-md .hljs-attribute { color: var(--cream); }
+.guide-md .hljs-title,
+.guide-md .hljs-title.function_,
+.guide-md .hljs-section { color: var(--foreground); font-weight: 700; }
+.guide-md .hljs-title.class_,
+.guide-md .hljs-type,
+.guide-md .hljs-class { color: var(--brand); font-weight: 700; }
+.guide-md .hljs-params,
+.guide-md .hljs-variable,
+.guide-md .hljs-template-variable { color: var(--text-dim); }
+.guide-md .hljs-punctuation,
+.guide-md .hljs-operator,
+.guide-md .hljs-meta { color: var(--text-body); }
+.guide-md .hljs-doctag,
+.guide-md .hljs-strong { font-weight: 700; color: var(--foreground); }
+.guide-md .hljs-emphasis { font-style: italic; }
+.guide-md .hljs-deletion { color: var(--text-faint); text-decoration: line-through; }

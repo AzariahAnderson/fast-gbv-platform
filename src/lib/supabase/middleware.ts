@@ -12,10 +12,8 @@ import { NextResponse, type NextRequest } from "next/server";
 const PUBLIC_PREFIXES = [
   "/login",
   "/signup",
-  "/verify",
   "/offline.html",
   "/api/live",
-  "/api/image",
   "/api/refresh",
 ];
 

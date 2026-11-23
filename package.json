@@ -1,6 +1,6 @@
 {
   "name": "fast-gbv-platform",
-  "version": "1.0.2",
+  "version": "1.1.4",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test:directory": "bun test tests/directory-integrity.test.ts",
     "test:i18n": "bun test tests/i18n.test.ts",
-    "test": "bun test tests/directory-integrity.test.ts tests/i18n.test.ts tests/live-sanitize.test.ts tests/thumb-extract.test.ts tests/db-security.test.ts tests/privacy-helpers.test.ts",
+    "test": "bun test tests/directory-integrity.test.ts tests/i18n.test.ts tests/live-sanitize.test.ts tests/db-security.test.ts tests/privacy-helpers.test.ts",
     "test:e2e": "playwright test",
     "db:push": "echo '[fast] no database: FAST keeps no server-side data store; this no-op exists so the sandbox dev harness keeps working'"
   },
@@ -29,6 +29,10 @@
     "postgres": "^4.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "sharp": "^0.34.3",
     "tailwind-merge": "^3.3.1",

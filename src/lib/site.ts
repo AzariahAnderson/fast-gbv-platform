@@ -14,4 +14,4 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fast-gbv.ve
  * report against an exact build. Keep in sync with the version field in
  * package.json.
  */
-export const SITE_VERSION = "1.0.2";
+export const SITE_VERSION = "1.1.4";

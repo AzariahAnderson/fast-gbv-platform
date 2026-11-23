@@ -5,6 +5,7 @@ import { Plus, SendHorizontal, Trash2 } from "lucide-react";
 import { useSession } from "@/lib/app/session";
 import { createClient } from "@/lib/supabase/client";
 import { CRISIS_LINE } from "@/lib/numbers";
+import { GuideMarkdown } from "@/components/app/guide-markdown";
 
 /**
  * FAST Guide. Looks like FAST, not like a chat product: one quiet column,
@@ -159,15 +160,25 @@ export default function AiPage() {
           <div className="flex flex-col gap-4">
             {turns.map((t, i) => (
               <div key={i} className={`flex ${t.role === "user" ? "justify-end" : "justify-start"}`}>
-                <p
-                  className={`max-w-[85%] whitespace-pre-wrap rounded-2xl border-2 px-4 py-3 text-sm leading-relaxed ${
-                    t.role === "user"
-                      ? "border-brand/60 bg-brand/15 text-foreground"
-                      : "border-taupe bg-taupe/25 text-body"
-                  }`}
-                >
-                  {t.content || (streaming && i === turns.length - 1 ? "…" : "")}
-                </p>
+                {t.role === "user" ? (
+                  <p
+                    className="max-w-[85%] whitespace-pre-wrap rounded-2xl border-2 border-brand/60 bg-brand/15 px-4 py-3 text-sm leading-relaxed text-foreground"
+                  >
+                    {t.content}
+                  </p>
+                ) : (
+                  <div
+                    className={`max-w-[92%] rounded-2xl border-2 border-taupe bg-taupe/25 px-4 py-3 text-sm leading-relaxed ${
+                      t.content ? "" : "text-body"
+                    }`}
+                  >
+                    {t.content ? (
+                      <GuideMarkdown text={t.content} />
+                    ) : streaming && i === turns.length - 1 ? (
+                      "…"
+                    ) : null}
+                  </div>
+                )}
               </div>
             ))}
           </div>

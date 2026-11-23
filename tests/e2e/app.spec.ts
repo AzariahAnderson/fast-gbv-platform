@@ -35,7 +35,6 @@ async function skipSplash(page: Page): Promise<void> {
 async function signIn(page: Page, email: string, password: string): Promise<void> {
   await skipSplash(page);
   await page.goto("/login");
-  await page.getByRole("tab", { name: "Password" }).click();
   await page.locator('input[type="email"]').fill(email);
   await page.locator('input[type="password"]').fill(password);
   await page.getByRole("button", { name: /sign in|one moment/i }).click();
@@ -67,7 +66,6 @@ test.describe("signup → onboarding → session → logout", () => {
   test("signup through the UI, onboarding, then the app (one session)", async ({ page }) => {
     await skipSplash(page);
     await page.goto("/signup");
-    await page.getByRole("tab", { name: "Password" }).click();
     await page.locator('input[type="email"]').fill(uiEmail);
     await page.locator('input[type="password"]').fill(uiPassword);
     await page.getByRole("button", { name: /continue/i }).click();
@@ -131,49 +129,83 @@ test.describe("realtime messaging (two users, no refresh)", () => {
     await pageA.goto(conversationUrl);
     await pageB.goto(conversationUrl);
 
+    // Unique per-run texts: the shared test conversation keeps every earlier
+    // run's messages forever, so a fixed string would match an old bubble
+    // instantly and the offline-switch steps below would race the write.
+    const hello = `Realtime check: hello from A ${Date.now()}.`;
+    const reply = `Reply from B — received live ${Date.now()}.`;
+
     // A sends; B receives without any refresh.
-    await pageA.locator("textarea").fill("Realtime check: hello from A.");
+    await pageA.locator("textarea").fill(hello);
     await pageA.getByRole("button", { name: "Send message" }).click();
-    await pageB.getByText("Realtime check: hello from A.").first().waitFor({ timeout: 15_000 });
+    await pageB.getByText(hello).first().waitFor({ timeout: 15_000 });
 
     // B replies; A receives without any refresh.
-    await pageB.locator("textarea").fill("Reply from B — received live.");
+    await pageB.locator("textarea").fill(reply);
     await pageB.getByRole("button", { name: "Send message" }).click();
-    await pageA.getByText("Reply from B — received live.").first().waitFor({ timeout: 15_000 });
+    await pageA.getByText(reply).first().waitFor({ timeout: 15_000 });
 
     // Typing indicator reaches A live.
     await pageB.locator("textarea").fill("t");
     await pageA.getByText(/typing…/i).first().waitFor({ timeout: 15_000 });
 
     // Read receipt: B's read of A's message marks the thread read for A.
-    await expect(pageA.getByText(/typing|reply from b/i).first()).toBeVisible();
+    await expect(pageA.getByText(new RegExp(reply.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i")).first()).toBeVisible();
 
     await contextA.close();
     await contextB.close();
   });
 
   test("optimistic send, honest offline failure, and retry on reconnect", async ({ browser }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(90_000);
     const contextA = await browser.newContext();
     const pageA = await contextA.newPage();
+    // Reduced motion: html carries scroll-behavior:smooth, and on a long
+    // mobile thread every scroll-triggered actionability check would race
+    // the smooth-scroll animation ("element is not stable" forever). The
+    // app honours prefers-reduced-motion (scroll-behavior: auto), so this
+    // test runs under it — the same support real reduced-motion users get.
+    await pageA.emulateMedia({ reducedMotion: "reduce" });
     await signIn(pageA, EMAIL_A, PASSWORD_A);
     await pageA.goto(conversationUrl);
 
-    // Optimistic: the bubble appears before the write completes.
-    await pageA.locator("textarea").fill("Optimistic bubble test.");
+    // Unique per-run texts: earlier runs' messages stay in the shared test
+    // conversation, and a fixed string would let .first() match an old
+    // bubble so the offline switch below could race the write.
+    const optimisticText = `Optimistic bubble test ${Date.now()}.`;
+    const offlineText = `Offline attempt ${Date.now()}.`;
+
+    // Optimistic: the bubble appears before the write completes — and it
+    // must be CONFIRMED before the network is cut. Going offline while the
+    // write is still in flight would fail the online send too, which is a
+    // test race, not product behaviour.
+    await pageA.locator("textarea").fill(optimisticText);
     await pageA.getByRole("button", { name: "Send message" }).click();
-    await pageA.getByText("Optimistic bubble test.").first().waitFor({ timeout: 10_000 });
+    const optimisticBubble = pageA.locator("button", { hasText: optimisticText }).first();
+    await optimisticBubble.waitFor({ timeout: 15_000 });
+    await expect(optimisticBubble).not.toContainText("sending…", { timeout: 30_000 });
+    await expect(optimisticBubble).not.toContainText("not sent", { timeout: 5_000 });
 
     // Offline send: honest failure state ("not sent") with a retry affordance.
     await contextA.setOffline(true);
-    await pageA.locator("textarea").fill("Offline attempt.");
+    await pageA.locator("textarea").fill(offlineText);
     await pageA.getByRole("button", { name: "Send message" }).click();
     await pageA.getByText(/not sent/i).first().waitFor({ timeout: 15_000 });
 
-    // Reconnect + retry: the message actually lands.
+    // Reconnect + retry: exactly one failed bubble exists now, and the
+    // message actually lands — the bubble first stops "sending…", then
+    // never shows "not sent". The page scrolls to the very bottom first:
+    // on the mobile viewport the retry affordance sits at the tail of a
+    // long thread, and a partially-scrolled position leaves it behind the
+    // sticky composer, which stalls any tap actionability.
     await contextA.setOffline(false);
-    await pageA.getByRole("button", { name: /try again/i }).first().click();
-    await pageA.getByText("Offline attempt.").last().waitFor({ timeout: 15_000 });
+    await pageA.waitForTimeout(500); // let reconnect settle
+    await pageA.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+    await pageA.waitForTimeout(300);
+    await pageA.getByRole("button", { name: /try again/i }).first().click({ timeout: 20_000 });
+    const offlineBubble = pageA.locator("button", { hasText: offlineText }).first();
+    await expect(offlineBubble).not.toContainText("sending…", { timeout: 30_000 });
+    await expect(offlineBubble).not.toContainText("not sent", { timeout: 5_000 });
 
     await contextA.close();
   });

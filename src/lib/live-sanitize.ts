@@ -1,13 +1,13 @@
-import type { LiveData, LiveNews, LiveStat } from "./live-types";
+import type { LiveData, LiveStat } from "./live-types";
 import { BASELINE } from "./live-types";
 
 /**
  * The defensive normaliser every engine payload passes through before a
  * visitor sees it. Pure and dependency free (no fs, no env, no server-only)
  * so tests can run it against every failure mode directly: malformed JSON,
- * missing fields, invalid URLs, invalid dates, oversized text and empty
- * lists. Anything that cannot be fully grounded is dropped and the previous
- * valid payload (or the verified baseline) takes over.
+ * missing fields, invalid URLs, oversized text and empty lists. Anything
+ * that cannot be fully grounded is dropped and the previous valid payload
+ * (or the verified baseline) takes over.
  */
 
 function cleanText(input: unknown, max: number): string {
@@ -17,11 +17,8 @@ function cleanText(input: unknown, max: number): string {
 
 /**
  * Keep only genuine https links: anything else (http, javascript:, redirect
- * wrappers) is dropped rather than shown to a visitor. Exported so the
- * thumbnail extractor applies exactly the same rules to scraped image URLs.
- * Article links are capped at 300 characters; image URLs may carry up to
- * 700, because signed CDN links (fbcdn, Akamai tokens) run far longer than
- * an article path and a truncated signature is a dead link.
+ * wrappers) is dropped rather than shown to a visitor. Source links are
+ * capped at 300 characters.
  */
 export function cleanUrl(input: unknown, max = 300): string | undefined {
   if (typeof input !== "string") return undefined;
@@ -36,15 +33,6 @@ export function cleanUrl(input: unknown, max = 300): string | undefined {
   return url.slice(0, max);
 }
 
-function cleanDate(input: unknown): string | undefined {
-  const date = cleanText(input, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return undefined;
-  // Calendar-validate the shape: 2024-02-30 must not reach a visitor as a
-  // date, because JavaScript would silently normalise it to March.
-  const parsed = new Date(`${date}T00:00:00Z`);
-  return parsed.toISOString().slice(0, 10) === date ? date : undefined;
-}
-
 /** Defensively normalise anything an engine returns before it reaches a visitor. */
 export function sanitizeData(raw: unknown, previous?: LiveData): LiveData {
   const prev = previous?.stats?.length ? previous : BASELINE;
@@ -52,7 +40,6 @@ export function sanitizeData(raw: unknown, previous?: LiveData): LiveData {
     updatedAt: prev.updatedAt || BASELINE.updatedAt,
     generator: prev.generator || "baseline",
     stats: prev.stats.length ? prev.stats : BASELINE.stats,
-    news: prev.news.length ? prev.news : BASELINE.news,
     encouragement: prev.encouragement.length ? prev.encouragement : BASELINE.encouragement,
     tip: prev.tip || BASELINE.tip,
   };
@@ -79,23 +66,6 @@ export function sanitizeData(raw: unknown, previous?: LiveData): LiveData {
         .slice(0, 4)
     : [];
 
-  const news: LiveNews[] = Array.isArray(obj.news)
-    ? (obj.news as Record<string, unknown>[])
-        .map((n) => ({
-          title: cleanText(n?.title, 160),
-          summary: cleanText(n?.summary, 320),
-          source: cleanText(n?.source, 120),
-          sourceUrl: cleanUrl(n?.sourceUrl),
-          date: cleanDate(n?.date),
-          image: cleanUrl(n?.image, 700),
-        }))
-        .filter((n) => n.title && n.summary && n.source)
-        // Latest reporting leads: dated items sort newest first and undated
-        // items sink to the end instead of breaking the reading order.
-        .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))
-        .slice(0, 4)
-    : [];
-
   const encouragement = Array.isArray(obj.encouragement)
     ? (obj.encouragement as unknown[])
         .map((e) => cleanText(e, 140))
@@ -109,7 +79,6 @@ export function sanitizeData(raw: unknown, previous?: LiveData): LiveData {
     updatedAt: restoredAt,
     generator: obj.generator === "websearch" ? "websearch" : "gemini",
     stats: stats.length >= 2 ? stats : fallback.stats,
-    news: news.length >= 1 ? news : fallback.news,
     encouragement: encouragement.length >= 2 ? encouragement : fallback.encouragement,
     tip: tip || fallback.tip,
   };

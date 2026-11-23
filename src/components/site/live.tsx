@@ -1,18 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowUpRight, RefreshCw, Radio, ShieldCheck, Lightbulb, Newspaper } from "lucide-react";
+import { ArrowUpRight, RefreshCw, Radio, ShieldCheck, Lightbulb } from "lucide-react";
 import { Reveal } from "./reveal";
 import { useLive } from "@/hooks/use-live";
 import { useToast } from "@/hooks/use-toast";
 import type { LiveData } from "@/lib/live-types";
 
 /**
- * The single numbers section of the site. Every figure and every news item
- * is regenerated hourly by Gemini with Google Search grounding and carries
- * its publishing source, so a visitor can click straight through to where
- * the data came from. Contact numbers never appear here, they live in the
- * emergency section and are always the verified official ones.
+ * The single numbers section of the site. Every figure is regenerated
+ * hourly by Gemini with Google Search grounding and carries its publishing
+ * source, so a visitor can click straight through to where the data came
+ * from. Contact numbers never appear here, they live in the emergency
+ * section and are always the verified official ones.
  */
 
 function updatedLabel(iso: string): string {
@@ -55,92 +54,6 @@ function StatCard({ stat, i }: { stat: LiveData["stats"][number]; i: number }) {
   );
 }
 
-/**
- * The article's own preview image, served same-origin through the
- * constrained /api/image proxy so a publisher never sees a visitor's IP.
- * The container keeps a fixed 16:9 aspect ratio, so cards stay aligned in
- * the grid whether an image was verified or not, and nothing shifts when
- * one loads or fails. The image itself is contain-fitted on a warm taupe
- * backdrop, so the whole picture is visible — no cropping, no stretched
- * edges; the letterboxing reads as part of the card. A broken or missing
- * image swaps to the fallback tile — never a broken-image glyph, never a
- * layout jump.
- */
-function NewsMedia({ item }: { item: LiveData["news"][number] }) {
-  const [failed, setFailed] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const showImage = Boolean(item.image) && !failed;
-  return (
-    <div
-      className="relative aspect-[16/9] w-full overflow-hidden rounded-xl border-2 border-taupe bg-taupe/20"
-      data-testid="news-media"
-    >
-      {showImage ? (
-        <>
-          {/* Warm backdrop that sits behind the contain-fitted photo and
-              stays visible while the image streams in. */}
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_20%,rgba(216,211,101,0.10),rgba(96,91,81,0.35))] "
-          />
-          <img
-            src={`/api/image?u=${encodeURIComponent(item.image as string)}`}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            referrerPolicy="no-referrer"
-            onError={() => setFailed(true)}
-            onLoad={() => setLoaded(true)}
-            className={`relative h-full w-full object-contain transition-opacity duration-500 ${
-              loaded ? "opacity-100" : "opacity-0"
-            }`}
-          />
-        </>
-      ) : (
-        <div aria-hidden="true" className="flex h-full w-full items-center justify-center">
-          <Newspaper className="h-7 w-7 text-dim" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function NewsCard({ item }: { item: LiveData["news"][number] }) {
-  return (
-    <article className="card-hover card-surface group flex h-full flex-col gap-3 p-6 sm:p-7">
-      <NewsMedia item={item} />
-      <div className="flex items-center justify-between gap-3">
-        {item.date ? (
-          <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-dim">
-            {item.date}
-          </span>
-        ) : (
-          <span />
-        )}
-      </div>
-      <h3 className="font-head text-lg font-black leading-snug tracking-tight text-foreground">
-        {item.title}
-      </h3>
-      <p className="text-sm font-medium leading-relaxed text-body">{item.summary}</p>
-      <p className="mt-auto text-[10px] font-bold uppercase tracking-[0.14em] text-faint">
-        {item.sourceUrl ? (
-          <a
-            href={item.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 transition-colors duration-300 hover:text-brand"
-          >
-            {item.source}
-            <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
-          </a>
-        ) : (
-          item.source
-        )}
-      </p>
-    </article>
-  );
-}
-
 export function Live() {
   const { data, refreshing, refresh, isLive } = useLive();
   const { toast } = useToast();
@@ -154,7 +67,7 @@ export function Live() {
     if (outcome === "fresh") {
       toast({
         title: "Live data updated",
-        description: "Newest figures and headlines are on the cards now.",
+        description: "Newest figures are on the cards now.",
       });
     } else if (outcome === "cached") {
       toast({
@@ -195,9 +108,9 @@ export function Live() {
               <span className="text-brand"> check yourself</span>
             </h2>
             <p className="mt-6 max-w-2xl text-balance text-base font-medium leading-relaxed text-body sm:text-lg">
-              Figures and headlines are regenerated once an hour with live web
-              search grounding. Every card carries its publishing source, so
-              nothing here has to be taken on trust.
+              Figures are regenerated once an hour with live web search
+              grounding. Every card carries its publishing source, so nothing
+              here has to be taken on trust.
             </p>
           </Reveal>
 
@@ -233,19 +146,6 @@ export function Live() {
           ))}
         </div>
 
-        <Reveal delay={0.15}>
-          <p className="mt-12 mb-6 text-[11px] font-bold uppercase tracking-[0.2em] text-dim">
-            In the news right now
-          </p>
-        </Reveal>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {data.news.slice(0, 3).map((item) => (
-            <Reveal key={`${item.source}-${item.title}`} delay={0.08}>
-              <NewsCard item={item} />
-            </Reveal>
-          ))}
-        </div>
-
         {data.tip ? (
           <Reveal delay={0.2}>
             <div className="card-featured card-surface mt-12 flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:gap-5 sm:p-7">
@@ -263,7 +163,7 @@ export function Live() {
         <Reveal delay={0.25}>
           <p className="mt-8 flex flex-wrap items-center justify-center gap-2 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
             <ShieldCheck className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-            News and figures refresh hourly. Emergency contact numbers on this
+            Figures refresh hourly. Emergency contact numbers on this
             page are verified official numbers and are never AI generated.
           </p>
         </Reveal>

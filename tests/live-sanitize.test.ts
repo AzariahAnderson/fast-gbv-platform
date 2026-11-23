@@ -1,9 +1,9 @@
 /**
  * Live-data failure mode tests. The sanitiser is the barrier between
  * whatever an engine returns and what a visitor sees; these tests run the
- * whole Phase 7 failure list against it and assert the outcome is always a
- * usable, grounded payload: the verified baseline, never fake content,
- * never an empty broken card, never a crash.
+ * failure list against it and assert the outcome is always a usable,
+ * grounded payload: the verified baseline, never fake content, never an
+ * empty broken card, never a crash.
  */
 
 import { describe, expect, it } from "bun:test";
@@ -16,10 +16,17 @@ describe("live data failure modes", () => {
       const result = sanitizeData(raw);
       expect(result.generator).toBe("baseline");
       expect(result.stats.length).toBeGreaterThanOrEqual(2);
-      expect(result.news.length).toBeGreaterThanOrEqual(1);
       expect(result.encouragement.length).toBeGreaterThanOrEqual(2);
       expect(result.tip).not.toBe("");
     }
+  });
+
+  it("no engine payload can reintroduce a news field", () => {
+    const result = sanitizeData({
+      stats: BASELINE.stats,
+      news: [{ title: "t", summary: "s", source: "x" }],
+    });
+    expect("news" in result).toBe(false);
   });
 
   it("missing fields keep the previous good payload", () => {
@@ -30,7 +37,7 @@ describe("live data failure modes", () => {
     const result = sanitizeData({ stats: [{ value: "1", label: "x", source: "y" }] }, previous);
     // A single stat is below the grounding floor, so the previous payload stays.
     expect(result.stats.length).toBe(2);
-    expect(result.news).toEqual(previous.news);
+    expect(result.encouragement).toEqual(previous.encouragement);
   });
 
   it("invalid URLs are dropped, never shown", () => {
@@ -57,74 +64,6 @@ describe("live data failure modes", () => {
     expect(result.stats[1].sourceUrl).toBe("https://news.example/article");
   });
 
-  it("invalid dates are dropped and dated news sorts latest first", () => {
-    const result = sanitizeData({
-      news: [
-        { title: "t", summary: "s", source: "src", date: "13/45/2024" },
-        { title: "t2", summary: "s2", source: "src2", date: "2024-02-30" },
-        { title: "t3", summary: "s3", source: "src3", date: "2024-03-05" },
-      ],
-    });
-    // The two invalid dates are gone; the valid one now leads the cards.
-    expect(result.news[0].date).toBe("2024-03-05");
-    expect(result.news[1].date).toBeUndefined();
-    expect(result.news[2].date).toBeUndefined();
-  });
-
-  it("news sorts latest first, undated items last", () => {
-    const result = sanitizeData({
-      news: [
-        { title: "older", summary: "s", source: "a", date: "2024-01-10" },
-        { title: "newest", summary: "s", source: "b", date: "2024-05-02" },
-        { title: "undated", summary: "s", source: "c" },
-        { title: "mid", summary: "s", source: "d", date: "2024-03-01" },
-      ],
-    });
-    expect(result.news.map((n) => n.title)).toEqual(["newest", "mid", "older", "undated"]);
-  });
-
-  it("thumbnail URLs pass the same https validation as source URLs", () => {
-    const result = sanitizeData({
-      news: [
-        { title: "a", summary: "s", source: "x", image: "javascript:alert(1)" },
-        { title: "b", summary: "s", source: "y", image: "http://cdn.example/pic.jpg" },
-        { title: "c", summary: "s", source: "z", image: "https://cdn.example/pic.jpg" },
-        { title: "d", summary: "s", source: "w" },
-      ],
-    });
-    expect(result.news[0].image).toBeUndefined();
-    expect(result.news[1].image).toBeUndefined();
-    expect(result.news[2].image).toBe("https://cdn.example/pic.jpg");
-    expect(result.news[3].image).toBeUndefined();
-  });
-
-  it("a cached payload keeps its verified thumbnail", () => {
-    const cached = sanitizeData({
-      news: [
-        {
-          title: "a",
-          summary: "s",
-          source: "x",
-          sourceUrl: "https://news.example/a",
-          image: "https://cdn.example/pic.jpg",
-        },
-      ],
-      stats: BASELINE.stats,
-    });
-    const restored = sanitizeData(cached);
-    expect(restored.news[0].image).toBe("https://cdn.example/pic.jpg");
-  });
-
-  it("long signed CDN image URLs are kept intact", () => {
-    // Signed CDN links run far beyond the 300-char article cap; a truncated
-    // signature is a dead link, so image URLs get a wider limit.
-    const long = `https://cdn.example/pic.jpg?sig=${"a".repeat(500)}`;
-    const result = sanitizeData({
-      news: [{ title: "a", summary: "s", source: "x", image: long }],
-    });
-    expect(result.news[0].image).toBe(long);
-  });
-
   it("oversized text is truncated to the display limits", () => {
     const result = sanitizeData({
       stats: [
@@ -137,11 +76,6 @@ describe("live data failure modes", () => {
     expect(result.stats[0].label.length).toBeLessThanOrEqual(220);
     expect(result.stats[0].source.length).toBeLessThanOrEqual(120);
     expect(result.tip.length).toBeLessThanOrEqual(240);
-  });
-
-  it("an empty news list falls back to the baseline news", () => {
-    const result = sanitizeData({ news: [], stats: BASELINE.stats });
-    expect(result.news).toEqual(BASELINE.news);
   });
 
   it("items missing a source are dropped entirely", () => {
