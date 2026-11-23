@@ -1,11 +1,11 @@
 {
-  "started_at": "2026-11-23T17:22:52.260Z",
+  "started_at": "2026-11-23T21:33:21.963Z",
   "model": "gemini-flash-latest",
   "tests": [
     {
       "name": "gemini auth: primary key rejected",
       "pass": false,
-      "detail": "HTTP 400 — {   \"error\": {     \"code\": 400,     \"message\": \"User location is not supported for the API use.\",     \"status\": \"FAILED_"
+      "detail": "HTTP 429 — {   \"error\": {     \"code\": 429,     \"message\": \"You exceeded your current quota, please check your plan and billing deta"
     },
     {
       "name": "gemini auth: fallback_1 key rejected",
@@ -28,7 +28,7 @@
       "detail": "all provided keys rejected"
     }
   ],
-  "finished_at": "2026-11-23T17:22:54.013Z",
+  "finished_at": "2026-11-23T21:33:22.961Z",
   "passed": 0,
   "failed": 5
 }
