@@ -1,0 +1,78 @@
+{
+  "started_at": "2026-11-23T17:18:20.845Z",
+  "tests": [
+    {
+      "name": "plans: A creates a safety plan (private by default)",
+      "pass": true,
+      "detail": "7e065d11"
+    },
+    {
+      "name": "plans: A reads own plan with all sections",
+      "pass": true,
+      "detail": "notes, people, places, documents, exit_plan, transport, medications"
+    },
+    {
+      "name": "plans: B cannot read A's private plan (default)",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "plans: A edits and saves the plan (updated_at touched by trigger)",
+      "pass": true,
+      "detail": "updated_at 2026-11-23T17:18:23.064882+00:00"
+    },
+    {
+      "name": "plans: B cannot create a share grant on A's plan (owner-managed)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "plans: explicit sharing lets B read the plan",
+      "pass": true,
+      "detail": "B reads \"Runtime Test Plan\""
+    },
+    {
+      "name": "plans: revoking the share hides the plan again",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "plans: A deletes the plan",
+      "pass": true,
+      "detail": "deleted"
+    },
+    {
+      "name": "arrival: timer created with no trusted contacts; NO notification goes to anyone",
+      "pass": true,
+      "detail": "B's safe_arrival notifications unchanged (2)"
+    },
+    {
+      "name": "arrival: trusted contact B is notified exactly as configured",
+      "pass": true,
+      "detail": "latest: \"Test User A is heading somewhere\" — \"Sister's flat\""
+    },
+    {
+      "name": "arrival: marking arrived closes the timer (status arrived, resolved)",
+      "pass": true,
+      "detail": "arrived"
+    },
+    {
+      "name": "arrival: expired timer stays 'expired'; expiry notifies NOBODY (no silent escalation)",
+      "pass": true,
+      "detail": "status expired; B's notifications 3 -> 3"
+    },
+    {
+      "name": "arrival: no timer was escalated to emergency services by the system",
+      "pass": true,
+      "detail": "escalated rows: 0"
+    },
+    {
+      "name": "arrival: B cannot modify A's timer (write-own policy)",
+      "pass": true,
+      "detail": "status stayed expired"
+    }
+  ],
+  "finished_at": "2026-11-23T17:18:28.968Z",
+  "passed": 14,
+  "failed": 0
+}

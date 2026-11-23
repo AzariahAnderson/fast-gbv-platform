@@ -55,21 +55,32 @@ export default function MapPage() {
   const [paused, setPaused] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [mapFailed, setMapFailed] = useState(false);
 
-  // Map bootstrap — FAST style, graceful fallback.
+  // Map bootstrap — FAST style, graceful fallback. Depends on `loading`:
+  // the container div is only mounted once the session check completes,
+  // so this effect must re-run after that flip or the map never starts.
   useEffect(() => {
+    if (loading) return;
     if (!containerRef.current || mapRef.current) return;
     let map: MLMap;
     (async () => {
       const style = await loadFastStyle();
       if (!containerRef.current) return;
-      map = new maplibregl.Map({
-        container: containerRef.current,
-        style,
-        center: [24.6, -28.5], // South Africa, first view
-        zoom: 4.4,
-        attributionControl: { compact: false },
-      });
+      try {
+        map = new maplibregl.Map({
+          container: containerRef.current,
+          style,
+          center: [24.6, -28.5], // South Africa, first view
+          zoom: 4.4,
+          attributionControl: { compact: false },
+        });
+      } catch {
+        // Rare devices cannot create a WebGL context at all. Say so plainly:
+        // the family list, sharing controls and emergency tools keep working.
+        setMapFailed(true);
+        return;
+      }
       mapRef.current = map;
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.dragPan.enable();
@@ -89,7 +100,7 @@ export default function MapPage() {
       mapRef.current = null;
       markersRef.current.clear();
     };
-  }, []);
+  }, [loading]);
 
   // Families + members of the selected family.
   useEffect(() => {
@@ -370,7 +381,13 @@ export default function MapPage() {
       )}
 
       <div className="relative overflow-hidden rounded-3xl border-2 border-taupe">
-        <div ref={containerRef} className="h-[46dvh] min-h-72 w-full" aria-label="Family map" role="application" />
+        <div ref={containerRef} className="h-[46dvh] min-h-72 w-full" aria-label="Family map" role="application">
+          {mapFailed && (
+            <p role="status" className="flex h-full items-center justify-center px-6 text-center text-sm leading-relaxed text-body">
+              The map could not open on this device. Everything else still works — your family list and sharing controls are below.
+            </p>
+          )}
+        </div>
         <p className="absolute bottom-1 right-2 z-10 rounded bg-black/50 px-2 py-0.5 text-[10px] text-body">
           © OpenStreetMap contributors
         </p>

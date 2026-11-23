@@ -21,6 +21,23 @@ const PUBLIC_PREFIXES = [
 
 const AUTH_ONLY_ROUTES = ["/login", "/signup"];
 
+/** The authenticated surfaces. Only these redirect to sign-in when there is
+ *  no session — a mistyped or unknown URL must keep reaching the real 404
+ *  page (with its emergency CTA), never a redirect into the login form. */
+const APP_PREFIXES = [
+  "/home",
+  "/messages",
+  "/family",
+  "/map",
+  "/safety",
+  "/ai",
+  "/profile",
+  "/notifications",
+  "/settings",
+  "/onboarding",
+  "/api/ai",
+];
+
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -61,7 +78,9 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/_next") ||
     path.includes(".");
 
-  if (!user && !isPublic) {
+  const isAppRoute = APP_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
+
+  if (!user && isAppRoute && !isPublic) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
     redirect.searchParams.set("next", path);

@@ -1,0 +1,53 @@
+{
+  "started_at": "2026-11-23T17:24:26.607Z",
+  "tests": [
+    {
+      "name": "route: upstream failure handled gracefully (calm message, still shows emergency line)",
+      "pass": true,
+      "detail": "HTTP 200: \"The Guide could not answer just now. Please try again in a moment — and if you are in danger, call 0800 428 428.\""
+    },
+    {
+      "name": "route: no API key or provider error leaked in the response",
+      "pass": true,
+      "detail": "clean"
+    },
+    {
+      "name": "privacy: chatting does not create server-side conversation rows (local by default)",
+      "pass": true,
+      "detail": "ai_conversations for A: 0 -> 0"
+    },
+    {
+      "name": "privacy: the chat route has no persistence code at all",
+      "pass": true,
+      "detail": "no insert/upsert in route.ts"
+    },
+    {
+      "name": "privacy: explicit save creates the conversation row (user action)",
+      "pass": true,
+      "detail": "80c70a30"
+    },
+    {
+      "name": "privacy: saved messages attach to the saved conversation",
+      "pass": true,
+      "detail": "row written"
+    },
+    {
+      "name": "privacy: delete conversation removes it (and cascades messages)",
+      "pass": true,
+      "detail": "deleted"
+    },
+    {
+      "name": "privacy: no orphaned messages after delete (cascade works)",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "privacy/honesty: the AI surface is clearly labelled as AI-generated in the UI",
+      "pass": true,
+      "detail": "label present in ai page"
+    }
+  ],
+  "finished_at": "2026-11-23T17:24:31.048Z",
+  "passed": 9,
+  "failed": 0
+}

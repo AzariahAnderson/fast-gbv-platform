@@ -19,6 +19,7 @@ even on a weak network, even offline, even anonymously.
 
 | File | What it is | Use it when |
 | --- | --- | --- |
+| [RUNTIME_VERIFICATION.md](RUNTIME_VERIFICATION.md) | What was actually tested against the live Supabase project in v1.1.0 — results, fixed bugs, and what still needs a human | Before claiming any connected-feature works |
 | [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md) | Technical, safety, marketing and partnership gates for launch day | Before 25 November, one final pass |
 | [CONTENT_CALENDAR.md](CONTENT_CALENDAR.md) | **FAST — 16 Days / 16 Actions**, the complete day-by-day campaign | From 25 November, one day at a time |
 | [SCHOOL_OUTREACH.md](SCHOOL_OUTREACH.md) | Email, formal proposal, assembly script and poster copy for schools | Contacting principals, counsellors, SGBs |

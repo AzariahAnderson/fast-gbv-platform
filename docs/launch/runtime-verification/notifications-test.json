@@ -1,0 +1,63 @@
+{
+  "started_at": "2026-11-23T17:19:30.263Z",
+  "tests": [
+    {
+      "name": "types: notifications table uses the designed CHECK constraint (8 kinds)",
+      "pass": true,
+      "detail": "kinds observed live: new_message, family_invitation, family_message, checkin, safe_arrival (designed set: new_message, family_invitation, family_message, checkin, safe_arrival, location_change, safety_alert, system)"
+    },
+    {
+      "name": "spoof: A cannot insert a notification into B's centre (no insert policy)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "spoof: A cannot even fabricate a notification to themselves (trigger-only writes)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "types: the service role can create system notices (moderation path)",
+      "pass": true,
+      "detail": "ac7e5b2c"
+    },
+    {
+      "name": "read: B marks own notifications read; unread count drops",
+      "pass": true,
+      "detail": "unread 19 -> 16 (read 3)"
+    },
+    {
+      "name": "ownership: A cannot mark another user's notifications read",
+      "pass": true,
+      "detail": "rows touched: 0"
+    },
+    {
+      "name": "ownership: B's unread count unchanged after A's attempt",
+      "pass": true,
+      "detail": "16 -> 16"
+    },
+    {
+      "name": "mute: check-in (incl. Need help) is NOT muteable in the app",
+      "pass": true,
+      "detail": "muteable kinds: new_message, family_message, safe_arrival, location_change"
+    },
+    {
+      "name": "mute: safety alerts are NOT muteable in the app",
+      "pass": true,
+      "detail": "safety_alert excluded"
+    },
+    {
+      "name": "mute: the database trigger delivers need-help even to muted conversations (proven in family test 6c)",
+      "pass": true,
+      "detail": "see family-test.json 6c"
+    },
+    {
+      "name": "mute: muting only drops the unread ping — rows are never hidden",
+      "pass": true,
+      "detail": "app renders muted items dimmed with a muted tag"
+    }
+  ],
+  "finished_at": "2026-11-23T17:19:34.270Z",
+  "passed": 11,
+  "failed": 0
+}

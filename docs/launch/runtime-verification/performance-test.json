@@ -1,0 +1,66 @@
+{
+  "started_at": "2026-11-23T18:27:54.372Z",
+  "routes": {
+    "/messages": {
+      "loadMs": 314,
+      "interactiveMs": 2815,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 14
+    },
+    "/messages/00000000-0000-0000-0000-000000000000": {
+      "loadMs": 326,
+      "interactiveMs": 2827,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 19
+    },
+    "/family": {
+      "loadMs": 295,
+      "interactiveMs": 2797,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 20
+    },
+    "/family/00000000-0000-0000-0000-000000000000": {
+      "loadMs": 346,
+      "interactiveMs": 2848,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 23
+    },
+    "/map": {
+      "loadMs": 288,
+      "interactiveMs": 2790,
+      "transferKB": 129,
+      "jsKB": 0,
+      "imgTileKB": 129,
+      "jsHeapMB": 32
+    },
+    "/safety": {
+      "loadMs": 287,
+      "interactiveMs": 2788,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 38
+    },
+    "/ai": {
+      "loadMs": 301,
+      "interactiveMs": 2803,
+      "transferKB": 81,
+      "jsKB": 0,
+      "imgTileKB": 80,
+      "jsHeapMB": 34
+    }
+  },
+  "notes": [
+    "websocket closes observed in a 15s idle window on /messages: 0",
+    "no conversation link available for the composer probe"
+  ],
+  "finished_at": "2026-11-23T18:28:36.435Z"
+}

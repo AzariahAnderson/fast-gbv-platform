@@ -1,4 +1,19 @@
 import { defineConfig, devices } from "@playwright/test";
+import { readFileSync } from "node:fs";
+
+/**
+ * Test identities (TEST_USER_*) and any local variables live in the
+ * gitignored .env. The runner is spawned by node, not bun, so the file is
+ * parsed here and injected into process.env explicitly.
+ */
+try {
+  for (const line of readFileSync(".env", "utf8").split("\n")) {
+    const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
+    if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2];
+  }
+} catch {
+  /* no .env: runtime tests will use their documented fallbacks */
+}
 
 /**
  * Playwright smoke tests for Fast. They always run against a PRODUCTION
@@ -19,7 +34,13 @@ export default defineConfig({
   projects: [
     {
       name: "desktop",
-      use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } },
+      use: {
+        ...devices["Desktop Chrome"],
+        viewport: { width: 1440, height: 900 },
+        // Headless Chromium needs explicit software-GL consent since
+        // Chrome 139; real devices use hardware WebGL and are unaffected.
+        launchOptions: { args: ["--enable-unsafe-swiftshader"] },
+      },
     },
     {
       name: "mobile",
@@ -28,6 +49,7 @@ export default defineConfig({
         isMobile: true,
         hasTouch: true,
         deviceScaleFactor: 3,
+        launchOptions: { args: ["--enable-unsafe-swiftshader"] },
       },
     },
   ],

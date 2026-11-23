@@ -1,0 +1,155 @@
+{
+  "started_at": "2026-11-23T17:10:37.706Z",
+  "tests": [
+    {
+      "name": "1. A creates a test family (RPC)",
+      "pass": true,
+      "detail": "15ea9efb-3e62-4eaf-9f0b-87c9aabc87db"
+    },
+    {
+      "name": "1b. A's role is owner",
+      "pass": true,
+      "detail": "owner"
+    },
+    {
+      "name": "1c. family conversation exists and A is a member",
+      "pass": true,
+      "detail": "conversation e4ee1710…"
+    },
+    {
+      "name": "2. invitation created (pending, 14-day expiry)",
+      "pass": true,
+      "detail": "expires 2026-12-07T17:10:40.2619+00:00"
+    },
+    {
+      "name": "2b. B can read the invitation addressed to them",
+      "pass": true
+    },
+    {
+      "name": "3. B accepts the invitation and joins via code (RPC)",
+      "pass": true,
+      "detail": "family 15ea9efb-3e62-4eaf-9f0b-87c9aabc87db"
+    },
+    {
+      "name": "3b. B's role is member",
+      "pass": true,
+      "detail": "member"
+    },
+    {
+      "name": "3c. B was added to the family chat",
+      "pass": true
+    },
+    {
+      "name": "3d. invitation status became accepted",
+      "pass": true,
+      "detail": "accepted"
+    },
+    {
+      "name": "4a. A's family channel joined (SUBSCRIBED)",
+      "pass": true
+    },
+    {
+      "name": "4b. B's family message reaches A LIVE (no refresh)",
+      "pass": true,
+      "detail": "delivered in 402ms"
+    },
+    {
+      "name": "5a. member cannot change pinned messages (row stays empty after attempt)",
+      "pass": true,
+      "detail": "pinned as seen by owner: 0"
+    },
+    {
+      "name": "5b. owner pins a message; members can read the pinned set",
+      "pass": true,
+      "detail": "pinned: 1"
+    },
+    {
+      "name": "6a. I'm Safe check-in: row written and reaches family LIVE",
+      "pass": true,
+      "detail": "delivered in 404ms"
+    },
+    {
+      "name": "6b. check-in notification created for A by the trigger",
+      "pass": true,
+      "detail": "recent: checkin, family_message, family_invitation, family_invitation, checkin, checkin"
+    },
+    {
+      "name": "6c. NEED HELP reaches a muted member (cannot be silently muted)",
+      "pass": true,
+      "detail": "notification: \"Test User B needs help\""
+    },
+    {
+      "name": "7a. member cannot delete the family (family still exists after attempt)",
+      "pass": true,
+      "detail": "family survived"
+    },
+    {
+      "name": "7b. member cannot rename the family (name unchanged after attempt)",
+      "pass": true,
+      "detail": "Test Family"
+    },
+    {
+      "name": "7c. family name unchanged after member attempts",
+      "pass": true,
+      "detail": "Test Family"
+    },
+    {
+      "name": "7d. owner removes B (admins remove others policy)",
+      "pass": true,
+      "detail": "removed"
+    },
+    {
+      "name": "7e. B no longer a member (RLS hides row from them too)",
+      "pass": true,
+      "detail": "gone"
+    },
+    {
+      "name": "7f. non-member cannot see the family",
+      "pass": true,
+      "detail": "hidden"
+    },
+    {
+      "name": "7g. non-member cannot see the family conversation",
+      "pass": true,
+      "detail": "hidden"
+    },
+    {
+      "name": "7h. non-member cannot see family messages",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "7i. non-member cannot see OTHER members' family check-ins (own rows stay readable by design)",
+      "pass": true,
+      "detail": "other members' rows: 0"
+    },
+    {
+      "name": "7j. non-member cannot see family location shares",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "7k. B can be re-invited and re-join",
+      "pass": true,
+      "detail": "rejoined"
+    },
+    {
+      "name": "7l. member can leave on their own (leave-own policy)",
+      "pass": true,
+      "detail": "left"
+    },
+    {
+      "name": "8a. expired invitation does not work",
+      "pass": true,
+      "detail": "rpc error: invite not found or expired"
+    },
+    {
+      "name": "8b. revoked invitation does not work",
+      "pass": true,
+      "detail": "rpc error: invite not found or expired"
+    }
+  ],
+  "finished_at": "2026-11-23T17:10:53.001Z",
+  "passed": 30,
+  "failed": 0
+}

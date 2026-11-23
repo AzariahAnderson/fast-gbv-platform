@@ -1,0 +1,29 @@
+{
+  "attempted": [
+    "messages",
+    "typing_presence",
+    "message_reads",
+    "locations",
+    "location_shares",
+    "checkins"
+  ],
+  "added": [
+    "messages",
+    "typing_presence",
+    "message_reads",
+    "locations",
+    "location_shares",
+    "checkins"
+  ],
+  "already": [],
+  "errors": {},
+  "final_publication_tables": [
+    "messages",
+    "message_reads",
+    "typing_presence",
+    "locations",
+    "location_shares",
+    "checkins"
+  ],
+  "success": true
+}

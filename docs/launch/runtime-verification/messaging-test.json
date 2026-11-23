@@ -1,0 +1,127 @@
+{
+  "started_at": "2026-11-23T18:30:16.709Z",
+  "tests": [
+    {
+      "name": "1. A finds B by exact verified phone (RPC)",
+      "pass": true,
+      "detail": "returned id match, columns: id,display_name,avatar_url"
+    },
+    {
+      "name": "1b. phone search is exact-match only (prefix returns nothing)",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "2. A starts a direct conversation with B (RPC returns id)",
+      "pass": true,
+      "detail": "c6498fe5-9627-4bfa-b01b-945dc58050e9"
+    },
+    {
+      "name": "realtime: B's live channel joined (SUBSCRIBED)",
+      "pass": true
+    },
+    {
+      "name": "3. A sends a message (row written to Postgres)",
+      "pass": true,
+      "detail": "id fe8f4260…"
+    },
+    {
+      "name": "4. B receives A's message LIVE (postgres_changes INSERT, no refresh)",
+      "pass": true,
+      "detail": "delivered in 822ms"
+    },
+    {
+      "name": "realtime: A's live channel joined (SUBSCRIBED)",
+      "pass": true
+    },
+    {
+      "name": "5a. B replies (row written)",
+      "pass": true
+    },
+    {
+      "name": "5b. A receives B's reply LIVE (no refresh)",
+      "pass": true,
+      "detail": "delivered in 376ms"
+    },
+    {
+      "name": "6. typing indicator: A sees B typing LIVE",
+      "pass": true,
+      "detail": "delivered in 531ms"
+    },
+    {
+      "name": "7. read state: B's read receipt lands and A sees it LIVE",
+      "pass": true,
+      "detail": "read event delivered"
+    },
+    {
+      "name": "9. A edits own message; B receives the UPDATE live",
+      "pass": true,
+      "detail": "delivered in 522ms"
+    },
+    {
+      "name": "9b. B cannot modify A's message (RLS update blocked)",
+      "pass": true,
+      "detail": "policy error: Cannot coerce the result to a single JSON object"
+    },
+    {
+      "name": "10. A soft-deletes own message; B sees deleted_at set (UPDATE live)",
+      "pass": true,
+      "detail": "delete event delivered"
+    },
+    {
+      "name": "12a. A mutes the conversation (muted_until persisted)",
+      "pass": true,
+      "detail": "2026-11-23T19:30:25.819+00:00"
+    },
+    {
+      "name": "12b. B's message still delivers while A muted",
+      "pass": true
+    },
+    {
+      "name": "12c. muted conversation produced NO notification row for A (mute honoured by trigger)",
+      "pass": true,
+      "detail": "recent kinds: new_message, new_message, new_message, new_message, family_invitation"
+    },
+    {
+      "name": "13. A archives the conversation (archived persisted per-member)",
+      "pass": true,
+      "detail": "archived=true"
+    },
+    {
+      "name": "14a. A blocks B (blocks row written)",
+      "pass": true
+    },
+    {
+      "name": "14b. B cannot send while blocked (insert violates send policy)",
+      "pass": true,
+      "detail": "policy error: new row violates row-level security policy for table \"messages\""
+    },
+    {
+      "name": "14c. B cannot open a new direct conversation with A via RPC while blocked",
+      "pass": true,
+      "detail": "conversation unavailable"
+    },
+    {
+      "name": "14d. B cannot re-insert own membership row to bypass the block",
+      "pass": true,
+      "detail": "policy error: new row violates row-level security policy for table \"conversation_members\""
+    },
+    {
+      "name": "14e. A unblocks B (cleanup for family tests)",
+      "pass": true
+    },
+    {
+      "name": "15a. A files a report (secure moderation record created)",
+      "pass": true,
+      "detail": "status open (verified via service role)"
+    },
+    {
+      "name": "15b. reports are insert-only for users: B cannot read A's report",
+      "pass": true,
+      "detail": "rows: 0"
+    }
+  ],
+  "finished_at": "2026-11-23T18:30:30.999Z",
+  "passed": 25,
+  "failed": 0
+}

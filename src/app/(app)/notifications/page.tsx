@@ -10,8 +10,11 @@ import type { AppNotification } from "@/lib/db-types";
 
 /**
  * The notification centre. Quiet by design: a list of what happened while
- * you were away, newest first, with per-kind mute controls. Nothing here
- * is a growth loop — no badges-for-engagement, no marketing messages.
+ * you were away, with per-kind mute controls. Nothing here is a growth
+ * loop — no badges-for-engagement, no marketing messages. Muted kinds lose
+ * the unread ping, but nothing is ever hidden: safety information stays
+ * visible, and a "Need help" check-in or safety alert can never be muted
+ * at all.
  */
 
 const KIND_LABEL: Record<AppNotification["kind"], string> = {
@@ -25,10 +28,12 @@ const KIND_LABEL: Record<AppNotification["kind"], string> = {
   system: "System",
 };
 
+// Check-ins are deliberately NOT muteable: a check-in can be "Need help",
+// and help can never be silenced. Safety alerts and system notices are
+// excluded for the same reason.
 const MUTEABLE: AppNotification["kind"][] = [
   "new_message",
   "family_message",
-  "checkin",
   "safe_arrival",
   "location_change",
 ];
@@ -51,7 +56,7 @@ export default function NotificationsPage() {
       const settings = (profile?.privacy_settings ?? {}) as { mutedNotifications?: string[] };
       setMuted(settings.mutedNotifications ?? []);
     })();
-  }, [user]);
+  }, [user, profile?.privacy_settings]);
 
   async function markAllRead() {
     if (!user) return;
@@ -107,17 +112,26 @@ export default function NotificationsPage() {
             </p>
           </div>
         ) : (
-          items.map((n) => (
+          items.map((n) => {
+            const mutedKind = muted.includes(n.kind);
+            return (
             <div
               key={n.id}
-              className={`card-surface flex items-start gap-3 px-5 py-4 ${n.read_at ? "opacity-70" : ""}`}
+              className={`card-surface flex items-start gap-3 px-5 py-4 ${n.read_at || mutedKind ? "opacity-70" : ""}`}
             >
               <span className="mt-1 min-w-0 flex-1">
                 <span className="flex items-center gap-2">
                   <span className="rounded-lg border-2 border-taupe bg-taupe/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-dim">
                     {KIND_LABEL[n.kind]}
                   </span>
-                  {!n.read_at && <span className="h-2 w-2 rounded-full bg-brand" aria-label="Unread" />}
+                  {!n.read_at && !mutedKind && (
+                    <span className="h-2 w-2 rounded-full bg-brand" aria-label="Unread" />
+                  )}
+                  {mutedKind && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-dim">
+                      muted
+                    </span>
+                  )}
                 </span>
                 <span className="mt-2 block text-sm font-bold text-foreground">{n.title}</span>
                 {n.body && <span className="mt-0.5 block text-xs leading-relaxed text-dim">{n.body}</span>}
@@ -135,16 +149,17 @@ export default function NotificationsPage() {
                 Clear
               </button>
             </div>
-          ))
+            );
+          })
         )}
       </section>
 
       <section aria-label="Mute controls" className="card-surface p-6">
         <h2 className="text-sm font-bold text-foreground">Mute kinds of notifications</h2>
         <p className="mt-1 text-xs leading-relaxed text-dim">
-          Muting silences the ping here and in notifications. A person who
-          needs help — a "Need help" check-in or a safety alert — is never
-          muted.
+          Muting only quiets the unread ping — muted items stay listed here.
+          A person who needs help — a "Need help" check-in or a safety
+          alert — is never muted, and check-ins have no mute control at all.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {MUTEABLE.map((kind) => (

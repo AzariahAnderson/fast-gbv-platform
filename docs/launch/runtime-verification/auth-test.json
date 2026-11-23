@@ -1,0 +1,80 @@
+{
+  "started_at": "2026-11-23T16:54:59.339Z",
+  "tests": [
+    {
+      "name": "signup: Test User A can create an account",
+      "pass": true,
+      "detail": "user id 30328639-f546-47ce-8148-1dffafe2898f"
+    },
+    {
+      "name": "signup: Test User B can create an account",
+      "pass": true,
+      "detail": "user id a0737a2c-2daf-4706-b895-0d88140940d1"
+    },
+    {
+      "name": "profile: A can write own profile row (onboarding equivalent)",
+      "pass": true
+    },
+    {
+      "name": "profile: B can write own profile row",
+      "pass": true
+    },
+    {
+      "name": "login: A can sign in with password",
+      "pass": true
+    },
+    {
+      "name": "session: A's session survives a client restart (token valid server-side)",
+      "pass": true,
+      "detail": "getUser verified the JWT against the auth server"
+    },
+    {
+      "name": "logout: session destroyed after signOut",
+      "pass": true,
+      "detail": "auth.getSession() returns null"
+    },
+    {
+      "name": "logout: B's refresh token is revoked after signOut",
+      "pass": true,
+      "detail": "Auth session missing!"
+    },
+    {
+      "name": "isolation: A cannot read B's private profile row",
+      "pass": true,
+      "detail": "rows returned: 0 (expect 0)"
+    },
+    {
+      "name": "isolation: A sees only the public projection of B",
+      "pass": true,
+      "detail": "visible columns: id, display_name, avatar_url, bio, presence, last_seen_at, created_at"
+    },
+    {
+      "name": "isolation: A cannot read B's AI history",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "isolation: A cannot read B's safety plans",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "isolation: A cannot read B's notifications",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "isolation: A cannot read B's location rows",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "route/data protection: unauthenticated client reads zero profile rows",
+      "pass": true,
+      "detail": "rows: 0"
+    }
+  ],
+  "finished_at": "2026-11-23T16:55:07.527Z",
+  "passed": 15,
+  "failed": 0
+}

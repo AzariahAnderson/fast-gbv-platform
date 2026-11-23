@@ -1,0 +1,106 @@
+{
+  "started_at": "2026-11-23T17:15:47.724Z",
+  "tests": [
+    {
+      "name": "setup: family created, B is member",
+      "pass": true,
+      "detail": "family 0c7c1cdd…"
+    },
+    {
+      "name": "OFF: no location row exists while sharing is off",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "OFF: profile flag is false (default consent state)",
+      "pass": true
+    },
+    {
+      "name": "realtime: B's map channel joined",
+      "pass": true
+    },
+    {
+      "name": "APPROXIMATE: share insert is withheld from B until they are in the audience (RLS-gated realtime)",
+      "pass": true,
+      "detail": "no event for non-viewer — correct"
+    },
+    {
+      "name": "AUDIENCE: B explicitly added as viewer",
+      "pass": true,
+      "detail": "viewer row written"
+    },
+    {
+      "name": "APPROXIMATE: blurred location row written and delivered LIVE",
+      "pass": true,
+      "detail": "location event live"
+    },
+    {
+      "name": "AUDIENCE: authorised viewer B reads the approximate location",
+      "pass": true,
+      "detail": "-26.204, 28.047 (approximate)"
+    },
+    {
+      "name": "SECURITY: A cannot write B's location row (write-own policy)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "AUDIENCE: viewer grants are owner-managed (B cannot delete its own grant)",
+      "pass": true,
+      "detail": "grant intact"
+    },
+    {
+      "name": "AUDIENCE: owner revokes viewer grant — B reads nothing",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "PRECISE: exact coordinates written and delivered LIVE to the authorised viewer",
+      "pass": true,
+      "detail": "precise event live"
+    },
+    {
+      "name": "PRECISE: viewer B sees the exact coordinates",
+      "pass": true,
+      "detail": "-26.204102837, 28.047305123"
+    },
+    {
+      "name": "EXPIRY: 15-minute share carries its expiry timestamp",
+      "pass": true,
+      "detail": "expires_at 2026-11-23T17:30:53.518+00:00"
+    },
+    {
+      "name": "EXPIRY: expired location row is unreadable to the viewer",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "EXPIRY: expired SHARE stops the location being readable (row itself still valid)",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "STOP: paused share is unreadable immediately",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "DELETE: A's location row is deleted (no tracking history kept)",
+      "pass": true,
+      "detail": "rows: 0"
+    },
+    {
+      "name": "NON-MEMBER: baseline — B with an explicit viewer grant reads the location",
+      "pass": true,
+      "detail": "rows: 1"
+    },
+    {
+      "name": "NON-MEMBER: after removal B reads nothing (stale viewer grant purged)",
+      "pass": true,
+      "detail": "rows: 0"
+    }
+  ],
+  "finished_at": "2026-11-23T17:16:16.947Z",
+  "passed": 20,
+  "failed": 0
+}

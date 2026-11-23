@@ -63,6 +63,24 @@ create view public.profiles_public as
 
 grant select on public.profiles_public to authenticated;
 
+-- Phone normalisation must exist before any language-sql function body that
+-- references it: SQL functions are validated at creation time, so a forward
+-- reference here is a genuine incompatibility (reported by Postgres itself).
+create or replace function public.normalise_phone(input text)
+returns text
+language sql immutable
+as $$
+  -- Keep the leading + and digits only; a South African 0-prefix becomes +27.
+  select case
+    when left(clean, 1) = '+' then clean
+    when left(clean, 2) = '27' then '+' || clean
+    when left(clean, 1) = '0' then '+27' || right(clean, length(clean) - 1)
+    else clean
+  end
+  from (select regexp_replace(coalesce(input, ''), '[^0-9+]', '', 'g') as clean) s
+  where clean <> '';
+$$;
+
 -- Exact-match phone search. Never a listing, never a prefix scan.
 create or replace function public.search_profile_by_phone(query text)
 returns table (id uuid, display_name text, avatar_url text)
@@ -81,6 +99,17 @@ grant execute on function public.search_profile_by_phone(text) to authenticated;
 -- ----------------------------------------------------------------------------
 -- 2. CONVERSATIONS + MEMBERS + MESSAGES
 -- ----------------------------------------------------------------------------
+
+-- families must be created before conversations: conversations.family_id
+-- carries a foreign key to it (Postgres validates references at create time).
+create table if not exists public.families (
+  id uuid primary key default gen_random_uuid (),
+  name text not null,
+  avatar_url text,
+  invite_code text not null unique default encode(gen_random_bytes(9), 'base64'),
+  created_by uuid not null references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
 
 create table if not exists public.conversations (
   id uuid primary key default gen_random_uuid (),
@@ -150,17 +179,9 @@ create index if not exists conversations_last_message
   on public.conversations (last_message_at desc);
 
 -- ----------------------------------------------------------------------------
--- 3. FAMILIES
+-- 3. FAMILIES (members + invites; the families table itself is created in
+--    section 2 because conversations.family_id references it)
 -- ----------------------------------------------------------------------------
-
-create table if not exists public.families (
-  id uuid primary key default gen_random_uuid (),
-  name text not null,
-  avatar_url text,
-  invite_code text not null unique default encode(gen_random_bytes(9), 'base64'),
-  created_by uuid not null references auth.users (id) on delete cascade,
-  created_at timestamptz not null default now()
-);
 
 create table if not exists public.family_members (
   family_id uuid not null references public.families (id) on delete cascade,
@@ -361,21 +382,6 @@ create index if not exists ai_messages_by_conversation
 -- ----------------------------------------------------------------------------
 -- 8. SECURITY-DEFINER HELPERS
 -- ----------------------------------------------------------------------------
-
-create or replace function public.normalise_phone(input text)
-returns text
-language sql immutable
-as $$
-  -- Keep the leading + and digits only; a South African 0-prefix becomes +27.
-  select case
-    when left(clean, 1) = '+' then clean
-    when left(clean, 2) = '27' then '+' || clean
-    when left(clean, 1) = '0' then '+27' || right(clean, length(clean) - 1)
-    else clean
-  end
-  from (select regexp_replace(coalesce(input, ''), '[^0-9+]', '', 'g') as clean) s
-  where clean <> '';
-$$;
 
 create or replace function public.is_conversation_member(conv uuid, uid uuid default auth.uid ())
 returns boolean

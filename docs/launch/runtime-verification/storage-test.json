@@ -1,0 +1,93 @@
+{
+  "started_at": "2026-11-23T17:22:10.513Z",
+  "tests": [
+    {
+      "name": "avatar: A uploads own avatar",
+      "pass": true,
+      "detail": "30328639-f546-47ce-8148-1dffafe2898f/avatar.png"
+    },
+    {
+      "name": "avatar: B cannot upload into A's avatar folder (own-folder policy)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "avatar: public read works without authentication (by design)",
+      "pass": true,
+      "detail": "68 bytes"
+    },
+    {
+      "name": "avatar: A replaces own avatar (upsert)",
+      "pass": true,
+      "detail": "replaced"
+    },
+    {
+      "name": "avatar: A deletes own avatar",
+      "pass": true,
+      "detail": "deleted"
+    },
+    {
+      "name": "chat image: A uploads to the shared conversation (member, own path)",
+      "pass": true,
+      "detail": "c6498fe5-9627-4bfa-b01b-945dc58050e9/30328639-f546-47ce-8148-1dffafe2898f/image-1.png"
+    },
+    {
+      "name": "chat image: B (conversation member) can view it",
+      "pass": true,
+      "detail": "68 bytes"
+    },
+    {
+      "name": "chat image: unauthenticated client cannot view it (private bucket)",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "chat image: B uploads under own uid in the shared conversation (own-path rule)",
+      "pass": true,
+      "detail": "allowed — B is a member too (design: members upload under their own uid)"
+    },
+    {
+      "name": "chat image: path traversal path is rejected",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "chat image: non-uuid conversation folder is rejected",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "family image: owner A uploads to the family folder",
+      "pass": true,
+      "detail": "09e186bc-0abd-4244-a5de-c61e6990ffb0/30328639-f546-47ce-8148-1dffafe2898f/family.png"
+    },
+    {
+      "name": "family image: family member B can view it",
+      "pass": true,
+      "detail": "68 bytes"
+    },
+    {
+      "name": "family image: plain member cannot upload (admins upload only)",
+      "pass": true,
+      "detail": "policy blocked"
+    },
+    {
+      "name": "family image: after leaving, B cannot view fresh family images (RLS-checked)",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "family image: signed-URL path also denied after leaving (signing checks RLS)",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "family image: non-uuid family folder is rejected",
+      "pass": true,
+      "detail": "blocked"
+    }
+  ],
+  "finished_at": "2026-11-23T17:22:22.356Z",
+  "passed": 17,
+  "failed": 0
+}

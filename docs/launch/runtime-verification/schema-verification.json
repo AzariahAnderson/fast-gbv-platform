@@ -1,0 +1,396 @@
+{
+  "generated_at": "2026-11-23T16:58:39.782Z",
+  "project": "cztdyqhatvogiaegniow",
+  "tables": [
+    {
+      "name": "ai_conversations",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "ai_messages",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "blocks",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "checkins",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "conversation_members",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "conversations",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "families",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "family_invites",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "family_members",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "location_share_viewers",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "location_shares",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "locations",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "message_reactions",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "message_reads",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "messages",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "notifications",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "profiles",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "reports",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "safe_arrivals",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "safety_plan_contacts",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "safety_plan_shares",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "safety_plans",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "trusted_contacts",
+      "rls_enabled": true,
+      "expected": true
+    },
+    {
+      "name": "typing_presence",
+      "rls_enabled": true,
+      "expected": true
+    }
+  ],
+  "missing_tables": [],
+  "policy_count": 67,
+  "policies_by_table": {
+    "ai_conversations": [
+      "ai_conversations: own (ALL)"
+    ],
+    "ai_messages": [
+      "ai_messages: own (ALL)"
+    ],
+    "blocks": [
+      "blocks: own manage (ALL)"
+    ],
+    "checkins": [
+      "checkins: delete own (DELETE)",
+      "checkins: own and family read (SELECT)",
+      "checkins: write own (INSERT)"
+    ],
+    "conversation_members": [
+      "members: join direct (INSERT)",
+      "members: leave or admins remove (DELETE)",
+      "members: manage own membership (UPDATE)",
+      "members: read shared membership (SELECT)"
+    ],
+    "conversations": [
+      "conversations: family admins update (UPDATE)",
+      "conversations: insert direct own (INSERT)",
+      "conversations: members read (SELECT)"
+    ],
+    "families": [
+      "families: admins update (UPDATE)",
+      "families: members read (SELECT)",
+      "families: owner deletes (DELETE)"
+    ],
+    "family_invites": [
+      "invites: admins create (INSERT)",
+      "invites: admins read (SELECT)",
+      "invites: admins revoke (UPDATE)",
+      "invites: invitee reads own (SELECT)"
+    ],
+    "family_members": [
+      "family_members: admins manage roles (UPDATE)",
+      "family_members: admins remove others (DELETE)",
+      "family_members: leave own (DELETE)",
+      "family_members: members read (SELECT)",
+      "family_members: self join via accepted invite (INSERT)"
+    ],
+    "location_share_viewers": [
+      "share_viewers: owner manage (ALL)",
+      "share_viewers: viewer reads own grant (SELECT)"
+    ],
+    "location_shares": [
+      "shares: owner manage (ALL)",
+      "shares: viewers read (SELECT)"
+    ],
+    "locations": [
+      "locations: audience read (SELECT)",
+      "locations: delete own (DELETE)",
+      "locations: own row (SELECT)",
+      "locations: update own (UPDATE)",
+      "locations: write own (INSERT)"
+    ],
+    "message_reactions": [
+      "reactions: members react as self (INSERT)",
+      "reactions: members read (SELECT)",
+      "reactions: own unreact (DELETE)"
+    ],
+    "message_reads": [
+      "reads: mark own (INSERT)",
+      "reads: members read (SELECT)"
+    ],
+    "messages": [
+      "messages: edit own (UPDATE)",
+      "messages: members read (SELECT)",
+      "messages: members send as self (INSERT)",
+      "messages: soft-delete own (DELETE)"
+    ],
+    "notifications": [
+      "notifications: delete own (DELETE)",
+      "notifications: mark own (UPDATE)",
+      "notifications: own read (SELECT)"
+    ],
+    "profiles": [
+      "profiles: insert own (INSERT)",
+      "profiles: select own (SELECT)",
+      "profiles: update own (UPDATE)"
+    ],
+    "reports": [
+      "reports: file own (INSERT)"
+    ],
+    "safe_arrivals": [
+      "safe_arrivals: delete own (DELETE)",
+      "safe_arrivals: owner read (SELECT)",
+      "safe_arrivals: trusted read (SELECT)",
+      "safe_arrivals: update own (UPDATE)",
+      "safe_arrivals: write own (INSERT)"
+    ],
+    "safety_plan_contacts": [
+      "plan_contacts: owner manage (ALL)"
+    ],
+    "safety_plan_shares": [
+      "plan_shares: owner manage (ALL)",
+      "plan_shares: viewer reads own grant (SELECT)"
+    ],
+    "safety_plans": [
+      "plans: owner delete (DELETE)",
+      "plans: owner read (SELECT)",
+      "plans: owner update (UPDATE)",
+      "plans: owner write (INSERT)",
+      "plans: shared viewer read (SELECT)"
+    ],
+    "trusted_contacts": [
+      "trusted: owner manage (ALL)"
+    ],
+    "typing_presence": [
+      "typing: members read (SELECT)",
+      "typing: own row insert (INSERT)",
+      "typing: own row update (UPDATE)"
+    ]
+  },
+  "index_count": 42,
+  "indexes_by_table": {
+    "ai_conversations": [
+      "ai_conversations_pkey"
+    ],
+    "ai_messages": [
+      "ai_messages_by_conversation",
+      "ai_messages_pkey"
+    ],
+    "blocks": [
+      "blocks_pkey"
+    ],
+    "checkins": [
+      "checkins_by_family",
+      "checkins_by_user",
+      "checkins_pkey"
+    ],
+    "conversation_members": [
+      "conversation_members_pkey",
+      "members_by_user"
+    ],
+    "conversations": [
+      "conversations_last_message",
+      "conversations_pkey"
+    ],
+    "families": [
+      "families_invite_code_key",
+      "families_pkey"
+    ],
+    "family_invites": [
+      "family_invites_by_family",
+      "family_invites_code_key",
+      "family_invites_pkey"
+    ],
+    "family_members": [
+      "family_members_by_user",
+      "family_members_pkey"
+    ],
+    "location_share_viewers": [
+      "location_share_viewers_pkey"
+    ],
+    "location_shares": [
+      "location_shares_by_family",
+      "location_shares_pkey",
+      "location_shares_user_id_family_id_key"
+    ],
+    "locations": [
+      "locations_by_expiry",
+      "locations_pkey"
+    ],
+    "message_reactions": [
+      "message_reactions_pkey"
+    ],
+    "message_reads": [
+      "message_reads_by_user",
+      "message_reads_pkey"
+    ],
+    "messages": [
+      "messages_by_conversation",
+      "messages_by_conversation_id",
+      "messages_pkey"
+    ],
+    "notifications": [
+      "notifications_by_user",
+      "notifications_pkey",
+      "notifications_unread"
+    ],
+    "profiles": [
+      "profiles_phone_key",
+      "profiles_pkey"
+    ],
+    "reports": [
+      "reports_pkey"
+    ],
+    "safe_arrivals": [
+      "safe_arrivals_pkey"
+    ],
+    "safety_plan_contacts": [
+      "safety_plan_contacts_pkey"
+    ],
+    "safety_plan_shares": [
+      "safety_plan_shares_pkey"
+    ],
+    "safety_plans": [
+      "safety_plans_pkey"
+    ],
+    "trusted_contacts": [
+      "trusted_contacts_pkey"
+    ],
+    "typing_presence": [
+      "typing_presence_pkey"
+    ]
+  },
+  "triggers": [
+    "checkins.checkins_notify [INSERT]",
+    "family_invites.invites_notify [UPDATE]",
+    "messages.messages_notify [INSERT]",
+    "messages.messages_touch_conversation [INSERT]",
+    "safe_arrivals.safe_arrivals_notify [INSERT]",
+    "safety_plans.safety_plans_touch [UPDATE]"
+  ],
+  "functions": [
+    "create_family(name text, avatar_url text)",
+    "family_role(fam uuid, uid uuid)",
+    "is_conversation_member(conv uuid, uid uuid)",
+    "is_family_member(fam uuid, uid uuid)",
+    "join_family_by_code(code text)",
+    "normalise_phone(input text)",
+    "notify_checkin()",
+    "notify_invite_accepted()",
+    "notify_new_message()",
+    "notify_safe_arrival()",
+    "search_profile_by_phone(query text)",
+    "start_direct_conversation(other uuid)",
+    "touch_conversation()",
+    "touch_plan()"
+  ],
+  "missing_functions": [],
+  "storage_buckets": [
+    {
+      "id": "avatars",
+      "name": "avatars",
+      "public": true,
+      "file_size_limit": null,
+      "allowed_mime_types": null
+    },
+    {
+      "id": "chat-images",
+      "name": "chat-images",
+      "public": false,
+      "file_size_limit": null,
+      "allowed_mime_types": null
+    },
+    {
+      "id": "family-images",
+      "name": "family-images",
+      "public": false,
+      "file_size_limit": null,
+      "allowed_mime_types": null
+    }
+  ],
+  "realtime_publication_tables": [
+    "public.messages",
+    "public.message_reads",
+    "public.typing_presence",
+    "public.locations",
+    "public.location_shares",
+    "public.checkins"
+  ],
+  "realtime_publication_exists": true,
+  "rls_violations": []
+}
