@@ -402,6 +402,80 @@
   will-change: transform;
 }
 
+/*
+  Hero emoji choreography. Each decorative emoji is three nested layers so
+  the transforms never fight: framer-motion owns the entrance on the outer
+  span, a slow CSS wander drifts the middle span around a small closed
+  loop, and the img carries its own endless "life" — a bob, a breeze sway
+  or a light twinkle, one transform animation per element.
+*/
+
+/* Two mirrored wander loops. Small, closed and slow: the companions
+   circle within a few pixels and always come home. */
+@keyframes float-a {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25% { transform: translate3d(7px, -10px, 0) rotate(2.5deg); }
+  50% { transform: translate3d(13px, 3px, 0) rotate(-1.5deg); }
+  75% { transform: translate3d(5px, 9px, 0) rotate(2deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+@keyframes float-b {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25% { transform: translate3d(-8px, 8px, 0) rotate(-2.5deg); }
+  50% { transform: translate3d(-13px, -4px, 0) rotate(1.5deg); }
+  75% { transform: translate3d(-5px, -10px, 0) rotate(-2deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+.animate-float-a {
+  animation: float-a 17s ease-in-out infinite;
+  will-change: transform;
+}
+.animate-float-b {
+  animation: float-b 21s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* A bloom's life: a slow tilt that reads as flowers in warm air. */
+@keyframes sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+.animate-sway {
+  animation: sway 7s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* A sparkle's life: light catching — a quick gentle swell and settle. */
+@keyframes twinkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.14) rotate(8deg); opacity: 0.82; }
+}
+.animate-twinkle {
+  animation: twinkle 3.6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* The one gold word breathes: warm gold sweeps toward lime and back, a
+   slow shimmer that keeps the promise word alive after it lands. Both
+   stops are palette colours; reduced motion freezes it mid-glow. */
+@keyframes shimmer {
+  0% { background-position: 220% 50%; }
+  100% { background-position: -120% 50%; }
+}
+.text-shimmer {
+  background-image: linear-gradient(
+    110deg,
+    #d8d365 36%,
+    #e6f082 50%,
+    #d8d365 64%
+  );
+  background-size: 240% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shimmer 7s ease-in-out infinite;
+}
+
 /* Slow warm drift for the hero light, barely perceptible, no pulsing */
 @keyframes drift-a {
   0% {
@@ -438,6 +512,10 @@
     scroll-behavior: auto;
   }
   .animate-bob,
+  .animate-float-a,
+  .animate-float-b,
+  .animate-sway,
+  .animate-twinkle,
   .animate-drift-a,
   .animate-drift-b {
     animation: none;

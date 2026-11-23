@@ -36,6 +36,11 @@ const PRECACHE = [
   "/emojis/1f49c-128.webp",
   "/emojis/1f495-128.webp",
   "/emojis/1f337-128.webp",
+  "/emojis/1f54a-128.webp",
+  "/emojis/1f98b-128.webp",
+  "/emojis/1f490-128.webp",
+  "/emojis/1f339-128.webp",
+  "/emojis/1f388-128.webp",
 ];
 
 self.addEventListener("install", (event) => {

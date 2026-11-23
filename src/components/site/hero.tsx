@@ -62,40 +62,95 @@ const TRUST = [
 ];
 
 /**
- * The animated emojis that frame the headline. Each one is a small local
- * webp (precached by the service worker), floated in the side gutters
- * where wide screens have room to spare and kept clear of the copy:
- * decoration lives in the margins, never on top of the words. Four are
- * visible from lg, and a smaller inner ring of four appears from xl, so
- * the frame deepens with the viewport instead of crowding narrow ones.
- * On mobile the gutters disappear and only the sparkle beside "fast"
- * stays, because there an emoji would sit on the text it celebrates.
- * Every pick is an always-visible animation (measured frame by frame in
- * scripts/fetch-emojis.py) and every pick carries the section's message:
- * a sparkling heart for love, a cherry blossom for gentleness, a clover
- * for hope, folded hands for support, a sun for warmth, a purple heart
- * for courage, two hearts for care and a tulip for kindness. The seedling,
- * the star, the rainbow and the raised hands were all rejected for
- * blinking fully transparent mid-loop.
+ * The animated emoji frame around the headline — sixteen companions in
+ * four depth tiers, each an ally with a reason to be here:
+ *
+ *   sparkling heart   love            folded hands   support
+ *   cherry blossom    gentleness      clover         hope
+ *   sun with face     warmth          purple heart   courage
+ *   tulip             kindness        two hearts     care
+ *   balloon           lightness       rose           respect
+ *   bouquet           appreciation    butterfly      change
+ *   green heart       healing         dove           peace
+ *   yellow heart      friendship      handshake      solidarity
+ *
+ * Layered motion, one transform per element so nothing fights:
+ *   outer motion.span  — entrance (pop in, tilt to its resting angle)
+ *   middle span        — a slow closed wander loop (float-a / float-b)
+ *   img                — an endless life: bob, breeze sway or twinkle
+ *
+ * Tiers deepen with the viewport, so wide screens gain companions while
+ * narrow ones stay uncluttered: two tiny ones from sm, the main frame
+ * from lg, a mid ring from xl and the innermost pair from 2xl. Every
+ * position sits in the gutters above, beside or below the copy — never
+ * on the words. Every pick is an always-visible animation (measured
+ * frame by frame in scripts/fetch-emojis.py); the seedling, the star and
+ * the rainbow were all rejected for blinking fully transparent mid-loop.
  */
-const FLOATS = [
+type Float = {
+  src: string;
+  pos: string;
+  size: string;
+  show: string;
+  rotate: number;
+  drift: "a" | "b";
+  life: "bob" | "sway" | "twinkle";
+  lifeDur?: string;
+  lifeDelay?: string;
+  /** extra seconds on top of the shared entrance beat */
+  stagger: number;
+};
+
+const FLOATS: Float[] = [
+  // —— smallest tier: two quiet companions from sm, high in the corners
+  {
+    src: "/emojis/1f388-128.webp",
+    pos: "left-[6%] top-[4%]",
+    size: "sm:h-7 sm:w-7",
+    show: "hidden sm:block",
+    rotate: -10,
+    drift: "a",
+    life: "bob",
+    lifeDur: "6.1s",
+    lifeDelay: "0.2s",
+    stagger: 0.55,
+  },
+  {
+    src: "/emojis/1f339-128.webp",
+    pos: "right-[6%] top-[5%]",
+    size: "sm:h-7 sm:w-7",
+    show: "hidden sm:block",
+    rotate: 12,
+    drift: "b",
+    life: "sway",
+    lifeDur: "7.4s",
+    lifeDelay: "0.6s",
+    stagger: 0.9,
+  },
+  // —— main frame from lg: the four original companions
   {
     src: "/emojis/1f496-128.webp",
     pos: "left-[2%] top-[7%]",
-    size: "lg:h-11 lg:w-11",
+    size: "lg:h-12 lg:w-12",
     show: "hidden lg:block",
     rotate: -8,
-    bob: "7s",
-    bobDelay: "0s",
+    drift: "a",
+    life: "bob",
+    lifeDur: "7s",
+    lifeDelay: "0s",
+    stagger: 0,
   },
   {
     src: "/emojis/1f338-128.webp",
     pos: "right-[2.5%] top-[7%]",
-    size: "lg:h-11 lg:w-11",
+    size: "lg:h-12 lg:w-12",
     show: "hidden lg:block",
     rotate: 10,
-    bob: "6.4s",
-    bobDelay: "0.9s",
+    drift: "b",
+    life: "sway",
+    lifeDur: "6.4s",
+    lifeDelay: "0.9s",
+    stagger: 0.12,
   },
   {
     src: "/emojis/1f340-128.webp",
@@ -103,8 +158,11 @@ const FLOATS = [
     size: "lg:h-10 lg:w-10",
     show: "hidden lg:block",
     rotate: -6,
-    bob: "6.8s",
-    bobDelay: "1.7s",
+    drift: "b",
+    life: "bob",
+    lifeDur: "6.8s",
+    lifeDelay: "1.7s",
+    stagger: 0.24,
   },
   {
     src: "/emojis/1f64f-128.webp",
@@ -112,18 +170,49 @@ const FLOATS = [
     size: "lg:h-12 lg:w-12",
     show: "hidden lg:block",
     rotate: 8,
-    bob: "7.6s",
-    bobDelay: "2.4s",
+    drift: "a",
+    life: "bob",
+    lifeDur: "7.6s",
+    lifeDelay: "2.4s",
+    stagger: 0.36,
   },
-  // Inner ring: smaller, tilted a little more, visible from xl only.
+  // —— lg gains two more near the actions: appreciation and change
+  {
+    src: "/emojis/1f490-128.webp",
+    pos: "left-[4%] top-[63%]",
+    size: "lg:h-10 lg:w-10",
+    show: "hidden lg:block",
+    rotate: -9,
+    drift: "a",
+    life: "sway",
+    lifeDur: "7.8s",
+    lifeDelay: "1.1s",
+    stagger: 0.48,
+  },
+  {
+    src: "/emojis/1f98b-128.webp",
+    pos: "right-[4%] top-[66%]",
+    size: "lg:h-10 lg:w-10",
+    show: "hidden lg:block",
+    rotate: 14,
+    drift: "b",
+    life: "bob",
+    lifeDur: "6.5s",
+    lifeDelay: "0.5s",
+    stagger: 0.62,
+  },
+  // —— mid ring from xl
   {
     src: "/emojis/1f31e-128.webp",
     pos: "left-[6.5%] top-[16%]",
     size: "xl:h-9 xl:w-9",
     show: "hidden xl:block",
     rotate: -14,
-    bob: "6.2s",
-    bobDelay: "0.5s",
+    drift: "a",
+    life: "bob",
+    lifeDur: "6.2s",
+    lifeDelay: "0.5s",
+    stagger: 0.18,
   },
   {
     src: "/emojis/1f49c-128.webp",
@@ -131,26 +220,84 @@ const FLOATS = [
     size: "xl:h-8 xl:w-8",
     show: "hidden xl:block",
     rotate: 12,
-    bob: "7.1s",
-    bobDelay: "1.3s",
+    drift: "b",
+    life: "bob",
+    lifeDur: "7.1s",
+    lifeDelay: "1.3s",
+    stagger: 0.3,
   },
   {
     src: "/emojis/1f337-128.webp",
-    pos: "left-[5%] top-[55%]",
+    pos: "left-[5.5%] top-[52%]",
     size: "xl:h-9 xl:w-9",
     show: "hidden xl:block",
     rotate: -10,
-    bob: "6.9s",
-    bobDelay: "2.1s",
+    drift: "a",
+    life: "sway",
+    lifeDur: "6.9s",
+    lifeDelay: "2.1s",
+    stagger: 0.42,
   },
   {
     src: "/emojis/1f495-128.webp",
-    pos: "right-[4.5%] top-[57%]",
+    pos: "right-[4.5%] top-[55%]",
     size: "xl:h-8 xl:w-8",
     show: "hidden xl:block",
     rotate: 14,
-    bob: "6.6s",
-    bobDelay: "2.9s",
+    drift: "b",
+    life: "bob",
+    lifeDur: "6.6s",
+    lifeDelay: "2.9s",
+    stagger: 0.54,
+  },
+  {
+    src: "/emojis/1f49a-128.webp",
+    pos: "left-[8%] top-[70%]",
+    size: "xl:h-8 xl:w-8",
+    show: "hidden xl:block",
+    rotate: -12,
+    drift: "b",
+    life: "bob",
+    lifeDur: "7.3s",
+    lifeDelay: "0.8s",
+    stagger: 0.7,
+  },
+  {
+    src: "/emojis/1f54a-128.webp",
+    pos: "right-[8%] top-[72%]",
+    size: "xl:h-9 xl:w-9",
+    show: "hidden xl:block",
+    rotate: 10,
+    drift: "a",
+    life: "bob",
+    lifeDur: "6.7s",
+    lifeDelay: "1.9s",
+    stagger: 0.84,
+  },
+  // —— innermost pair from 2xl, nearest the copy but still clear of it
+  {
+    src: "/emojis/1f49b-128.webp",
+    pos: "left-[10.5%] top-[27%]",
+    size: "2xl:h-7 2xl:w-7",
+    show: "hidden 2xl:block",
+    rotate: -8,
+    drift: "a",
+    life: "twinkle",
+    lifeDur: "3.9s",
+    lifeDelay: "0.4s",
+    stagger: 0.26,
+  },
+  {
+    src: "/emojis/1f91d-128.webp",
+    pos: "right-[10.5%] top-[29%]",
+    size: "2xl:h-8 2xl:w-8",
+    show: "hidden 2xl:block",
+    rotate: 8,
+    drift: "b",
+    life: "bob",
+    lifeDur: "7.9s",
+    lifeDelay: "2.6s",
+    stagger: 0.4,
   },
 ];
 
@@ -198,8 +345,8 @@ export function Hero() {
         width={88}
         height={88}
         draggable={false}
-        className="animate-bob h-4 w-4"
-        style={{ animationDuration: "5s" }}
+        className="animate-sway h-4 w-4"
+        style={{ animationDuration: "5.6s" }}
       />
     </motion.p>
   ) : null;
@@ -219,10 +366,12 @@ export function Hero() {
       </div>
 
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-5 text-center sm:px-8">
-        {/* The emoji frame: eight gentle companions drifting in the gutters
-            around the headline, arriving just after the words land. The
-            framer span owns the entrance (scale and tilt), the img inside
-            owns the endless bob, so the two transforms never fight. */}
+        {/* The emoji frame: sixteen companions drifting in the gutters
+            around the headline, arriving just after the words land. Each
+            one is three nested layers — framer owns the entrance, a slow
+            CSS wander moves the middle span around a closed loop, and the
+            img carries its endless life (bob, sway or twinkle) — so the
+            transforms never fight. */}
         {FLOATS.map((f, i) => (
           <motion.span
             key={f.src}
@@ -239,23 +388,35 @@ export function Hero() {
                 : { opacity: 1, scale: 1, rotate: f.rotate }
             }
             transition={{
-              delay: D + 1.05 + i * 0.12,
+              delay: D + 1.05 + f.stagger,
               duration: 0.8,
               ease: EASE,
             }}
           >
-            <img
-              src={f.src}
-              alt=""
-              width={88}
-              height={88}
-              draggable={false}
-              className={`animate-bob drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] ${f.size}`}
-              style={{
-                animationDuration: f.bob,
-                animationDelay: f.bobDelay,
-              }}
-            />
+            <span
+              className={`block ${
+                f.drift === "a" ? "animate-float-a" : "animate-float-b"
+              }`}
+            >
+              <img
+                src={f.src}
+                alt=""
+                width={88}
+                height={88}
+                draggable={false}
+                className={`drop-shadow-[0_10px_24px_rgba(0,0,0,0.35)] ${f.size} ${
+                  f.life === "bob"
+                    ? "animate-bob"
+                    : f.life === "sway"
+                      ? "animate-sway"
+                      : "animate-twinkle"
+                }`}
+                style={{
+                  animationDuration: f.lifeDur,
+                  animationDelay: f.lifeDelay,
+                }}
+              />
+            </span>
           </motion.span>
         ))}
 
@@ -281,17 +442,18 @@ export function Hero() {
           <br />
           <Word delay={D + 0.46}>help</Word>{" "}
           <Word delay={D + 0.52}>answers</Word>{" "}
-          {/* The gold word and its sparkle share one no-wrap group so the
-              sparkle can never wrap alone onto its own line at any width. */}
+          {/* The gold word and its sparkle cluster share one no-wrap group
+              so nothing can wrap alone onto its own line at any width. */}
           <span className="whitespace-nowrap">
-            <Word delay={D + 0.6} className="text-brand">
+            <Word delay={D + 0.6} className="text-shimmer">
               fast
             </Word>
-            {/* One sparkle pops in beside the gold word once it has landed:
-                the site's whole promise in a single mark. */}
+            {/* A cluster of three sparkles pops in beside the gold word
+                once it has landed: the big one bobs, two minis twinkle on
+                offset rhythms — the site's whole promise in one mark. */}
             <motion.span
               aria-hidden="true"
-              className="ml-1 inline-block align-middle sm:ml-2.5"
+              className="relative ml-1 inline-block align-middle sm:ml-2.5"
               initial={
                 reduce
                   ? { opacity: 0 }
@@ -321,6 +483,56 @@ export function Hero() {
                 draggable={false}
                 className="animate-bob h-7 w-7 sm:h-9 sm:w-9 lg:h-12 lg:w-12"
               />
+              <motion.span
+                className="absolute -right-1.5 -top-2 block sm:-right-2.5 sm:-top-3.5"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0 }}
+                animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                transition={
+                  reduce
+                    ? { delay: D + 1.2, duration: 0.3 }
+                    : {
+                        delay: D + 1.2,
+                        type: "spring",
+                        stiffness: 320,
+                        damping: 12,
+                      }
+                }
+              >
+                <img
+                  src="/emojis/2728-128.webp"
+                  alt=""
+                  width={88}
+                  height={88}
+                  draggable={false}
+                  className="animate-twinkle h-3.5 w-3.5 sm:h-5 sm:w-5"
+                  style={{ animationDuration: "3.2s" }}
+                />
+              </motion.span>
+              <motion.span
+                className="absolute -bottom-1.5 -left-3 block sm:-bottom-2.5 sm:-left-4.5"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0 }}
+                animate={reduce ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+                transition={
+                  reduce
+                    ? { delay: D + 1.35, duration: 0.3 }
+                    : {
+                        delay: D + 1.35,
+                        type: "spring",
+                        stiffness: 320,
+                        damping: 12,
+                      }
+                }
+              >
+                <img
+                  src="/emojis/2728-128.webp"
+                  alt=""
+                  width={88}
+                  height={88}
+                  draggable={false}
+                  className="animate-twinkle h-3 w-3 sm:h-4 sm:w-4"
+                  style={{ animationDuration: "4.1s", animationDelay: "0.7s" }}
+                />
+              </motion.span>
             </motion.span>
           </span>
         </motion.h1>
@@ -387,10 +599,14 @@ export function Hero() {
           className="group mt-20 inline-flex flex-col items-center gap-2 text-[10px] font-bold uppercase tracking-[0.28em] text-dim transition-colors hover:text-brand"
         >
           In danger right now
-          <ArrowDown
-            className="h-4 w-4 transition-transform group-hover:translate-y-1"
-            aria-hidden="true"
-          />
+          {/* The wrapper owns the endless bob so the arrow's own hover
+              transform keeps working underneath it. */}
+          <span className="inline-block animate-bob" style={{ animationDuration: "4.6s" }}>
+            <ArrowDown
+              className="h-4 w-4 transition-transform group-hover:translate-y-1"
+              aria-hidden="true"
+            />
+          </span>
         </motion.a>
       </div>
     </section>

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# Probe: find the widest offenders causing mobile horizontal overflow on /login.
+set -u
+cd /home/z/my-project
+
+setsid nohup bun run dev < /dev/null > /dev/null 2>&1 &
+DEV_PID=$!
+for i in $(seq 1 60); do
+  code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/login || true)
+  [ "$code" = "200" ] && break
+  sleep 1
+done
+echo "server ready ($i s)"
+
+agent-browser set viewport 390 844
+agent-browser cookies clear > /dev/null 2>&1
+agent-browser storage local clear > /dev/null 2>&1
+agent-browser open http://localhost:3000/login
+agent-browser wait --load networkidle
+agent-browser wait 1500
+agent-browser eval "
+  const vw = document.documentElement.clientWidth;
+  const bad = [];
+  document.querySelectorAll('body *').forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.right > vw + 1 || r.left < -1) {
+      bad.push({
+        tag: el.tagName.toLowerCase(),
+        cls: String(el.className).slice(0, 90),
+        left: Math.round(r.left),
+        right: Math.round(r.right),
+        w: Math.round(r.width),
+      });
+    }
+  });
+  JSON.stringify({ vw, count: bad.length, worst: bad.slice(0, 14) }, null, 1);
+"
+
+kill "$DEV_PID" 2>/dev/null
+pkill -f 'next dev' 2>/dev/null
+pkill -f 'next-server' 2>/dev/null
+echo probe-done

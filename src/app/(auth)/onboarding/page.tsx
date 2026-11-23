@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { EyeOff, MapPinOff, ShieldCheck } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { SetupNotice } from "@/components/app/setup-notice";
+import { AuthSplit } from "@/components/app/auth-split";
 import { normalisePhone } from "@/lib/phone";
 
 /**
  * One short step: choose the name Fast greets you with, and add a phone
  * number only if you want friends to find you by it. Location sharing is
- * created OFF — no Fast setting ever turns it on for you.
+ * created OFF — no Fast setting ever turns it on for you. Reached
+ * directly after a password sign-up (email confirmation is off), so the
+ * statement "Make Fast yours" here doubles as the welcome.
  */
 export default function OnboardingPage() {
   if (!isSupabaseConfigured()) {
@@ -46,7 +50,7 @@ function OnboardingForm() {
       }
       setBusy(false);
     })();
-     
+
   }, []);
 
   async function submit(e: React.FormEvent) {
@@ -88,78 +92,103 @@ function OnboardingForm() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-4xl font-black tracking-tight text-foreground">
-        How should Fast <span className="text-brand">greet you</span>?
-      </h1>
-      <p className="mt-3 text-base leading-relaxed text-body">
-        Your name is the only thing other people will see, besides what you
-        choose to write about yourself.
-      </p>
-
-      <form onSubmit={submit} className="card-surface mt-8 flex flex-col gap-5 p-6 sm:p-7">
-        <label className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">Your name</span>
-          <input
-            required
-            maxLength={40}
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Thandi"
-            className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
-          />
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
-            Phone <span className="font-medium normal-case tracking-normal text-faint">(optional)</span>
-          </span>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="082 123 4567"
-            className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
-          />
-          <span className="text-xs leading-relaxed text-dim">
-            Only friends who already know your number can find you, and your
-            number is never shown to anyone.
-          </span>
-        </label>
-
-        <label className="flex flex-col gap-2">
-          <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
-            A line about you <span className="font-medium normal-case tracking-normal text-faint">(optional)</span>
-          </span>
-          <textarea
-            rows={3}
-            maxLength={200}
-            value={bio}
-            onChange={(e) => setBio(e.target.value)}
-            placeholder="Big sister. Good at quiet morning drives and bad jokes."
-            className="rounded-2xl border-2 border-taupe bg-taupe/15 px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
-          />
-        </label>
-
-        {error && (
-          <p role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
-            {error}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={saving}
-          className="lift inline-flex min-h-13 items-center justify-center rounded-2xl bg-brand px-8 text-base font-bold text-ink disabled:opacity-60"
-        >
-          {saving ? "Saving…" : "Enter Fast"}
-        </button>
-
-        <p className="text-xs leading-relaxed text-dim">
-          Location sharing starts switched off and only ever runs while you
-          turn it on, for people you choose, for a time you set.
+    <AuthSplit
+      eyebrow="You are in"
+      title={
+        <>
+          Make Fast <span className="text-brand">yours</span>.
+        </>
+      }
+      note="You are signed in — now tell Fast how to greet you. Your name is the only thing other people will see, besides what you choose to write about yourself."
+      bullets={[
+        { icon: EyeOff, label: "Your phone number is never shown to anyone — it only helps friends find you" },
+        { icon: MapPinOff, label: "Location sharing starts switched off and stays off until you turn it on, for people you choose" },
+        { icon: ShieldCheck, label: "You choose what to share, with whom, and for how long — always" },
+      ]}
+      emojis={[
+        // Trio (left) and floats (right band, clear of the content column).
+        { src: "/emojis/1f490-128.webp", pos: "", size: "h-11 w-11", rotate: 10, drift: "b", life: "sway", lifeDur: "7.2s" },
+        { src: "/emojis/1f337-128.webp", pos: "", size: "h-9 w-9", rotate: -10, drift: "a", life: "sway", lifeDur: "6.7s" },
+        { src: "/emojis/1f31e-128.webp", pos: "", size: "h-10 w-10", rotate: 8, drift: "a", life: "bob", lifeDur: "6.3s" },
+        { src: "/emojis/1f49b-128.webp", pos: "sm:block top-[2.5%] right-[30%]", size: "h-6 w-6", rotate: -6, drift: "a", life: "twinkle", lifeDur: "4s" },
+        { src: "/emojis/1f388-128.webp", pos: "sm:block top-[8%] right-[4%]", size: "h-10 w-10", rotate: 12, drift: "b", life: "bob", lifeDur: "6.1s" },
+        { src: "/emojis/1f54a-128.webp", pos: "sm:block top-[37%] right-[4.5%]", size: "h-7 w-7", rotate: 10, drift: "a", life: "bob", lifeDur: "7.5s" },
+        { src: "/emojis/1f49a-128.webp", pos: "sm:block bottom-[31%] right-[4.5%]", size: "h-6 w-6", rotate: -8, drift: "b", life: "bob", lifeDur: "6.9s" },
+        { src: "/emojis/1f91d-128.webp", pos: "sm:block bottom-[6%] right-[4%]", size: "h-10 w-10", rotate: 8, drift: "a", life: "bob", lifeDur: "7.7s" },
+      ]}
+    >
+      <div>
+        <h1 className="font-display text-4xl font-black tracking-tight text-foreground">
+          How should Fast <span className="text-brand">greet you</span>?
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-body">
+          Pick the name for your hello — change it any time in your profile.
         </p>
-      </form>
-    </div>
+
+        <form onSubmit={submit} className="card-surface mt-8 flex flex-col gap-5 p-6 sm:p-7">
+          <label className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">Your name</span>
+            <input
+              required
+              maxLength={40}
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Thandi"
+              className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
+            />
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+              Phone <span className="font-medium normal-case tracking-normal text-faint">(optional)</span>
+            </span>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="082 123 4567"
+              className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
+            />
+            <span className="text-xs leading-relaxed text-dim">
+              Only friends who already know your number can find you, and your
+              number is never shown to anyone.
+            </span>
+          </label>
+
+          <label className="flex flex-col gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
+              A line about you <span className="font-medium normal-case tracking-normal text-faint">(optional)</span>
+            </span>
+            <textarea
+              rows={3}
+              maxLength={200}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Big sister. Good at quiet morning drives and bad jokes."
+              className="rounded-2xl border-2 border-taupe bg-taupe/15 px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-faint focus:border-brand focus:outline-none"
+            />
+          </label>
+
+          {error && (
+            <p role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="lift inline-flex min-h-13 items-center justify-center rounded-2xl bg-brand px-8 text-base font-bold text-ink disabled:opacity-60"
+          >
+            {saving ? "Saving…" : "Enter Fast"}
+          </button>
+
+          <p className="text-xs leading-relaxed text-dim">
+            Location sharing starts switched off and only ever runs while you
+            turn it on, for people you choose, for a time you set.
+          </p>
+        </form>
+      </div>
+    </AuthSplit>
   );
 }
