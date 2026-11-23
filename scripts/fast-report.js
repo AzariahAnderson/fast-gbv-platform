@@ -285,16 +285,22 @@ body.push(p([
   r("Fast is a single-page web application that connects South Africans to the country's free, official gender-based violence (GBV) services in seconds. It routes three audiences — survivors of abuse, people worried about someone else, and people who want to stop causing harm — to verified national resources such as the Department of Social Development's GBV Command Centre (0800 428 428), which operates around the clock in all eleven official languages. The site is intentionally fast, private and resilient: it works with no airtime, no account and no connection after the first visit."),
 ]));
 body.push(p([
-  r("This report documents the entire website from A to Z as at 22 November 2026. The build comprises "),
-  b("thirteen page sections"), r(" assembled in "), b("src/app/page.tsx"),
+  r("This report documents the entire website from A to Z as at 23 November 2026, build "),
+  b("v0.9.0-beta.10"),
+  r(". The build comprises "),
+  b("fourteen page sections"), r(" assembled in "), b("src/app/page.tsx"),
   r(", a strict four-colour design system (#454040, #605B51, #D8D365, #E6F082) expressed entirely in the "),
   b("Inter variable typeface"),
-  r(", an hourly AI content engine that regenerates statistics and news with clickable sources, an encouragement strip that rotates compassionate lines accompanied by Google's animated 3D emoji, and a Progressive Web App (PWA) layer that keeps the emergency section usable offline. Emergency contact numbers appear in exactly one section of the page; every other section hands the visitor down to it."),
+  r(", an hourly AI content engine that regenerates statistics and news with clickable sources, an encouragement strip that rotates compassionate lines accompanied by Google's animated 3D emoji, a welcome flow that greets a returning visitor by name in any of South Africa's eleven official languages, hardened transport security on every response, and a Progressive Web App (PWA) layer that keeps the emergency section usable offline. Emergency contact numbers appear in exactly one section of the page; every other section hands the visitor down to it, and every surface that shows or dials a number reads from one typed module."),
 ]));
 body.push(p([
-  r("Verification status: the development server is running on port 3000, ESLint passes with zero errors, the live data endpoint was tested and returned a fresh AI-generated payload containing ten motivation lines, and the page was inspected in a real browser at mobile (390 px) and desktop (1440 px) widths with no console errors. The single most urgent follow-up is to "),
+  r("Verification status, re-run today: the development server answers HTTP 200 on port 3000, "),
+  b("tsc --noEmit reports zero type errors"),
+  r(", ESLint passes with zero errors, the production build compiles cleanly (eight routes), and a repository-wide sweep finds "),
+  b("zero Chinese or other CJK characters in any text file"),
+  r(" — every comment, log line and identifier is English. The page was inspected in a real browser at 1440 px and 390 px with zero console errors, zero horizontal overflow and the crisis call button pinned to the viewport. Two manual steps still block a production deploy: "),
   b("rotate the Gemini API key"),
-  r(", which was pasted into a chat during development and therefore must be treated as exposed; the key already lives only in the server-side .env.local file and is never sent to the browser."),
+  r(" (it was pasted into a chat during development and must be treated as exposed) and set the Vercel environment variables GEMINI_API_KEY and NEXT_PUBLIC_SITE_URL. The key already lives only in the git-ignored server-side .env file and is never sent to the browser."),
 ]));
 
 /* 2. Mission, Vision, Goals and Objectives */
@@ -323,7 +329,7 @@ body.push(table(
     ["3", "Real-time relevance", "Gemini with Google Search grounding regenerates stats, news, encouragement and a safety tip every hour, cached so at most one generation runs per hour regardless of traffic"],
     ["4", "Availability everywhere", "Service worker caches pages, assets and the last live payload; offline.html fallback; network timeouts tuned for flaky mobile networks; reduced-motion support"],
     ["5", "Non-judgemental coverage", "Dedicated sections for survivors (#survivors) and for people ready to stop harming (#change), with behaviour-change programmes such as Sonke Gender Justice men's groups"],
-    ["6", "Privacy by design", "No accounts, no tracking cookies, no personal data collected or stored; browsing-privacy guidance for monitored devices"],
+    ["6", "Privacy by design", "No accounts, no tracking cookies, no personal data collected or stored; the optional welcome profile never leaves the device and is erased in two taps; browsing-privacy guidance for monitored devices"],
   ],
   [6, 30, 64]
 ));
@@ -355,23 +361,38 @@ body.push(p([
   b("South African GBV support, always on"),
   r(" fades up, and the four values "),
   b("Free, Anonymous, Safe, Trusted"),
-  r(" appear in sequence. No progress bar, no counters, no pulsing indicators — per design feedback. The curtain lifts at 4.0 s while the hero enters underneath it (hero delays are calibrated against D = 3.9). Scroll is locked until the curtain lifts, and prefers-reduced-motion users get an instant, opacity-only variant."),
+  r(" appear in sequence. No progress bar, no counters, no pulsing indicators — per design feedback. The curtain lifts at 4.0 s while the hero enters underneath it (hero delays are calibrated against D = 3.9). Scroll is locked until the curtain lifts, and prefers-reduced-motion users get an instant, opacity-only variant. The curtain shows once per browsing session: a sessionStorage flag (src/lib/splash.ts) lets repeat visits skip straight to the page."),
 ]));
 
-body.push(h2("3.2 PWA Registration and Noise Texture"));
+body.push(h2("3.2 Welcome Onboarding and Personal Greeting"));
+body.push(p([
+  r("After the splash, first-time visitors meet a three-step overlay that makes the page personal without asking for anything sensitive. Step one asks which of "),
+  b("South Africa's eleven official languages"),
+  r(" the visitor speaks. Step two asks for a name, surname and optional nickname, enforced by "),
+  b("src/lib/name-guard.ts"),
+  r(": an appropriate username is compulsory, and anything rude, violent or symbol-spammed (for example \u201CThandi<3\u201D) is gently rejected while the Continue button stays disabled until it passes. Step three asks "),
+  b("what the visitor struggles with"),
+  r(" through a dignified, optional multi-select (src/lib/struggles.ts) that is never rendered back onto the page. The crisis line stays pinned and reachable on every step, \u201CSkip for now\u201D is offered to fresh visitors, Escape closes the flow at any point, and the footer link \u201CPersonalise your greeting\u201D reopens it for editing. From then on the hero greets the visitor in the chosen language — isiZulu speakers see \u201CSAWUBONA\u201D above their name in a small gold pill. The profile lives "),
+  b("only in that device's localStorage"),
+  r(" (key fast-profile, via src/lib/profile.ts): no account, no cookie, no network copy anywhere. Editing mode exposes a deliberate "),
+  b("two-tap \u201CRemove my greeting\u201D"),
+  r(" with a four-second auto-disarm and Escape disarm, after which every stored field is wiped and a toast confirms what was deleted."),
+]));
+
+body.push(h2("3.3 PWA Registration and Noise Texture"));
 body.push(p([
   r("PwaRegister registers "), b("/sw.js"),
   r(" once, after the load event, so offline support never competes with first paint. A fixed, pointer-transparent film-grain overlay (5% opacity, fully desaturated SVG turbulence) sits above the content at z-90 to give the dark surfaces a printed, non-flat texture without introducing any foreign hue."),
 ]));
 
-body.push(h2("3.3 Navbar"));
+body.push(h2("3.4 Navbar"));
 body.push(p([
-  r("A fixed top bar with five anchor links (Emergency, Survivors, Live, Change, FAQ) and a gold "),
+  r("A permanently visible top bar — feedback made the crisis entry point non-negotiable, so it never hides while scrolling — with five anchor links (Emergency, Survivors, Live, Change, FAQ), a gold "),
   b("Get help now"),
-  r(" button that dials 0800 428 428. It hides while scrolling down past the hero and reveals on the way up; once scrolled it becomes a blurred glass bar (ink at 90% opacity, taupe bottom border, deep shadow). The entrance animation is delayed to 4.05 s so it slides in exactly as the splash curtain finishes. On mobile the button collapses to a phone icon, and the menu is a full-screen overlay with oversized staggered links and a call button pinned to the safe-area bottom."),
+  r(" button that dials 0800 428 428, and a hairline gold reading-progress bar that fills across the top edge as the visitor reads. Once scrolled it becomes a blurred glass bar (ink at 90% opacity, taupe bottom border, deep shadow); the active link is tracked by deterministic geometry scroll-spy with click feedback. The entrance animation is delayed so it slides in exactly as the splash curtain finishes. On mobile the button collapses to a phone icon, and the menu is a full-screen overlay with oversized staggered links and a call button pinned to the safe-area bottom, its open and close transitions both wrapped in AnimatePresence so the exit actually plays."),
 ]));
 
-body.push(h2("3.4 Hero"));
+body.push(h2("3.5 Hero"));
 body.push(p([
   r("The headline "),
   b("When it hurts most, help answers fast"),
@@ -379,15 +400,18 @@ body.push(p([
   b("I want to change"),
   r(") that anchors to the behaviour-change section. A trust strip lists Free and confidential, Answered 24 hours, All 11 official languages, Nothing on your bill, and a scroll cue points to the emergency section."),
 ]));
+body.push(p([
+  r("Two later additions complete the section. The headline is framed by a slowly bobbing ring of eight frame-verified animated emoji — sparkling heart, cherry blossom, clover, folded hands, sun, purple heart, tulip and two hearts at extra-large widths — each inspected frame by frame so it never blinks transparent mid-loop, plus a sparkle bound to the word fast. And when a welcome profile exists, a small gold eyebrow pill greets the visitor by name in their chosen language before the headline runs."),
+]));
 
-body.push(h2("3.5 Encouragement Strip (Motivations)"));
+body.push(h2("3.6 Encouragement Strip (Motivations)"));
 body.push(p([
   r("The former emergency-numbers ticker was replaced, per feedback, by a slow rotating strip of compassionate messages labelled "),
   b("Hold on, read this"),
-  r(". Fifteen verified baseline lines are built in (for example \u201CWhat happened to you was not your fault.\u201D and \u201CChoosing to stop harming is possible, and help exists for that choice too.\u201D), and the hourly AI engine generates ten more, mixed across survivors, worried others and people who cause harm; the sanitizer accepts up to twelve. Each message is paired with an official animated 3D emoji from Google's Noto Emoji Animation set (sparkles, yellow heart, seedling, flexed biceps, handshake, people hugging, green heart, glowing star), stored locally at 128 px so they cost almost nothing on mobile data and keep working offline. Messages rotate every 6.5 seconds with a blur-and-rise transition, pause on hover or keyboard focus, and a row of progress dots (gold for the active one) shows the set size. With the expanded set the strip now carries 10-15 motivations instead of the original four."),
+  r(". Fifteen verified baseline lines are built in (for example \u201CWhat happened to you was not your fault.\u201D and \u201CChoosing to stop harming is possible, and help exists for that choice too.\u201D), and the hourly AI engine generates ten more, mixed across survivors, worried others and people who cause harm; the sanitizer accepts up to twelve. Each message is paired with an official animated 3D emoji from Google's Noto Emoji Animation set (sparkles, yellow heart, seedling, flexed biceps, handshake, people hugging, green heart, glowing star), stored locally at 128 px so they cost almost nothing on mobile data and keep working offline. Messages rotate every 6.5 seconds with a blur-and-rise transition, pause on hover, keyboard focus, or whenever the strip is scrolled out of view, and a row of progress dots (gold for the active one) shows the set size. With the expanded set the strip now carries 10-15 motivations instead of the original four."),
 ]));
 
-body.push(h2("3.6 Emergency — the One Numbers Section"));
+body.push(h2("3.7 Emergency — the One Numbers Section"));
 body.push(p([
   r("This is "),
   b("the only section of the site that carries phone numbers"),
@@ -395,17 +419,17 @@ body.push(p([
   b("Every number you need, one place"),
   r(" and a featured gold-framed card for the "),
   b("GBV Command Centre, 0800 428 428"),
-  r(" (Department of Social Development) describing the 24-hour, eleven-language, toll-free line with social-worker callback and shelter placement. A \u201CCan't speak out loud?\u201D card holds the two silent options — the free Please Call Me code *120*7867# and SMS the word Help to 31531 — each with a copy chip. Three further call cards cover SAPS 10111, ambulance and fire 10177 (with the cellphone 112 note) and Childline 116. Below, \u201CThe full directory, verified\u201D renders an eleven-row table of every service with what it does, its number and its hours: GBV Command Centre, SAPS, cellphone emergency 112, ambulance and fire 10177, TEARS Foundation *134*7355#, POWA, Lifeline 0861 322 322, Childline 116, Sonke Gender Justice, FAMSA and Crime Stop 0860 010 111. A closing safety note explains that calls and SMS leave a record, advises deleting entries and private browsing, and tells anyone in immediate danger to leave the screen and call the police."),
+  r(" (Department of Social Development) describing the 24-hour, eleven-language, toll-free line with social-worker callback and shelter placement. A \u201CCan't speak out loud?\u201D card holds the two silent options — the free Please Call Me code *120*7867# and SMS the word Help to 31531 — each with a copy chip. Three further call cards cover SAPS 10111, ambulance and fire 10177 (with the cellphone 112 note) and Childline 116. Below, \u201CThe full directory, verified\u201D renders an eleven-row table of every service with what it does, its number and its hours: GBV Command Centre, SAPS, cellphone emergency 112, ambulance and fire 10177, TEARS Foundation *134*7355#, POWA, Lifeline 0861 322 322, Childline 116, Sonke Gender Justice, FAMSA and Crime Stop 0860 010 111. A closing safety note explains that calls and SMS leave a record, advises deleting entries and private browsing, and tells anyone in immediate danger to leave the screen and call the police. Every number on every surface of the site — the hero button, the navbar, the welcome flow, the featured cards and the error boundaries — is read from one immutable typed module, src/lib/numbers.ts, so no two surfaces can ever disagree."),
 ]));
 
-body.push(h2("3.7 Survivor Pathways Bento (#survivors)"));
+body.push(h2("3.8 Survivor Pathways Bento (#survivors)"));
 body.push(p([
   r("Seven cards in an asymmetric six-column bento grid under the heading "),
   b("You are not alone, and you are not to blame"),
   r(": 24-hour counselling in any of the eleven languages; safe places to stay (shelters and safe houses in all nine provinces, often same-day, arranged with POWA); free legal protection under the Domestic Violence Act (interim protection orders from any magistrates-court clerk, no lawyer, SAPS must assist and must arrest on breach); medical care and evidence (Thuthuzela Care Centres and the J88 form); help without a voice call; a four-item safety-plan checklist (code word, grab bag with documents and cash, nearest police station saved, where to go and who knows); and help for children through Childline. Every card's action link anchors down to the emergency section rather than repeating a number."),
 ]));
 
-body.push(h2("3.8 Live Data Section (#live)"));
+body.push(h2("3.9 Live Data Section (#live)"));
 body.push(p([
   r("Headed "),
   b("The crisis in numbers you can check yourself"),
@@ -414,7 +438,7 @@ body.push(p([
   r(" card with one practical safety suggestion; a status badge showing either \u201CUpdated HH:MM SAST\u201D or \u201CVerified baseline\u201D; and a manual Refresh button that is rate-limited server-side to roughly one generation every nine minutes so neither a cron run nor a curious visitor can run the API key dry. A closing assurance states that news and figures refresh hourly while emergency contact numbers are verified official values and are never AI-generated."),
 ]));
 
-body.push(h2("3.9 Behaviour-Change Bento (#change)"));
+body.push(h2("3.10 Behaviour-Change Bento (#change)"));
 body.push(p([
   r("Under "),
   b("Real strength is choosing to stop"),
@@ -423,7 +447,7 @@ body.push(p([
   r(" — 01 Name it, 02 Ask for help (call the Command Centre and say \u201CI need help to change\u201D), 03 Do the work (join a behaviour-change programme). A quote card states \u201CThe cycle ends with you, not with the next child who watches\u201D and explains intergenerational modelling. Three further cards cover counselling for the person causing harm (Lifeline, FAMSA), structured programmes (Sonke Gender Justice men's groups, Command Centre referrals) and repairing the family (FAMSA psychologists and social workers, including supervised reunification where safe)."),
 ]));
 
-body.push(h2("3.10 How Fast Works (#how)"));
+body.push(h2("3.11 How Fast Works (#how)"));
 body.push(p([
   r("Three numbered step cards — "),
   b("Reach out"),
@@ -434,20 +458,20 @@ body.push(p([
   r(" (follow-up contact, personal safety plan, court preparation, counselling for the family) — joined by arrows on desktop with oversized ghost numerals that tint gold on hover."),
 ]));
 
-body.push(h2("3.11 FAQ (#faq)"));
+body.push(h2("3.12 FAQ (#faq)"));
 body.push(p([
   r("Seven accordion items under "),
   b("The things you are afraid to ask"),
   r(": Is it really free and confidential; what happens when I call the Command Centre; can I call for someone else; I am a man, can I get help; I am causing harm, will I be judged; what if I cannot speak safely on the phone; and how do I hide my visit to this website. The answers rehearse the same verified facts as the rest of the page and close with the privacy guidance."),
 ]));
 
-body.push(h2("3.12 Closing Call to Action and Footer"));
+body.push(h2("3.13 Closing Call to Action and Footer"));
 body.push(p([
   r("A featured gold-framed panel — "),
   b("One call can change everything"),
   r(" — asks the visitor to save the Command Centre number today \u201Cnot because you expect trouble, but because trouble never sends an invitation,\u201D and anchors to the emergency section. The footer carries four link columns (Help, For survivors, For change, About the data), three assurance blocks — "),
   b("Private by design"), r(", "), b("Works without data"), r(", "), b("Statistics you can check"),
-  r(" — a credit line for the Noto animated emoji artwork, and one quiet final pointer to the emergency numbers for anyone who reaches the very bottom in a crisis. The footer itself carries no numbers."),
+  r(" — a credit line for the Noto animated emoji artwork, the \u201CPersonalise your greeting\u201D link that reopens the welcome flow of section 3.2, and one quiet final pointer to the emergency numbers for anyone who reaches the very bottom in a crisis. The footer itself carries no numbers."),
 ]));
 
 /* 4. Design system */
@@ -480,7 +504,7 @@ body.push(p([
 ]));
 body.push(h2("4.4 Card System and Motion Language"));
 body.push(p([
-  r("One surface recipe covers every card in the site: 28 px radius, a thick 3 px taupe frame, a taupe fill over the ink background and a soft neutral top highlight. Featured cards swap the frame to gold. Hover lifts a card 4 px on a colour-neutral black shadow and turns its frame gold. Motion is one spring-like easing curve (cubic-bezier 0.22, 1, 0.36, 1) shared by reveal-on-scroll (opacity, 28 px rise, slight scale and blur, firing once at -70 px viewport margin), word-mask headline entrances, the splash curtain, a 5.5 s emoji bob and two barely-perceptible 26-32 s background drifts. "),
+  r("One surface recipe covers every card in the site: 28 px radius, a thick 3 px taupe frame, a taupe fill over the ink background and a soft neutral top highlight. Featured cards swap the frame to gold. Hover lifts a card 4 px on a colour-neutral black shadow and turns its frame gold. Motion is one spring-like easing curve (cubic-bezier 0.22, 1, 0.36, 1) defined exactly once in src/lib/motion.ts and imported everywhere — reveal-on-scroll (opacity, 28 px rise, slight scale, blur-free since beta.5, firing once at -70 px viewport margin), word-mask headline entrances, the splash curtain's steeper documented CURTAIN_EASE variant, a 5.5 s emoji bob and two barely-perceptible 26-32 s background drifts. "),
   b("prefers-reduced-motion"),
   r(" disables all of it."),
 ]));
@@ -517,7 +541,7 @@ body.push(p([
 body.push(h2("5.4 Client Consumption"));
 body.push(p([
   r("The "), b("useLive()"),
-  r(" hook is a shared client store: every component that calls it participates in one fetch of /api/live per page load, the verified baseline renders first so nothing blocks, and live data quietly replaces it when it arrives. A module-level cache means the payload survives route re-renders."),
+  r(" hook is a shared client store: every component that calls it participates in one fetch of /api/live per page load, the verified baseline renders first so nothing blocks, and live data quietly replaces it when it arrives. A module-level cache means the payload survives route re-renders. Network timeouts and a retry path keep a slow generator from ever leaving the section stuck."),
 ]));
 
 /* 6. PWA */
@@ -525,7 +549,7 @@ body.push(h1("6. Offline Capability and Mobile Resilience (PWA)"));
 body.push(p([
   r("The manifest ("), b("manifest.webmanifest"),
   r(") installs the site as a standalone portrait app named \u201CFast\u201D with theme and background #454040, language en-ZA, categories health/government/lifestyle, and three icons (192, 512 and a maskable 512). The service worker ("), b("sw.js"),
-  r(", version fast-v1) uses three strategies: navigations are network-first with a hard 3.5 s timeout, falling back to the cached page and then to a dedicated offline.html; /api/live is network-first with a 4.5 s timeout so the last successful AI payload stays available with no connection; and immutable build output, the local emoji images, icons and fonts are cache-first with a quiet background refresh. On activation it deletes every cache outside its own three names. Navigation timeouts were chosen for visitors on flaky mobile networks, and the whole emergency section keeps working offline after a single visit — consistent with the footer promise \u201CVisit it once today and the emergency section keeps working with no connection and almost no airtime.\u201D"),
+  r(", version fast-v11) precaches nineteen assets on install — offline.html, the manifest, three icons and all fourteen shipped animated emojis — using requests marked cache:\"reload\", so a version bump always installs the true bytes of every file. Three runtime strategies: navigations are network-first with a hard 3.5 s timeout, falling back to the cached page, then to a dedicated offline.html, and finally answering with a clean 503 instead of an uncaught error; /api/live is network-first with a 4.5 s timeout so the last successful AI payload stays available with no connection; and hashed build output, the local emoji images, icons and fonts are cache-first with a quiet background refresh. On activation it deletes every cache outside its own three names, and the script itself is served no-cache, no-store, must-revalidate with Service-Worker-Allowed so critical fixes reach returning visitors immediately. The artwork directories (emojis, icons, images) are served with one day of freshness plus seven days of stale-while-revalidate — safe precisely because the precache reinstalls on every version bump. Navigation timeouts were chosen for visitors on flaky mobile networks, and the whole emergency section keeps working offline after a single visit — consistent with the footer promise \u201CVisit it once today and the emergency section keeps working with no connection and almost no airtime.\u201D"),
 ]));
 
 /* 7. Data integrity */
@@ -546,11 +570,19 @@ body.push(table(
 ));
 body.push(h2("7.2 Numbers Are Never AI-Generated"));
 body.push(p([
-  r("A hard architectural rule separates the two kinds of content: statistics and news are regenerated hourly and always carry sources a visitor can click, while emergency contact numbers are hard-coded, verified official values that no model can alter. The Live section repeats this assurance in small print. Contact numbers also appear in exactly one section, so there is exactly one place to verify and one place to maintain."),
+  r("A hard architectural rule separates the two kinds of content: statistics and news are regenerated hourly and always carry sources a visitor can click, while emergency contact numbers are hard-coded, verified official values that no model can alter. The Live section repeats this assurance in small print. Contact numbers also appear in exactly one section, so there is exactly one place to verify and one place to maintain — and since beta.10 that one place is the typed module src/lib/numbers.ts, imported by every surface that shows or dials a number."),
 ]));
 body.push(h2("7.3 Privacy and Visitor Safety"));
 body.push(p([
-  r("Fast is a static awareness page: no accounts, no tracking cookies, no personal information collected or stored. The API key lives only in the server-side environment. For visitors whose devices are monitored, the page teaches private browsing and history clearing, offers silent help channels that cost nothing and leave no charge record, and advises deleting sent messages and call entries. The emergency section ends with an explicit note that if a visitor is in immediate danger they should leave the screen and call the police."),
+  r("Fast is a static awareness page: no accounts, no tracking cookies, no personal information collected or stored. The API key lives only in the server-side environment. For visitors whose devices are monitored, the page teaches private browsing and history clearing, offers silent help channels that cost nothing and leave no charge record, and advises deleting sent messages and call entries. The emergency section ends with an explicit note that if a visitor is in immediate danger they should leave the screen and call the police. The optional welcome profile is device-local by design — saved only to the visitor's own browser, never transmitted, and erasable on the spot through the welcome overlay's two-tap \u201CRemove my greeting\u201D. Every response also carries Referrer-Policy no-referrer, so following an outbound link to a news source never reveals that the visitor came from a GBV support page."),
+]));
+body.push(h2("7.4 Hardened Transport and Capability Security"));
+body.push(p([
+  r("Every response carries a strict Content-Security-Policy in which every directive locks down to "),
+  b("'self'"),
+  r(" — the site loads no third-party script, style, image, font or connection — with frames and plug-in containers forbidden outright (frame-src, child-src and object-src all 'none', frame-ancestors 'none') and img-src limited to 'self' and data: for the inline film-grain SVG. Inline scripts and styles remain allowed because Next.js hydrates from an inline flight payload and framer-motion animates through inline style attributes — the configuration Next.js itself recommends for sites without third-party scripts; a nonce-based policy would force dynamic rendering on every request and cost the page the CDN caching that keeps it fast and cheap on flaky mobile networks, so the trade-off is documented in next.config.ts and revisited after deploy. A Permissions-Policy denies about twenty-five browser capabilities outright — camera, microphone and geolocation first among them, so "),
+  b("a survivor is never asked for device permissions"),
+  r(" — alongside X-Frame-Options DENY, nosniff, Cross-Origin-Resource-Policy and Cross-Origin-Opener-Policy same-origin, X-Permitted-Cross-Domain-Policies none, Origin-Agent-Cluster, a two-year Strict-Transport-Security with preload, and upgrade-insecure-requests in production. The two API routes authenticate the hourly cron with a timing-safe secret comparison and reject cross-origin writes; both error boundaries report failures without leaking internals; TypeScript errors fail the build; and the Gemini key is referenced by name only in the git-ignored .env file."),
 ]));
 
 /* 8. Tech stack */
@@ -566,6 +598,7 @@ body.push(table(
     ["Type", "Inter variable via next/font", "One family, every weight, no second font file"],
     ["Animation", "framer-motion", "Reveal-on-scroll, word masks, curtain, accordion and menu transitions with reduced-motion respect"],
     ["Live data", "gemini-flash-latest REST API + z-ai-web-dev-sdk search fallback, server-only module", "Hourly grounded regeneration with a three-engine chain"],
+    ["Single sources", "src/lib/numbers.ts and src/lib/motion.ts", "The emergency directory, dial links and the shared easing curve each exist exactly once, so no surface can drift"],
     ["Scheduling", "Vercel cron (vercel.json, 0 * * * *) + manual refresh endpoint", "One generation per hour regardless of traffic"],
     ["Offline", "manifest.webmanifest + sw.js service worker", "Installable app; pages, assets and last live payload cached"],
     ["Quality", "ESLint (eslint-config-next), bun run lint", "Zero-warning gate before every delivery"],
@@ -573,13 +606,13 @@ body.push(table(
   [16, 40, 44]
 ));
 body.push(p([
-  r("Architecturally the site is one page composed of thirteen client sections over three server pieces: the layout (metadata, fonts, viewport theme colour), the two API routes (/api/live read path, /api/refresh write path) and the shared live-types/live-fetch modules. The complete file map is in Appendix B."),
+  r("Architecturally the site is one page composed of fourteen client sections over three server pieces: the layout (metadata, fonts, viewport theme colour), the two API routes (/api/live read path, /api/refresh write path) and the shared modules under src/lib — live-types and live-fetch for the hourly engine, plus numbers, motion, profile, name-guard, languages and struggles as single sources for everything else. The complete file map is in Appendix B."),
 ]));
 
 /* 9. QA log */
 body.push(h1("9. Quality Assurance: Bugs Fixed and Debugging Log"));
 body.push(p([
-  r("Eight rounds of feedback each ended with a lint pass and browser inspection. The table records the defects found and how each was resolved."),
+  r("Every feedback round ended with a lint pass, a type check and browser inspection, and the ten beta iterations applied the same discipline to security, privacy and maintainability. The table records the defects found and how each was resolved."),
 ]));
 body.push(table(
   ["Defect", "Resolution"],
@@ -592,6 +625,16 @@ body.push(table(
     ["Hydration mismatch warning observed in the browser during development", "Diagnosed as a stale dev-session artifact (a hot-reloaded page holding a pre-refresh cached payload); a clean reload shows zero errors, and first paint is deterministic from the baseline on both server and client"],
     ["Loading bars, neon glows, pulsing dots, mouse effects, ghost text", "All removed across rounds 3-6 per feedback"],
     ["Motivations felt thin (four lines)", "Baseline expanded to fifteen lines; the AI prompt now generates ten; sanitizer cap raised to twelve; dot indicator wraps for larger sets"],
+    ["The sticky crisis bar hid while scrolling down, taking the crisis CTA out of reach", "Made permanently visible (beta.4); a gold reading-progress hairline and deterministic scroll-spy were added on top (beta.5)"],
+    ["A production build clobbered dev artifacts, surfacing a Turbopack runtime CSS chunk error (No link element found for chunk src_app_globals...css)", "Diagnosed and fixed by clearing .next and restarting the dev server; the sequence is always build, then restart"],
+    ["Loading bars competed with the calm tone (sticky hairline, splash sweep, dead progress and skeleton primitives)", "All removed in beta.6; the four-second splash remains as the single brand moment"],
+    ["No Content-Security-Policy; camera, microphone and location capabilities unclaimed", "Full CSP with frames and plug-ins forbidden, Permissions-Policy denying about 25 capabilities, no-referrer, CORP/COOP, HSTS preload (beta.4, extended beta.9)"],
+    ["A fabricated or inappropriate username could be saved during onboarding", "name-guard validates the compulsory appropriate name with gentle inline guidance; Continue stays disabled until it passes (beta.7)"],
+    ["blob: was allowed by img-src although nothing on the site creates blob URLs", "Narrowed to 'self' data:; frame-src and child-src set to 'none' at the same time (beta.9)"],
+    ["The welcome overlay's two-tap removal needed a safe disarm path", "Four-second auto-disarm timer plus Escape disarm; deletion wipes every stored field and confirms with a toast (beta.9)"],
+    ["The mobile menu's exit animation never ran (an exit prop without AnimatePresence)", "Wrapped in AnimatePresence so the exit transition actually plays (beta.10)"],
+    ["Emergency numbers were defined in several components and could drift apart", "Single source of truth src/lib/numbers.ts; hero, navbar, welcome flow, emergency cards and error boundaries all read from it (beta.10)"],
+    ["198 Chinese comment and log lines remained in the sandbox scaffold scripts", "Translated one-to-one into English with bash -n green and logic untouched; verified zero CJK characters in the tracked repository (beta.10)"],
   ],
   [42, 58]
 ));
@@ -599,27 +642,35 @@ body.push(table(
 /* 10. Status */
 body.push(h1("10. Current Status and Verification Results"));
 body.push(p([
-  r("As at 22 November 2026 the development server is running on port 3000 (bun run dev, Next.js 16.1.3). ESLint passes with no errors. The /api/live endpoint was queried directly and returned a fresh AI payload (generator: websearch chain) containing ten encouragement lines, four statistics and three news items. A forced /api/refresh confirmed regeneration works end to end. The page was opened in a real browser: at 390 px the hero, headline and trust strip render correctly, and at 1440 px the encouragement strip shows ten progress dots with the animated handshake emoji while an AI message fades in. No console errors remain after a clean load."),
+  r("As at 23 November 2026 (build v0.9.0-beta.10, commit f7ee8e8) the development server is running on port 3000 and answers HTTP 200 (bun run dev, Next.js 16.1.3 with Turbopack). "),
+  b("tsc --noEmit passes with zero type errors"),
+  r(", ESLint passes with zero errors, and the production build compiles cleanly — eight routes (the page, not-found, /api/live, /api/refresh, robots.txt, sitemap.xml and the two icons). A repository-wide search for CJK characters finds "),
+  b("zero matches in any text file"),
+  r(": all code, comments, logs and documentation are English only. Every security header was confirmed live by direct request — CSP, Permissions-Policy, Referrer-Policy, CORP/COOP, X-Permitted-Cross-Domain-Policies, Origin-Agent-Cluster, HSTS, the artwork cache rule and the no-cache service-worker rule. In the browser the page was exercised at 1440 × 900 and 390 × 844 with zero page errors, zero console errors beyond the dev server's own HMR messages, zero horizontal overflow, and the crisis call button measured pinned at the top edge of the mobile viewport. The welcome flow opens, validates a name and closes, and the grouped emergency directory renders as described in section 3.7."),
 ]));
-body.push(note("Verification artefacts: API payload inspection (curl), browser screenshots at mobile and desktop widths, ESLint output, and the dev-server log."));
+body.push(note("Verification artefacts: curl header inspection, tsc/ESLint/build output, a CJK character sweep, browser screenshots and console/error capture at both widths, and the dev-server log."));
 
 /* 11. Limitations */
 body.push(h1("11. Known Limitations and Risks"));
 body.push(p([
   b("API key exposure. "),
-  r("The Gemini key was pasted into a chat during development. It is stored only in .env.local and used server-side, but it must be treated as compromised and rotated in Google AI Studio, then replaced in .env.local."),
+  r("The Gemini key was pasted into a chat during development. It is stored only in the git-ignored .env file and used server-side, but it must be treated as compromised: rotating it in Google AI Studio and replacing it in .env and the Vercel environment remains the single most urgent open action."),
 ]));
 body.push(p([
   b("Engine availability. "),
   r("Gemini grounding depends on regional support and quota; the chain falls back to plain Gemini and then to the platform search engine, and finally to the verified baseline, so content can be less fresh — never wrong or unsourced — when upstream services degrade."),
 ]));
 body.push(p([
-  b("Splash length. "),
-  r("The four-second curtain is a deliberate brand moment but repeats for every visit; a sessionStorage skip for returning visitors is recommended."),
+  b("Inline script allowance. "),
+  r("script-src keeps 'unsafe-inline' because Next.js hydration and framer-motion's inline style animation require it, and the reasoning is documented in next.config.ts: a nonce-based policy would force dynamic rendering on every request and surrender the CDN caching that keeps the crisis page fast and cheap. It is the accepted trade-off for now and the first security item to revisit after the production deploy."),
+]));
+body.push(p([
+  b("Deployment prerequisites. "),
+  r("Everything is prepared for production — standalone output, the vercel.json hourly cron, sitemap, robots, security headers — but the first deploy waits on two manual steps: a fresh Gemini API key and the Vercel environment variables GEMINI_API_KEY and NEXT_PUBLIC_SITE_URL."),
 ]));
 body.push(p([
   b("Scope and upkeep. "),
-  r("The directory's office hours (POWA, FAMSA) require periodic human re-verification; the site is a single page, so search presence depends on one URL; and the development configuration currently ignores TypeScript build errors (typescript.ignoreBuildErrors), which should be tightened before a production deploy."),
+  r("The directory's office hours (POWA, FAMSA) require periodic human re-verification, and the site is a single page, so search presence depends on one URL. TypeScript build errors already fail the build (the former ignoreBuildErrors escape hatch was removed), and the codebase — comments, logs and documentation included — is English-only throughout."),
 ]));
 
 /* 12. Roadmap */
@@ -627,12 +678,12 @@ body.push(h1("12. Roadmap and Recommendations"));
 body.push(table(
   ["Priority", "Action", "Expected outcome"],
   [
-    ["1", "Rotate the Gemini API key in Google AI Studio and update .env.local", "Removes the exposure created when the key was shared in chat"],
-    ["2", "Add a sessionStorage splash skip for repeat visits within a session", "Keeps the brand moment for first-time visitors without taxing returnees"],
-    ["3", "Add schema.org structured data (CrisisLine / GovernmentOrganization) and a sitemap", "Richer search results for people searching for help"],
-    ["4", "Localise into South Africa's eleven official languages (next-intl is already a dependency)", "Wider reach, matching the Command Centre's eleven-language promise"],
-    ["5", "Deploy to a production domain with the Vercel cron enabled", "Moves hourly regeneration from the dev server to production"],
-    ["6", "Tighten TypeScript config (remove ignoreBuildErrors) and run a Lighthouse pass", "Production-grade type safety and a measured performance budget"],
+    ["1", "Rotate the Gemini API key in Google AI Studio and set the Vercel environment variables (GEMINI_API_KEY, NEXT_PUBLIC_SITE_URL)", "Closes the exposure and unblocks the first production deploy"],
+    ["2", "Deploy to a production domain with the Vercel hourly cron enabled", "Moves hourly regeneration from the dev server to production"],
+    ["3", "Move the CSP from 'unsafe-inline' to a nonce- or hash-based policy once deployed", "Strictly no inline execution without a nonce, at the documented cost of per-request rendering"],
+    ["4", "Localise the whole page into the eleven official languages (the welcome flow already stores the visitor's choice; next-intl is a dependency)", "Wider reach, matching the Command Centre's eleven-language promise"],
+    ["5", "Add a Playwright smoke suite plus a directory-integrity check that compares every number in src/lib/numbers.ts against Appendix A", "Regression-proof the crisis paths and keep the immutable directory honest"],
+    ["6", "Run a Lighthouse and screen-reader accessibility pass on the production build", "A measured performance budget and an audited experience for assistive technology"],
     ["7", "Institute an annual directory re-verification workflow", "Keeps every number and office hour correct over time"],
   ],
   [14, 48, 38]
@@ -666,18 +717,19 @@ body.push(table(
 /* Appendix B */
 body.push(h1("Appendix B: Project File Map"));
 body.push(p([
-  r("Key files and their responsibilities. The Gemini API key is held in .env.local as GEMINI_API_KEY and is referenced here by name only."),
+  r("Key files and their responsibilities. The Gemini API key is held in the git-ignored .env file as GEMINI_API_KEY and is referenced here by name only."),
 ]));
 body.push(table(
   ["File", "Responsibility"],
   [
-    ["src/app/page.tsx", "Assembles all thirteen page sections in render order"],
+    ["src/app/page.tsx", "Assembles all fourteen page sections in render order"],
     ["src/app/layout.tsx", "Inter font, SEO metadata, viewport theme #454040, manifest reference"],
     ["src/app/globals.css", "Four-colour tokens, grey text ladder, card system, textures, keyframes, reduced-motion"],
-    ["src/components/site/preloader.tsx", "Four-second splash curtain with wordmark and values"],
+    ["src/components/site/preloader.tsx", "Four-second splash curtain with wordmark and values, shown once per session"],
+    ["src/components/site/welcome.tsx", "Three-step welcome overlay: language, names (name-guard), struggles; two-tap greeting removal"],
     ["src/components/site/pwa-register.tsx", "Registers /sw.js after load"],
-    ["src/components/site/navbar.tsx", "Fixed nav, hide-on-scroll, glass state, mobile overlay menu, logo"],
-    ["src/components/site/hero.tsx", "Atmospheric backdrop, word-mask headline, CTAs, trust strip"],
+    ["src/components/site/navbar.tsx", "Pinned nav with crisis dial and gold reading-progress hairline, glass state, mobile overlay menu, logo"],
+    ["src/components/site/hero.tsx", "Atmospheric backdrop, word-mask headline, animated emoji frame, personal greeting pill, CTAs, trust strip"],
     ["src/components/site/encouragement.tsx", "Rotating motivations with Noto animated 3D emoji and dot progress"],
     ["src/components/site/emergency.tsx", "The single numbers section: featured line, silent help, call cards, directory"],
     ["src/components/site/bento-survivors.tsx", "Seven survivor pathway cards with safety-plan checklist"],
@@ -690,15 +742,24 @@ body.push(table(
     ["src/components/site/cards.tsx / reveal.tsx", "Shared card recipes (CallCard, InfoCard, CopyChip) and scroll-reveal primitives"],
     ["src/lib/live-types.ts", "LiveData type and the verified BASELINE payload (15 motivations)"],
     ["src/lib/live-fetch.ts", "Server-only three-engine hourly generator, sanitizer, cache, TTL and spend guard"],
+    ["src/lib/numbers.ts", "Single immutable source for the emergency directory, crisis line and dial links"],
+    ["src/lib/motion.ts", "The one shared easing curve (EASE) plus the splash curtain's CURTAIN_EASE"],
+    ["src/lib/profile.ts", "Device-only welcome profile in localStorage: read, save, clear, skip-state"],
+    ["src/lib/name-guard.ts", "Validates the compulsory appropriate username for the welcome flow"],
+    ["src/lib/languages.ts", "The eleven official South African languages and their greetings"],
+    ["src/lib/struggles.ts", "The dignified struggle options offered in the welcome flow"],
+    ["src/lib/splash.ts", "Session-storage splash state so the brand moment shows once per session"],
     ["src/hooks/use-live.ts", "Shared client store: one fetch per load, baseline-first rendering"],
     ["src/app/api/live/route.ts", "Instant read path for cached live data"],
     ["src/app/api/refresh/route.ts", "Forced regeneration (cron + manual), rate-limited"],
+    ["src/app/error.tsx + global-error.tsx", "Graceful error boundaries that surface emergency numbers and leak no details"],
+    ["src/app/sitemap.ts + robots.ts", "Sitemap generation and crawler rules"],
     ["public/manifest.webmanifest", "Installable PWA manifest (standalone, en-ZA, #454040)"],
-    ["public/sw.js", "Service worker: navigation, live-data and static caching strategies"],
+    ["public/sw.js", "Service worker fast-v11: nineteen-asset cache:\"reload\" precache, navigation, live-data and static strategies, old-cache pruning"],
     ["public/offline.html", "Offline fallback page"],
     ["public/emojis/", "Locally hosted Noto animated 3D emoji set (128 px webp)"],
     ["vercel.json", "Hourly cron on /api/refresh (0 * * * *)"],
-    [".env.local", "GEMINI_API_KEY (server-side only; value never committed or sent to the client)"],
+    [".env (git-ignored)", "GEMINI_API_KEY (server-side only; value never committed or sent to the client)"],
   ],
   [34, 66]
 ));
@@ -772,13 +833,13 @@ const doc = new Document({
       },
       children: buildCoverR1({
         title: "FAST Full Website Report",
-        subtitle: "South Africa's free, 24/7 gender-based violence support hub - mission, goals, objectives, architecture, design system, live data engine and roadmap, documented from A to Z",
+        subtitle: "South Africa's free, 24/7 gender-based violence support hub - mission, goals, objectives, welcome flow, architecture, design system, live data engine, hardened security and roadmap, documented from A to Z",
         englishLabel: "GBV SUPPORT PLATFORM",
         metaLines: [
           "Project: Fast - public awareness landing page",
           "Region: South Africa (en-ZA)",
-          "Report date: 22 November 2026",
-          "Status: Development server live, lint-clean, live data verified",
+          "Report date: 23 November 2026",
+          "Status: Build v0.9.0-beta.10 - server live, typecheck/lint/build green, 100% English codebase",
         ],
         footerLeft: "Fast · Built with care for South Africa",
         footerRight: "November 2026",

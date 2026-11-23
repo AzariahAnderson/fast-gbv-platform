@@ -11,18 +11,11 @@ let docXml = fs.readFileSync(`${tmp}/word/document.xml`, "utf8");
 const before = docXml.length;
 docXml = docXml.replace(/<w:pgNumType\/>/g, "");
 
-// 1b. Dedupe TOC: the placeholder script merges a hyperlink+PAGEREF copy of the
-// first entry INTO the field paragraph (begin+instrText+separate live there).
-// Strip only that hyperlink run group, keeping the field structure intact.
-const fieldParaRe = /<w:p\b[^>]*>(?:(?!<\/w:p>).)*?TOC \\h(?:(?!<\/w:p>).)*?<\/w:p>/s;
-const fieldPara = docXml.match(fieldParaRe);
-if (fieldPara && fieldPara[0].includes("<w:hyperlink")) {
-  const cleaned = fieldPara[0].replace(/<w:hyperlink[^>]*>(?:(?!<\/w:hyperlink>).)*?<\/w:hyperlink>/s, "");
-  docXml = docXml.replace(fieldPara[0], cleaned);
-  console.log("TOC duplicate first entry (hyperlink) stripped from field paragraph");
-} else {
-  console.log("no TOC duplicate found");
-}
+// 1b. TOC first entry: docx-js merges the first heading's hyperlink+PAGEREF
+// copy INTO the field paragraph (begin+instrText+separate live there) and
+// emits every later entry as its own paragraph. That merged copy is the ONLY
+// copy of "1. Executive Summary", so it must be KEPT — stripping it deletes
+// the first entry from the rendered TOC (verified 23 Nov 2026).
 fs.writeFileSync(`${tmp}/word/document.xml`, docXml);
 console.log("document.xml patched:", before - docXml.length, "bytes");
 
