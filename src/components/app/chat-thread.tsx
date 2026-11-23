@@ -395,8 +395,10 @@ export function ChatThread({
         </p>
       )}
 
-      {/* Composer */}
-      <div className="mt-3 flex flex-col gap-2">
+      {/* Composer — pinned above the mobile bottom nav so it is always
+          reachable, however long the thread (sticky returns it to its
+          flow position once the conversation is scrolled above). */}
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 mt-0 flex flex-col gap-2 border-t-2 border-taupe/50 bg-background/95 px-4 pb-3 pt-3 backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-t-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:mt-3 lg:backdrop-blur-none">
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-faint">Quick:</span>
           {QUICK_EMOJI.map((e) => (

@@ -211,8 +211,11 @@ export default function AiPage() {
         </div>
       </div>
 
-      {/* Composer + emergency CTA */}
-      <div className="mt-3 flex items-end gap-2">
+      {/* Composer + crisis line — pinned above the mobile bottom nav so
+          asking for help is always one tap away (sticky returns the pair
+          to its flow position on taller screens). */}
+      <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 border-t-2 border-taupe/50 bg-background/95 px-4 pb-3 pt-3 backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-t-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
+        <div className="mt-3 flex items-end gap-2">
         <textarea
           rows={1}
           value={draft}
@@ -236,10 +239,11 @@ export default function AiPage() {
           <SendHorizontal className="h-5 w-5" aria-hidden="true" />
         </button>
       </div>
-      <p className="mt-2 px-1 text-xs text-dim">
-        In danger right now? Call{" "}
-        <span className="font-bold text-brand">{CRISIS_LINE.display}</span> — free, 24 hours, answered by people.
-      </p>
+        <p className="mt-2 px-1 text-xs text-dim">
+          In danger right now? Call{" "}
+          <span className="font-bold text-brand">{CRISIS_LINE.display}</span> — free, 24 hours, answered by people.
+        </p>
+      </div>
     </div>
   );
 }

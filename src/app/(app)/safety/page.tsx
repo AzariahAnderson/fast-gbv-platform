@@ -184,7 +184,10 @@ export default function SafetyPage() {
                   </p>
                 </div>
                 {a.status === "active" && (
-                  <button onClick={() => void markArrived(a.id)} className="text-xs font-bold text-brand">
+                  <button
+                    onClick={() => void markArrived(a.id)}
+                    className="lift inline-flex min-h-11 shrink-0 items-center rounded-xl border-2 border-brand/60 bg-brand/10 px-4 text-xs font-bold text-brand"
+                  >
                     I arrived
                   </button>
                 )}
