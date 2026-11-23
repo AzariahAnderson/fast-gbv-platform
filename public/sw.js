@@ -8,7 +8,7 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v14";
+const VERSION = "fast-v15";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -19,9 +19,11 @@ const PRECACHE = [
   "/icons/icon-512.png",
   "/icons/icon-maskable-512.png",
   // The animated emojis: small local webp files, precached on install so
-  // the hero frame and the support messages render even on a first offline
-  // visit. Every shipped animation is visible in all of its frames — the
-  // seedling and the star blink fully transparent mid-loop and read broken.
+  // the hero frame, the support messages and the onboarding flow render
+  // even on a first offline visit. Every shipped animation is visible in
+  // all of its frames — the seedling, the star, the rainbow and the raised
+  // hands blink fully transparent mid-loop and read broken, so they never
+  // ship. The list always matches the set referenced in src/ exactly.
   "/emojis/2728-128.webp",
   "/emojis/1f496-128.webp",
   "/emojis/1f338-128.webp",
@@ -41,6 +43,13 @@ const PRECACHE = [
   "/emojis/1f490-128.webp",
   "/emojis/1f339-128.webp",
   "/emojis/1f388-128.webp",
+  "/emojis/1f30a-128.webp",
+  "/emojis/1f981-128.webp",
+  "/emojis/1f38a-128.webp",
+  "/emojis/1f31d-128.webp",
+  "/emojis/1f381-128.webp",
+  "/emojis/1f49f-128.webp",
+  "/emojis/1f30d-128.webp",
 ];
 
 self.addEventListener("install", (event) => {

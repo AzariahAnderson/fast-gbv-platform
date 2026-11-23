@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowUpRight, ShieldCheck, BookOpenCheck, WifiOff, Sparkles } from "lucide-react";
-import { SITE_VERSION } from "@/lib/site";
 import { WELCOME_OPEN_EVENT } from "@/lib/profile";
 
 /**
@@ -146,14 +145,10 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t-[3px] border-taupe pt-6 sm:flex-row">
-          <p className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.16em] text-faint">
-            <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-            Animated emoji artwork by Noto Emoji, built with care for South Africa, {new Date().getFullYear()} · v{SITE_VERSION}
-          </p>
+        <div className="flex flex-col items-center gap-4 border-t-[3px] border-taupe pt-6 text-center">
           <a
             href="#emergency"
-            className="inline-flex items-center gap-1.5 text-center text-[10px] font-bold uppercase tracking-[0.16em] text-faint transition-colors hover:text-brand"
+            className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-body transition-colors hover:text-brand"
           >
             In immediate danger? The emergency numbers are one tap away
             <ArrowUpRight className="h-3 w-3" aria-hidden="true" />

@@ -62,17 +62,19 @@ const TRUST = [
 ];
 
 /**
- * The animated emoji frame around the headline — sixteen companions in
+ * The animated emoji frame around the headline — nineteen companions in
  * four depth tiers, each an ally with a reason to be here:
  *
- *   sparkling heart   love            folded hands   support
- *   cherry blossom    gentleness      clover         hope
- *   sun with face     warmth          purple heart   courage
- *   tulip             kindness        two hearts     care
- *   balloon           lightness       rose           respect
- *   bouquet           appreciation    butterfly      change
- *   green heart       healing         dove           peace
- *   yellow heart      friendship      handshake      solidarity
+ *   balloon           lightness      rose            respect
+ *   wave              calm           sparkling heart love
+ *   cherry blossom    gentleness     clover          hope
+ *   folded hands      support        bouquet         appreciation
+ *   butterfly         change         lion            courage
+ *   sun with face     warmth         purple heart    compassion
+ *   confetti          joy            full moon face  company at 3am
+ *   two hearts        care           gift            new beginnings
+ *   dove              peace          heart decoration devotion
+ *   globe (Africa held in view) — the whole country stands with you
  *
  * Layered motion, one transform per element so nothing fights:
  *   outer motion.span  — entrance (pop in, tilt to its resting angle)
@@ -80,12 +82,15 @@ const TRUST = [
  *   img                — an endless life: bob, breeze sway or twinkle
  *
  * Tiers deepen with the viewport, so wide screens gain companions while
- * narrow ones stay uncluttered: two tiny ones from sm, the main frame
- * from lg, a mid ring from xl and the innermost pair from 2xl. Every
- * position sits in the gutters above, beside or below the copy — never
- * on the words. Every pick is an always-visible animation (measured
- * frame by frame in scripts/fetch-emojis.py); the seedling, the star and
- * the rainbow were all rejected for blinking fully transparent mid-loop.
+ * narrow ones stay uncluttered: two tiny corner companions from the
+ * smallest phone (tucked between navbar and badge), the wave from sm, the
+ * main frame from lg, the change ring from lg, a mid ring from xl and the
+ * innermost pair from 2xl. Every position sits in the gutters above, beside or
+ * below the copy — never on the words. Every pick is an always-visible
+ * animation (measured frame by frame in scripts/fetch-emojis.py); the
+ * seedling, the star, the rainbow and the raised hands all blink fully
+ * transparent mid-loop and were rejected. None of these nineteen repeats
+ * the encouragement strip's set, so no animation ever feels copy-pasted.
  */
 type Float = {
   src: string;
@@ -102,12 +107,16 @@ type Float = {
 };
 
 const FLOATS: Float[] = [
-  // —— smallest tier: two quiet companions from sm, high in the corners
+  // —— smallest tier: three quiet companions, visible from the smallest
+  // phone up. On phones they tuck into the band between the fixed navbar
+  // and the badge (negative offsets: this frame is positioned relative to
+  // the copy block, which starts one section-padding below the page top);
+  // from sm they climb into the corners.
   {
     src: "/emojis/1f388-128.webp",
-    pos: "left-[6%] top-[4%]",
-    size: "sm:h-7 sm:w-7",
-    show: "hidden sm:block",
+    pos: "left-[4.5%] top-[-52px] sm:left-[6%] sm:top-[4%]",
+    size: "h-5 w-5 sm:h-7 sm:w-7",
+    show: "block",
     rotate: -10,
     drift: "a",
     life: "bob",
@@ -117,15 +126,27 @@ const FLOATS: Float[] = [
   },
   {
     src: "/emojis/1f339-128.webp",
-    pos: "right-[6%] top-[5%]",
-    size: "sm:h-7 sm:w-7",
-    show: "hidden sm:block",
+    pos: "right-[4.5%] top-[-44px] sm:right-[6%] sm:top-[5%]",
+    size: "h-5 w-5 sm:h-7 sm:w-7",
+    show: "block",
     rotate: 12,
     drift: "b",
     life: "sway",
     lifeDur: "7.4s",
     lifeDelay: "0.6s",
     stagger: 0.9,
+  },
+  {
+    src: "/emojis/1f30a-128.webp",
+    pos: "right-[7%] top-[85%]",
+    size: "sm:h-7 sm:w-7",
+    show: "hidden sm:block",
+    rotate: -8,
+    drift: "a",
+    life: "bob",
+    lifeDur: "6.9s",
+    lifeDelay: "1.4s",
+    stagger: 1.1,
   },
   // —— main frame from lg: the four original companions
   {
@@ -176,7 +197,7 @@ const FLOATS: Float[] = [
     lifeDelay: "2.4s",
     stagger: 0.36,
   },
-  // —— lg gains two more near the actions: appreciation and change
+  // —— lg gains the change ring near the actions: appreciation, change, courage
   {
     src: "/emojis/1f490-128.webp",
     pos: "left-[4%] top-[63%]",
@@ -200,6 +221,18 @@ const FLOATS: Float[] = [
     lifeDur: "6.5s",
     lifeDelay: "0.5s",
     stagger: 0.62,
+  },
+  {
+    src: "/emojis/1f981-128.webp",
+    pos: "left-[5%] top-[85%]",
+    size: "lg:h-10 lg:w-10",
+    show: "hidden lg:block",
+    rotate: 10,
+    drift: "b",
+    life: "bob",
+    lifeDur: "7.2s",
+    lifeDelay: "0.9s",
+    stagger: 0.76,
   },
   // —— mid ring from xl
   {
@@ -227,14 +260,26 @@ const FLOATS: Float[] = [
     stagger: 0.3,
   },
   {
-    src: "/emojis/1f337-128.webp",
+    src: "/emojis/1f38a-128.webp",
+    pos: "right-[5.5%] top-[40%]",
+    size: "xl:h-8 xl:w-8",
+    show: "hidden xl:block",
+    rotate: 15,
+    drift: "a",
+    life: "twinkle",
+    lifeDur: "4.4s",
+    lifeDelay: "1.1s",
+    stagger: 0.38,
+  },
+  {
+    src: "/emojis/1f31d-128.webp",
     pos: "left-[5.5%] top-[52%]",
     size: "xl:h-9 xl:w-9",
     show: "hidden xl:block",
     rotate: -10,
     drift: "a",
-    life: "sway",
-    lifeDur: "6.9s",
+    life: "bob",
+    lifeDur: "7.4s",
     lifeDelay: "2.1s",
     stagger: 0.42,
   },
@@ -251,7 +296,7 @@ const FLOATS: Float[] = [
     stagger: 0.54,
   },
   {
-    src: "/emojis/1f49a-128.webp",
+    src: "/emojis/1f381-128.webp",
     pos: "left-[8%] top-[70%]",
     size: "xl:h-8 xl:w-8",
     show: "hidden xl:block",
@@ -276,7 +321,7 @@ const FLOATS: Float[] = [
   },
   // —— innermost pair from 2xl, nearest the copy but still clear of it
   {
-    src: "/emojis/1f49b-128.webp",
+    src: "/emojis/1f49f-128.webp",
     pos: "left-[10.5%] top-[27%]",
     size: "2xl:h-7 2xl:w-7",
     show: "hidden 2xl:block",
@@ -288,7 +333,7 @@ const FLOATS: Float[] = [
     stagger: 0.26,
   },
   {
-    src: "/emojis/1f91d-128.webp",
+    src: "/emojis/1f30d-128.webp",
     pos: "right-[10.5%] top-[29%]",
     size: "2xl:h-8 2xl:w-8",
     show: "hidden 2xl:block",

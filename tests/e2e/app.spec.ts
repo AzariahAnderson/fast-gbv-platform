@@ -21,6 +21,15 @@ const EMAIL_B = process.env.TEST_USER_B_EMAIL ?? "test-user-b@fast.test";
 const PASSWORD_B = process.env.TEST_USER_B_PASSWORD ?? "";
 const PHONE_B = "+27110000002";
 
+/** The authenticated flows need real identities in the gitignored .env;
+ *  without them these tests skip with the reason instead of failing on
+ *  an empty password against the live project. smoke.spec.ts (the public
+ *  crisis path) always runs — it needs no credentials. */
+test.skip(
+  !PASSWORD_A || !PASSWORD_B,
+  "authenticated runtime flows need TEST_USER_A_* and TEST_USER_B_* in .env (gitignored; see docs/launch/RUNTIME_VERIFICATION.md)",
+);
+
 /** Skip the four-second splash for this session (repeat-visit behaviour). */
 async function skipSplash(page: Page): Promise<void> {
   await page.addInitScript(() => {

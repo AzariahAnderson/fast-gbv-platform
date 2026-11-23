@@ -10,8 +10,8 @@
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fast-gbv.vercel.app";
 
 /**
- * Release version, surfaced in the footer so testers and support workers can
- * report against an exact build. Keep in sync with the version field in
- * package.json.
+ * Release version, kept in sync with the version field in package.json so
+ * testers and support workers can report against an exact build. Surfaced
+ * through the app shell (PWA manifest update notes and support replies).
  */
-export const SITE_VERSION = "1.1.4";
+export const SITE_VERSION = "1.1.5";
