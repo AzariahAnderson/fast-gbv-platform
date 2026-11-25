@@ -1,6 +1,7 @@
 import "server-only";
 import { NextRequest } from "next/server";
 import { CRISIS_LINE, DIRECTORY } from "@/lib/numbers";
+import { createClient, isServerSupabaseConfigured } from "@/lib/supabase/server";
 
 /**
  * FAST Guide — the one AI surface in the product. The Gemini key lives on
@@ -21,6 +22,40 @@ const BASE_URL =
   process.env.GEMINI_BASE_URL ||
   "https://generativelanguage.googleapis.com/v1beta";
 
+/**
+ * How long the upstream Gemini call may take to produce its response
+ * headers. The route declares maxDuration 60; the timeout sits well inside
+ * it so a hanging provider can never pin a serverless invocation until the
+ * platform kill, and the visitor gets the honest fallback instead.
+ */
+const UPSTREAM_TIMEOUT_MS = 45_000;
+
+/**
+ * Small per-user, per-instance rate limit for the Guide. Gemini quota is a
+ * real, exhaustible budget (the primary key has already hit 429 once), so
+ * one warm instance should never relay an unlimited chat loop. Window and
+ * cap are generous for a human in distress; they only stop scripted
+ * hammering. In-memory by design: on serverless each instance counts
+ * independently, which is accepted residual risk, not a false guarantee.
+ */
+const RATE_WINDOW_MS = 60_000;
+const RATE_MAX_REQUESTS = 10;
+const rateBuckets = new Map<string, number[]>();
+
+function rateLimited(userId: string): boolean {
+  const now = Date.now();
+  const hits = (rateBuckets.get(userId) ?? []).filter((t) => now - t < RATE_WINDOW_MS);
+  hits.push(now);
+  rateBuckets.set(userId, hits);
+  // The map only ever holds one entry per active user of this instance.
+  if (rateBuckets.size > 1000) {
+    for (const [k, v] of rateBuckets) {
+      if (v.every((t) => now - t >= RATE_WINDOW_MS)) rateBuckets.delete(k);
+    }
+  }
+  return hits.length > RATE_MAX_REQUESTS;
+}
+
 /** Every crisis number below comes from the directory — never typed here. */
 const directoryNumber = (name: string) => {
   const entry = DIRECTORY.find((d) => d.name === name);
@@ -31,6 +66,25 @@ const GBV = CRISIS_LINE.display;
 const SAPS = directoryNumber("SAPS, South African Police Service");
 const EMERGENCY = directoryNumber("Cellphone emergency");
 const CHILDLINE = directoryNumber("Childline South Africa");
+
+/** Honest "not configured" answer (200 — the UI renders it as text). */
+function guideUnavailable(gbv: string): Response {
+  const notice =
+    "The FAST Guide is not connected right now — it needs the owner to set a fresh Gemini key on the server. " +
+    `Everything else in Fast still works, and if you need help immediately, call the GBV Command Centre on ${gbv} (free, 24 hours).`;
+  return new Response(notice, {
+    status: 200,
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+}
+
+/** Calm transient-failure answer; provider details never reach the client. */
+function guideDown(gbv: string): Response {
+  return new Response(
+    `The Guide could not answer just now. Please try again in a moment — and if you are in danger, call ${gbv}.`,
+    { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } },
+  );
+}
 
 const GUARDRAILS = `You are the FAST Guide, part of FAST, a free South African platform that supports people affected by gender-based violence. You are calm, warm, practical and human. You speak like a caring, knowledgeable friend from South Africa — plain English, short sentences, no jargon. You are not a chatbot novelty; every reply should leave the person with something real they can do.
 
@@ -65,44 +119,65 @@ export async function POST(req: NextRequest) {
     return new Response("Bad request", { status: 400 });
   }
 
+  // Identity + abuse control. The middleware already guards this route,
+  // but the Guide spends a real paid quota, so it re-verifies the session
+  // itself and rate limits per user instead of trusting the edge alone.
+  if (!isServerSupabaseConfigured()) {
+    return guideUnavailable(GBV);
+  }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  if (rateLimited(user.id)) {
+    return new Response(
+      `The Guide needs a short pause. If you are in danger right now, call ${GBV} — it is free and answered 24 hours a day.`,
+      { status: 429, headers: { "Content-Type": "text/plain; charset=utf-8", "Retry-After": "60" } },
+    );
+  }
+
   if (!key) {
     // Honest, visible state: without the key the Guide cannot speak.
-    const notice =
-      "The FAST Guide is not connected right now — it needs the owner to set a fresh Gemini key on the server. " +
-      `Everything else in Fast still works, and if you need help immediately, call the GBV Command Centre on ${GBV} (free, 24 hours).`;
-    return new Response(notice, {
-      status: 200,
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
+    return guideUnavailable(GBV);
   }
 
   const endpoint = `${BASE_URL}/models/${MODEL}:streamGenerateContent?alt=sse`;
 
-  const upstream = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: GUARDRAILS }] },
-      generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
-      safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
-      ],
-      contents: messages.map((m) => ({
-        role: m.role === "assistant" ? "model" : "user",
-        parts: [{ text: m.content.slice(0, 4000) }],
-      })),
-    }),
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: GUARDRAILS }] },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 600 },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_ONLY_HIGH" },
+        ],
+        contents: messages.map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content.slice(0, 4000) }],
+        })),
+      }),
+      // A hanging provider must never pin this invocation until the
+      // platform kill: bound the wait for the response headers.
+      signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
+    });
+  } catch {
+    // Network failure, DNS failure or the timeout above — all one calm
+    // sentence, never a raw 500 and never provider internals.
+    return guideDown(GBV);
+  }
 
   if (!upstream.ok || !upstream.body) {
     // Never leak the provider error or the key: one calm sentence.
-    return new Response(
-      `The Guide could not answer just now. Please try again in a moment — and if you are in danger, call ${GBV}.`,
-      { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } },
-    );
+    return guideDown(GBV);
   }
 
   // Pass the SSE through, translating each chunk to plain text deltas.
@@ -137,6 +212,9 @@ export async function POST(req: NextRequest) {
           }
           buffer = buffer.slice(buffer.lastIndexOf("\n") + 1);
         }
+      } catch {
+        // Upstream reset mid-stream: end the answer cleanly. Whatever was
+        // already delivered stays on the page; no error text is appended.
       } finally {
         controller.close();
         reader.releaseLock();

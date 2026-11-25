@@ -77,7 +77,9 @@ export default function NotificationsPage() {
   }
 
   async function remove(id: string) {
-    await supabase.from("notifications").delete().eq("id", id);
+    if (!user) return;
+    // owner scope mirrors the RLS delete policy — defence in depth
+    await supabase.from("notifications").delete().eq("id", id).eq("user_id", user.id);
     setItems((prev) => prev.filter((i) => i.id !== id));
   }
 

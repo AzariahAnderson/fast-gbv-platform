@@ -32,6 +32,9 @@ supported.
 | Frame protection | `X-Frame-Options: DENY`, `frame-ancestors 'none'`, CORP `same-origin`, COOP `same-origin`. |
 | Transport | HSTS `max-age=63072000; includeSubDomains; preload` and `upgrade-insecure-requests` in production. |
 | Misc | `X-Content-Type-Options: nosniff`, `X-XSS-Protection: 0` (auditor deprecated), `X-Permitted-Cross-Domain-Policies: none`, `Origin-Agent-Cluster: ?1`, `poweredByHeader: false`. |
+| Post-login redirects | The login `next` parameter is validated against a fixed allow-rule (`src/lib/safe-redirect.ts`): only same-origin relative paths survive; external, protocol-relative and scheme-bearing values fall back to `/home`. Unit-tested in `tests/safe-redirect.test.ts`. |
+| AI route (`/api/ai/chat`) | Re-verifies the session inside the route (middleware-independent), then applies a per-user fixed-window rate limit (10 requests/min per warm instance) before spending Gemini quota. Provider failures (429, 400, timeout, network, mid-stream reset) always resolve to a calm plain-text answer with the crisis line — never a raw 500, never provider internals, never the key. |
+| Service worker | Public pages and static assets are cached; authenticated app routes (`/home`, `/messages`, `/family`, `/map`, `/safety`, `/ai`, `/profile`, `/notifications`, `/settings`, `/onboarding`) are network-only and never written to Cache Storage, so signed-in HTML leaves no readable trace on shared devices after sign-out. Cache versioning wipes every older generation on activation. |
 
 ### Why the CSP keeps `'unsafe-inline'` for scripts and styles
 
@@ -53,15 +56,9 @@ in `next.config.ts` and was evaluated deliberately rather than inherited.
 - **Vercel cron -> `/api/refresh` (GET)**: when `CRON_SECRET` is configured,
   the request must carry `Authorization: Bearer <secret>`, compared with a
   timing-safe equality check.
-- **Server -> publisher article pages** (once per hourly refresh): the
-  server fetches each grounded news article to read its own `og:image`,
-  with a short timeout and a descriptive user agent. Only https URLs that
-  pass the sanitiser's redirect-wrapper rules are stored, and a failed
-  scrape simply leaves the card imageless.
-- **Browser -> `/api/image`**: same-origin thumbnail proxy. It serves a URL
-  only when it is byte-for-byte an image URL already held in the server's
-  live cache, so it is not an open proxy; publisher CDNs see the server's
-  request, never the visitor's IP, and responses are edge-cached.
+- **Browser -> `/api/ai/chat` (POST)**: session-verified and per-user rate
+  limited server route that streams the FAST Guide's plain-text answer. The
+  Gemini key and any provider error detail stay on the server.
 - **Visitor profile** (language, name, struggles): stored in `localStorage`
   on the visitor's device only. It is never transmitted to any server, and
   the welcome flow includes a two-tap "Remove my greeting" path that deletes
@@ -71,21 +68,34 @@ in `next.config.ts` and was evaluated deliberately rather than inherited.
 
 ## Secret handling
 
-- `GEMINI_API_KEY`, `CRON_SECRET` and `NEXT_PUBLIC_SITE_URL` are
-  server-side / build environment variables. `GEMINI_API_KEY` is consumed
-  only inside `src/lib/live-fetch.ts` (guarded by `server-only`) and the API
-  routes. It must never appear in client code.
+- `GEMINI_API_KEY`, `CRON_SECRET` and `SUPABASE_SERVICE_ROLE_KEY` are
+  server-side environment variables. `GEMINI_API_KEY` is consumed only
+  inside `src/lib/live-fetch.ts` and `src/app/api/ai/chat/route.ts` (both
+  guarded by `server-only`). It must never appear in client code.
+- The full required-variable list is auditable at any time with
+  `node scripts/check-env.mjs` (or `bun run check:env`); it prints presence
+  only, never values.
 - `.env` is git-ignored. Before this repository was published, its full
   history was audited for secret material and the `.env` path was purged
   from history entirely.
 - **HUMAN ACTION REQUIRED:** the development Gemini API key was exposed
   during development and must be treated as compromised. Revoke it in the
   Google AI Studio dashboard, create a fresh key, and set it only in the
-  production hosting environment. Never commit the replacement.
+  production hosting environment. Never commit the replacement. A GitHub
+  personal access token was likewise exposed in a conversation and must be
+  rotated in GitHub settings.
 
 ## Deployment checklist
 
-1. `GEMINI_API_KEY` set in Vercel (server-side), fresh key, old key revoked.
-2. `NEXT_PUBLIC_SITE_URL` set to the real production origin.
-3. `CRON_SECRET` set and the Vercel cron sending it as a Bearer token.
-4. After first deploy: verify the headers above on the production domain.
+1. All six required variables set in Vercel (run `node scripts/check-env.mjs
+   --strict` locally with the same values to confirm): `NEXT_PUBLIC_SUPABASE_URL`,
+   `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`,
+   `GEMINI_API_KEY` (fresh key, old key revoked), `NEXT_PUBLIC_SITE_URL`,
+   `CRON_SECRET`.
+2. Vercel project imported from `AzariahAnderson/fast-gbv-platform`; framework
+   detection Next.js; build and install commands left at package defaults.
+3. The Vercel cron (defined in `vercel.json`) delivers the `CRON_SECRET`
+   bearer token to `/api/refresh` automatically.
+4. After first deploy: verify the headers above on the production domain and
+   run the public smoke suite (`bun run test:e2e`, smoke project) against the
+   live URL.

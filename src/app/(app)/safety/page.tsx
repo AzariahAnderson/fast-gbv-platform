@@ -63,7 +63,7 @@ export default function SafetyPage() {
     setDestination("");
     // Local reminder: simple and honest, fires while the app is open.
     setTimeout(async () => {
-      await supabase.from("safe_arrivals").update({ status: "expired", resolved_at: new Date().toISOString() }).eq("id", data.id);
+      await supabase.from("safe_arrivals").update({ status: "expired", resolved_at: new Date().toISOString() }).eq("id", data.id).eq("user_id", user.id);
       setNote(`Your ${minutes}-minute timer to "${destination.trim()}" has ended. If you did not arrive safely, reach your family on the Family page — or call for help now.`);
       void refresh();
     }, minutes * 60_000);
@@ -81,7 +81,9 @@ export default function SafetyPage() {
   }
 
   async function markArrived(id: string) {
-    await supabase.from("safe_arrivals").update({ status: "arrived", resolved_at: new Date().toISOString() }).eq("id", id);
+    if (!user) return;
+    // owner scope mirrors the RLS update policy — defence in depth
+    await supabase.from("safe_arrivals").update({ status: "arrived", resolved_at: new Date().toISOString() }).eq("id", id).eq("user_id", user.id);
     setNote("Glad you arrived.");
     void refresh();
   }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { EyeOff, Languages, MapPinOff, Clock } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { safeNextPath } from "@/lib/safe-redirect";
 import { SetupNotice } from "@/components/app/setup-notice";
 import { AuthSplit } from "@/components/app/auth-split";
 
@@ -31,7 +32,9 @@ function LoginForm() {
     setBusy(true);
     try {
       const supabase = createClient();
-      const next = new URLSearchParams(window.location.search).get("next") || "/home";
+      // Validated in-app path only: an external "next" value would send a
+      // freshly signed-in person to a phishing copy of Fast (open redirect).
+      const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       window.location.href = next;

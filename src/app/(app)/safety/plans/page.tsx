@@ -89,7 +89,8 @@ export default function SafetyPlansPage() {
     try {
       const payload = { title: title.trim() || "My safety plan", sections, owner_id: user.id };
       if (editing?.id) {
-        const { error } = await supabase.from("safety_plans").update(payload).eq("id", editing.id);
+        // owner scope mirrors the RLS update policy — defence in depth
+        const { error } = await supabase.from("safety_plans").update(payload).eq("id", editing.id).eq("owner_id", user.id);
         if (error) throw error;
       } else {
         const { data, error } = await supabase.from("safety_plans").insert(payload).select("id").single();
@@ -112,8 +113,9 @@ export default function SafetyPlansPage() {
 
   async function remove(id: string) {
     const sure = window.confirm("Delete this plan? This cannot be undone.");
-    if (!sure) return;
-    await supabase.from("safety_plans").delete().eq("id", id);
+    if (!sure || !user) return;
+    // owner scope mirrors the RLS delete policy — defence in depth
+    await supabase.from("safety_plans").delete().eq("id", id).eq("owner_id", user.id);
     void reload();
   }
 

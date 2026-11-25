@@ -15,19 +15,33 @@ import { test, expect, type Page } from "@playwright/test";
  * committed. The signup test creates a single extra test-only account.
  */
 
-const EMAIL_A = process.env.TEST_USER_A_EMAIL ?? "test-user-a@fast.test";
-const PASSWORD_A = process.env.TEST_USER_A_PASSWORD ?? "";
-const EMAIL_B = process.env.TEST_USER_B_EMAIL ?? "test-user-b@fast.test";
-const PASSWORD_B = process.env.TEST_USER_B_PASSWORD ?? "";
+// Credentials come from the gitignored .env, never committed. Two forms
+// are supported:
+// - TEST_USER_A_EMAIL/TEST_USER_A_PASSWORD + TEST_USER_B_EMAIL/
+//   TEST_USER_B_PASSWORD: two distinct identities, needed for the two-user
+//   realtime messaging suite.
+// - TEST_USER_EMAIL/TEST_USER_PASSWORD: a single dedicated test identity;
+//   it drives every single-user suite (auth gate, onboarding, map, safe
+//   arrival, AI Guide) and the two-user messaging suite skips.
+const EMAIL_A =
+  process.env.TEST_USER_A_EMAIL ?? process.env.TEST_USER_EMAIL ?? "test-user-a@fast.test";
+const PASSWORD_A =
+  process.env.TEST_USER_A_PASSWORD ?? process.env.TEST_USER_PASSWORD ?? "";
+const EMAIL_B =
+  process.env.TEST_USER_B_EMAIL ?? process.env.TEST_USER_EMAIL ?? "test-user-b@fast.test";
+const PASSWORD_B =
+  process.env.TEST_USER_B_PASSWORD ?? process.env.TEST_USER_PASSWORD ?? "";
 const PHONE_B = "+27110000002";
+const SINGLE_USER_READY = Boolean(PASSWORD_A);
+const TWO_USERS_READY = Boolean(PASSWORD_A && PASSWORD_B) && EMAIL_A !== EMAIL_B;
 
-/** The authenticated flows need real identities in the gitignored .env;
- *  without them these tests skip with the reason instead of failing on
- *  an empty password against the live project. smoke.spec.ts (the public
- *  crisis path) always runs — it needs no credentials. */
+/** The single-user flows need one real identity in the gitignored .env;
+ *  without it they skip with the reason instead of failing on an empty
+ *  password against the live project. smoke.spec.ts (the public crisis
+ *  path) always runs — it needs no credentials. */
 test.skip(
-  !PASSWORD_A || !PASSWORD_B,
-  "authenticated runtime flows need TEST_USER_A_* and TEST_USER_B_* in .env (gitignored; see docs/launch/RUNTIME_VERIFICATION.md)",
+  !SINGLE_USER_READY,
+  "authenticated runtime flows need TEST_USER_EMAIL/TEST_USER_PASSWORD (or TEST_USER_A_*/TEST_USER_B_*) in .env (gitignored; see docs/launch/RUNTIME_VERIFICATION.md)",
 );
 
 /** Skip the four-second splash for this session (repeat-visit behaviour). */
@@ -115,6 +129,11 @@ test.describe("signup → onboarding → session → logout", () => {
 
 // --------------------------------------------- two-user realtime messaging
 test.describe("realtime messaging (two users, no refresh)", () => {
+  test.skip(
+    !TWO_USERS_READY,
+    "the two-user messaging suite needs two DISTINCT identities: TEST_USER_A_* and TEST_USER_B_* in .env",
+  );
+
   let conversationUrl = "";
 
   test("A signs in and starts a conversation with B by exact phone", async ({ page }) => {

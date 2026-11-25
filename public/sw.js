@@ -8,10 +8,36 @@
  * mobile networks never wait on a dead connection.
  */
 
-const VERSION = "fast-v15";
+const VERSION = "fast-v16";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
+
+/**
+ * Authenticated app surfaces. Their HTML is never written to any cache:
+ * a signed-in person's dashboard, messages or safety plans must not stay
+ * readable in Cache Storage after they sign out — on a shared device that
+ * cached HTML would be exactly the trace a survivor needs gone. These
+ * routes go network-only (with the usual flaky-network timeout) and fall
+ * back to the offline page; only public pages are ever cached.
+ */
+const PRIVATE_PREFIXES = [
+  "/home",
+  "/messages",
+  "/family",
+  "/map",
+  "/safety",
+  "/ai",
+  "/profile",
+  "/notifications",
+  "/settings",
+  "/onboarding",
+];
+
+function isPrivateRoute(url) {
+  return PRIVATE_PREFIXES.some((p) => url.pathname === p || url.pathname.startsWith(p + "/"));
+}
+
 const PRECACHE = [
   "/offline.html",
   "/manifest.webmanifest",
@@ -138,6 +164,19 @@ async function cacheFirst(request, cacheName) {
   return fresh;
 }
 
+/** Network only: never store the response, fall back to the offline page. */
+async function networkOnly(request, fallbackUrl, timeoutMs) {
+  try {
+    return await fetchWithTimeout(request, timeoutMs);
+  } catch {
+    if (fallbackUrl) {
+      const fallback = await caches.open(STATIC_CACHE).then((c) => c.match(fallbackUrl));
+      if (fallback) return fallback;
+    }
+    throw new Error("offline and uncached");
+  }
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
   if (request.method !== "GET") return;
@@ -153,6 +192,19 @@ self.addEventListener("fetch", (event) => {
 
   // Navigations: render fresh, fall back to the cached page, then offline.
   if (request.mode === "navigate") {
+    if (isPrivateRoute(url)) {
+      // Signed-in HTML is never cached — see PRIVATE_PREFIXES above.
+      event.respondWith(
+        networkOnly(request, "/offline.html", 3500).catch(
+          () =>
+            new Response("<h1>Offline</h1>", {
+              status: 503,
+              headers: { "Content-Type": "text/html" },
+            }),
+        ),
+      );
+      return;
+    }
     event.respondWith(
       networkFirst(request, PAGE_CACHE, "/offline.html", 3500).catch(
         () =>

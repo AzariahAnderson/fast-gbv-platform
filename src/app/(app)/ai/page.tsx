@@ -59,6 +59,20 @@ export default function AiPage() {
         signal: abortRef.current.signal,
       });
       if (!res.body) throw new Error("no stream");
+      // Non-200 answers (rate limit, dead session) carry a plain-text
+      // message meant to be read as the Guide's reply; larger statuses with
+      // no text fall through to the generic calm answer below.
+      if (!res.ok) {
+        const text = (await res.text()).trim();
+        setTurns([
+          ...next,
+          {
+            role: "assistant",
+            content: text || `I could not answer just now. If you are in danger, call ${CRISIS_LINE.display} — free, 24 hours.`,
+          },
+        ]);
+        return;
+      }
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let assistant = "";

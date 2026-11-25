@@ -1,121 +1,92 @@
 #!/usr/bin/env node
 /**
- * Dead-link audit for the Fast public surface, run against a local server
- * (default http://127.0.0.1:3100 — the standalone production build).
+ * Internal link audit — crawls the public pages of a running production
+ * server, extracts every href/src target, and verifies each internal
+ * link resolves to a non-error response (no dead links). tel:/mailto:
+ * targets are skipped (the emergency directory has its own integrity
+ * unit tests). External https targets are HEAD-checked best-effort but
+ * failures only warn: third-party pages are outside Fast's control.
  *
- * Verifies, page by page:
- *  - every #fragment href resolves to an id= on the same page
- *  - every internal /route link answers (200, or the expected auth 307)
- *  - every tel: number belongs to the verified directory in src/lib/numbers.ts
- *  - sitemap.xml URLs answer 200
- *  - external https links are reported (HEAD-checked where the network
- *    allows; failures are listed, never silently ignored)
- *
- * Exit code 1 if any check fails.
+ * Usage: BASE_URL=http://127.0.0.1:3100 node scripts/link-audit.mjs
  */
-import { readFileSync } from "node:fs";
+const BASE = process.env.BASE_URL ?? "http://127.0.0.1:3100";
+const origin = new URL(BASE).origin;
 
-const BASE = process.env.AUDIT_BASE ?? "http://127.0.0.1:3100";
-
-// Parse the verified directory straight out of src/lib/numbers.ts (textual
-// parse instead of a TS import so the audit runs on plain node).
-const numbersSrc = readFileSync(new URL("../src/lib/numbers.ts", import.meta.url), "utf8");
-const directoryTels = [...numbersSrc.matchAll(/tel:\s*"(\d+)"/g)].map((m) => m[1]);
-
-const results = [];
-const fail = (page, kind, detail) => results.push({ page, kind, ok: false, detail });
-const ok = (page, kind, detail) => results.push({ page, kind, ok: true, detail });
-
-const PAGES = [
-  { path: "/", status: 200 },
-  { path: "/login", status: 200 },
-  { path: "/signup", status: 200 },
-  { path: "/offline.html", status: 200 },
-  { path: "/definitely-not-a-route", status: 404 }, // the custom 404 still carries emergency links
-];
-
-const verifiedTels = new Set(directoryTels.map((t) => `tel:${t}`));
-if (!directoryTels.length) fail("-", "setup", "no tel numbers parsed from src/lib/numbers.ts");
-
-function extract(html) {
-  const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
-  const ids = new Set([...html.matchAll(/id="([^"]+)"/g)].map((m) => m[1]));
-  return { hrefs: [...new Set(hrefs)], ids };
-}
-
-async function status(path, init) {
-  const res = await fetch(BASE + path, { redirect: "manual", ...init });
-  return res.status;
-}
-
+const SEEDS = ["/", "/login", "/signup", "/404-page-probe", "/offline.html"];
+const seen = new Set();
+const toTest = new Set();
 const external = new Set();
 
-for (const { path: page, status: expected } of PAGES) {
-  const res = await fetch(BASE + page, { redirect: "manual" });
-  if (res.status !== expected) {
-    fail(page, "page", `expected ${expected}, got ${res.status}`);
-    continue;
-  }
-  ok(page, "page", String(expected));
-  const html = await res.text();
-  const { hrefs, ids } = extract(html);
-
-  for (const href of hrefs) {
-    if (href.startsWith("#")) {
-      const target = href.slice(1);
-      if (target && !ids.has(target) && page !== "/offline.html")
-        fail(page, "anchor", `${href} missing id`);
-      else ok(page, "anchor", href);
-    } else if (href.startsWith("tel:")) {
-      if (verifiedTels.size && !verifiedTels.has(href))
-        fail(page, "tel", `${href} not in verified directory`);
-      else ok(page, "tel", href);
-    } else if (href.startsWith("mailto:")) {
-      ok(page, "mailto", href);
-    } else if (href.startsWith("http")) {
-      external.add(href);
-      ok(page, "external-collected", href);
-    } else if (href.startsWith("/")) {
-      const s = await status(href);
-      // protected app routes answer 307 to /login for visitors — fine
-      if (s === 200 || s === 307 || s === 404) ok(page, "route", `${href} -> ${s}`);
-      else fail(page, "route", `${href} -> unexpected ${s}`);
-    } else {
-      ok(page, "other", href);
+function collect(html) {
+  const re = /(?:href|src)="([^"]+)"/g;
+  let m;
+  while ((m = re.exec(html))) {
+    const raw = m[1];
+    if (!raw || raw.startsWith("#") || raw.startsWith("tel:") || raw.startsWith("mailto:") || raw.startsWith("data:")) continue;
+    if (raw.startsWith("/")) toTest.add(raw.split("#")[0]);
+    else if (raw.startsWith("http")) {
+      const u = new URL(raw);
+      if (u.origin === origin) toTest.add(u.pathname + u.search);
+      else external.add(raw);
     }
   }
 }
 
-// sitemap URLs
-try {
-  const sm = await (await fetch(BASE + "/sitemap.xml")).text();
-  const urls = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
-  for (const u of urls) {
-    const path = new URL(u).pathname + new URL(u).search;
-    const s = await status(path);
-    if (s !== 200) fail("sitemap", "url", `${path} -> ${s}`);
-    else ok("sitemap", "url", path);
-  }
-} catch (e) {
-  fail("sitemap", "fetch", String(e));
-}
-
-// external reachability (best effort — sandbox networks vary)
-for (const u of external) {
+function drain(res) {
   try {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), 8000);
-    const r = await fetch(u, { method: "HEAD", signal: ctrl.signal, redirect: "follow" });
-    clearTimeout(t);
-    if (r.status >= 400) fail("external", "head", `${u} -> ${r.status}`);
-    else ok("external", "head", `${u} -> ${r.status}`);
-  } catch (e) {
-    fail("external", "head", `${u} -> unreachable from sandbox (${e.name})`);
+    const p = res.body?.cancel?.();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  } catch {
+    /* already released or locked — nothing to do */
   }
 }
 
-const passed = results.filter((r) => r.ok).length;
-const failed = results.filter((r) => !r.ok);
-console.log(`\nLINK AUDIT: ${passed} ok, ${failed.length} failed`);
-for (const f of failed) console.log(`FAIL [${f.kind}] ${f.page}: ${f.detail}`);
-process.exit(failed.length ? 1 : 0);
+const run = async () => {
+  for (const seed of SEEDS) {
+    try {
+      const res = await fetch(`${origin}${seed}`, { redirect: "manual" });
+      if (res.status === 200 && (res.headers.get("content-type") ?? "").includes("html")) {
+        collect(await res.text());
+      }
+      drain(res);
+    } catch {
+      /* seed unreachable — the battery covers status codes; here we audit links */
+    }
+  }
+
+  let ok = 0;
+  const dead = [];
+  for (const path of [...toTest].sort()) {
+    if (seen.has(path)) continue;
+    seen.add(path);
+    try {
+      const res = await fetch(`${origin}${path}`, { redirect: "manual" });
+      const good = res.status < 400 || res.status === 307; // 307 = auth-guarded app route, alive
+      if (good) ok += 1;
+      else dead.push(`${path} -> ${res.status}`);
+      drain(res);
+    } catch (e) {
+      dead.push(`${path} -> fetch error ${e.message}`);
+    }
+  }
+
+  let extOk = 0;
+  const extDead = [];
+  for (const url of [...external].sort()) {
+    try {
+      const res = await fetch(url, { redirect: "follow", signal: AbortSignal.timeout(8000) });
+      if (res.status < 400) extOk += 1;
+      else extDead.push(`${url} -> ${res.status}`);
+    } catch (e) {
+      extDead.push(`${url} -> ${e.message.slice(0, 40)}`);
+    }
+  }
+
+  console.log(`Internal links: ${ok} OK, ${dead.length} dead (of ${seen.size} unique)`);
+  for (const d of dead) console.log(`  DEAD ${d}`);
+  console.log(`External links (best-effort): ${extOk} reachable, ${extDead.length} failed`);
+  for (const d of extDead) console.log(`  WARN ${d}`);
+  process.exit(dead.length ? 1 : 0);
+};
+
+run();

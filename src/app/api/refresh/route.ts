@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
 import { refreshLive } from "@/lib/live-fetch";
 import { BASELINE } from "@/lib/live-types";
+import { cronAuthorized, sameOrigin } from "@/lib/cron-auth";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -21,29 +21,10 @@ export const maxDuration = 60;
  *   make visitors silently trigger generations (classic CSRF); browsers
  *   always attach Origin to same-origin POSTs, non-browser callers attach
  *   none and stay welcome.
+ *
+ * Both gates live in src/lib/cron-auth.ts and carry their own focused
+ * unit tests (tests/cron-auth.test.ts).
  */
-function cronAuthorized(req: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return true; // not configured, endpoint stays open as before
-  const header = req.headers.get("authorization") ?? "";
-  if (!header.startsWith("Bearer ")) return false;
-  const token = header.slice(7);
-  const a = Buffer.from(token);
-  const b = Buffer.from(secret);
-  // Length check first: timingSafeEqual throws on length mismatch.
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
-/** Cross-site request forgery guard for the unauthenticated POST path. */
-function sameOrigin(req: Request): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return true; // curl, cron and other non-browser callers
-  try {
-    return new URL(origin).host === req.headers.get("host");
-  } catch {
-    return false;
-  }
-}
 
 async function handler(req: Request) {
   if (req.method === "GET" && !cronAuthorized(req)) {
