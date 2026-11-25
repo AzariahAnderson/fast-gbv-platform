@@ -4,7 +4,7 @@ import { timingSafeEqual } from "crypto";
  * Authentication and CSRF rules for /api/refresh, extracted so unit tests
  * can exercise them directly.
  *
- * - GET (the hourly Vercel cron): when CRON_SECRET is configured, the
+ * - GET (the daily Vercel cron, 02:00 UTC): when CRON_SECRET is configured, the
  *   request must carry `Authorization: Bearer <secret>` exactly as Vercel
  *   sends it, compared in constant time. When CRON_SECRET is unset the
  *   endpoint stays open so local development and fresh deployments work.

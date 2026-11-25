@@ -9,7 +9,9 @@ export const maxDuration = 60;
 /**
  * Refresh endpoint. Three callers, three rules:
  *
- * - GET (the hourly Vercel cron): when CRON_SECRET is configured in the
+ * - GET (the daily Vercel cron, 02:00 UTC — Hobby plan allows one cron
+ *   per day; traffic-driven TTL refreshes keep the payload fresh in
+ *   between): when CRON_SECRET is configured in the
  *   environment, the request must carry `Authorization: Bearer <secret>`,
  *   exactly as Vercel sends it. Outsiders cannot spend the Gemini quota.
  *   When CRON_SECRET is unset the endpoint behaves as before so local

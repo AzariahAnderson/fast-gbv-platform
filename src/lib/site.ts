@@ -2,12 +2,12 @@
  * Canonical origin for metadata, sitemap and structured data. Read from
  * NEXT_PUBLIC_SITE_URL so staging and production can differ.
  *
- * HUMAN ACTION REQUIRED before production: set NEXT_PUBLIC_SITE_URL in the
- * hosting environment (Vercel) to the real production origin. The fallback
- * below exists only so local development can resolve absolute metadata
- * URLs; it is a placeholder domain and must never be the shipped canonical.
+ * The default below is the production origin (fastprevention.vercel.app).
+ * Override it by setting NEXT_PUBLIC_SITE_URL in the hosting environment —
+ * for example on a preview deployment or a future custom domain. Always
+ * without a trailing slash.
  */
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fast-gbv.vercel.app";
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fastprevention.vercel.app";
 
 /**
  * Release version, kept in sync with the version field in package.json so

@@ -293,7 +293,7 @@ export async function getLive(): Promise<LiveData> {
   return current.data;
 }
 
-/** Forced refresh used by the hourly cron and the manual refresh button. */
+/** Forced refresh used by the daily cron and the manual refresh button. */
 export async function refreshLive(): Promise<{ data: LiveData; refreshed: boolean }> {
   const current = state();
   const age = Date.now() - current.fetchedAt;
