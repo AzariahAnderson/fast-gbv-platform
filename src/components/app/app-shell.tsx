@@ -14,10 +14,12 @@ import {
   Shield,
   Sparkles,
   User,
+  Users,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { EmergencyButton, EmergencySheet } from "./emergency-sheet";
+import { OfflineBanner } from "./offline-banner";
 
 /**
  * The authenticated shell. On desktop a quiet side rail carries all seven
@@ -32,6 +34,7 @@ const NAV = [
   { href: "/family", label: "Family", icon: HeartHandshake },
   { href: "/map", label: "Map", icon: MapPin },
   { href: "/safety", label: "Safety", icon: Shield },
+  { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/ai", label: "FAST Guide", icon: Sparkles },
   { href: "/profile", label: "Profile", icon: User },
 ];
@@ -39,6 +42,7 @@ const NAV = [
 const MOBILE_PRIMARY = ["/home", "/messages", "/family", "/map"];
 const MORE_ITEMS = [
   { href: "/safety", label: "Safety", icon: Shield },
+  { href: "/contacts", label: "Contacts", icon: Users },
   { href: "/ai", label: "FAST Guide", icon: Sparkles },
   { href: "/notifications", label: "Notifications", icon: Bell },
   { href: "/profile", label: "Profile", icon: User },
@@ -121,6 +125,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Content */}
       <main className="pb-28 lg:pb-10 lg:pl-64">
         <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+          <OfflineBanner />
           {children}
         </div>
       </main>

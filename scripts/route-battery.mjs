@@ -39,7 +39,7 @@ const run = async () => {
   }
 
   // 2. Protected app routes: 307 to /login?next=<path>
-  for (const p of ["/home", "/messages", "/family", "/map", "/safety", "/safety/plans", "/ai", "/notifications", "/profile", "/settings", "/onboarding"]) {
+  for (const p of ["/home", "/messages", "/family", "/map", "/safety", "/safety/plans", "/contacts", "/ai", "/notifications", "/profile", "/settings", "/onboarding"]) {
     const res = await hit(p, { redirect: "manual" });
     const loc = res.headers.get("location") ?? "";
     check(

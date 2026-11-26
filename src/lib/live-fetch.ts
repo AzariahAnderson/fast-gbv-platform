@@ -27,6 +27,22 @@ const TTL_MS = 55 * 60 * 1000; // regenerate once an hour
 const MIN_INTERVAL_MS = 9 * 60 * 1000; // hard spend ceiling per engine chain
 const TIMEOUT_MS = 45 * 1000;
 
+/**
+ * Hard ceiling for any engine step. Engine 1 (Gemini) aborts natively via
+ * AbortSignal.timeout, but engine 3's SDK calls expose no signal — without
+ * this race a wedged SDK call would hold generate() forever, which blocks
+ * the refresh cron, the manual refresh button and every queued generation
+ * behind them. Every engine must be able to lose.
+ */
+function withHardTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out`)), TIMEOUT_MS),
+    ),
+  ]);
+}
+
 type CacheState = {
   data: LiveData;
   fetchedAt: number;
@@ -180,14 +196,17 @@ ${buildRules()}`,
 type SearchItem = { url: string; name: string; snippet: string; host_name: string; date: string };
 
 async function callSearchEngine(): Promise<LiveData> {
-  const mod = await import("z-ai-web-dev-sdk");
-  const zai = await mod.default.create();
+  const mod = await withHardTimeout(import("z-ai-web-dev-sdk"), "search engine import");
+  const zai = await withHardTimeout(mod.default.create(), "search engine init");
 
-  const statResults = await zai.functions.invoke("web_search", {
-    query: "South Africa gender-based violence statistics femicide prevalence HSRC study",
-    num: 8,
-    recency_days: 365,
-  });
+  const statResults = await withHardTimeout(
+    zai.functions.invoke("web_search", {
+      query: "South Africa gender-based violence statistics femicide prevalence HSRC study",
+      num: 8,
+      recency_days: 365,
+    }),
+    "search engine web_search",
+  );
 
   const shape = (items: SearchItem[] | undefined) =>
     (items ?? [])
@@ -195,7 +214,8 @@ async function callSearchEngine(): Promise<LiveData> {
       .map((r) => `- title: ${r.name} | publisher: ${r.host_name} | url: ${r.url} | date: ${r.date || "unknown"} | snippet: ${r.snippet}`)
       .join("\n");
 
-  const completion = (await zai.chat.completions.create({
+  const completion = await withHardTimeout(
+    zai.chat.completions.create({
     messages: [
       {
         role: "system",
@@ -215,7 +235,7 @@ For the statistics section prefer figures stated in the results; if none carry a
       },
     ],
     thinking: { type: "disabled" },
-  })) as { choices?: { message?: { content?: string } }[] };
+  }), "search engine completion") as { choices?: { message?: { content?: string } }[] };
 
   const text = completion?.choices?.[0]?.message?.content ?? "";
   return sanitize({ ...JSON.parse(stripFences(text)), generator: "websearch" });

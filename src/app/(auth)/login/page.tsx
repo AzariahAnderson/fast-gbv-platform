@@ -5,8 +5,10 @@ import Link from "next/link";
 import { EyeOff, Languages, MapPinOff, Clock } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { safeNextPath } from "@/lib/safe-redirect";
+import { friendlyAuthError } from "@/lib/app/auth-errors";
 import { SetupNotice } from "@/components/app/setup-notice";
 import { AuthSplit } from "@/components/app/auth-split";
+import { PasswordField } from "@/components/app/password-field";
 
 /**
  * Sign in with email + password against real Supabase Auth. There are no
@@ -25,6 +27,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorId = "login-error";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -39,7 +42,7 @@ function LoginForm() {
       if (error) throw error;
       window.location.href = next;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "That did not work. Please try again.");
+      setError(friendlyAuthError(err));
     } finally {
       setBusy(false);
     }
@@ -89,6 +92,12 @@ function LoginForm() {
               type="email"
               required
               autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.co.za"
@@ -96,20 +105,18 @@ function LoginForm() {
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">Password</span>
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground focus:border-brand focus:outline-none"
-            />
-          </label>
+          <PasswordField
+            id="login-password"
+            label="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={setPassword}
+            invalid={Boolean(error)}
+            describedBy={error ? errorId : undefined}
+          />
 
           {error && (
-            <p role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
+            <p id={errorId} role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
               {error}
             </p>
           )}
@@ -117,6 +124,7 @@ function LoginForm() {
           <button
             type="submit"
             disabled={busy}
+            aria-busy={busy}
             className="lift inline-flex min-h-13 items-center justify-center rounded-2xl bg-brand px-8 text-base font-bold text-ink disabled:opacity-60"
           >
             {busy ? "One moment…" : "Sign in"}

@@ -37,7 +37,11 @@ const csp = [
   "font-src 'self'",
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tiles.openfreemap.org https://tile.openstreetmap.org${isDev ? " ws:" : ""}`,
   "media-src 'self'",
-  "worker-src 'self'",
+  // 'self' covers our own workers (Next chunks); blob: is required by
+  // MapLibre GL, which spawns its render worker from an in-memory Blob
+  // URL. Without blob: the map worker is silently blocked by CSP and the
+  // map dies with "Worker failed to load" — the map never even starts.
+  "worker-src 'self' blob:",
   "manifest-src 'self'",
   // No frames or plug-in containers are used anywhere on the site; saying
   // so explicitly keeps a future dependency from quietly opening one.

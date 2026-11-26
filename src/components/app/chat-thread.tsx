@@ -547,7 +547,7 @@ function ActionButton({
   return (
     <button
       onClick={onClick}
-      className="lift inline-flex min-h-9 items-center gap-1.5 rounded-xl border-2 border-taupe bg-taupe/20 px-3 text-xs font-bold text-foreground hover:border-brand"
+      className="lift inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-taupe bg-taupe/20 px-3 text-xs font-bold text-foreground hover:border-brand"
     >
       {Icon && <Icon className="h-3.5 w-3.5" aria-hidden="true" />}
       {label}

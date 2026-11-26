@@ -14,4 +14,4 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://fastprevent
  * testers and support workers can report against an exact build. Surfaced
  * through the app shell (PWA manifest update notes and support replies).
  */
-export const SITE_VERSION = "1.1.5";
+export const SITE_VERSION = "1.1.7";

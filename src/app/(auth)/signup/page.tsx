@@ -4,8 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { EyeOff, Lock, ShieldCheck, Zap } from "lucide-react";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { friendlyAuthError } from "@/lib/app/auth-errors";
 import { SetupNotice } from "@/components/app/setup-notice";
 import { AuthSplit } from "@/components/app/auth-split";
+import { PasswordField } from "@/components/app/password-field";
 
 /**
  * Create an account. Email confirmation is OFF on the Supabase project
@@ -28,6 +30,7 @@ function SignupForm() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const errorId = "signup-error";
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +51,7 @@ function SignupForm() {
         "Your account was created but sign-in did not start. Please sign in with your new password.",
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "That did not work. Please try again.");
+      setError(friendlyAuthError(err));
     } finally {
       setBusy(false);
     }
@@ -97,6 +100,12 @@ function SignupForm() {
               type="email"
               required
               autoComplete="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? errorId : undefined}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.co.za"
@@ -104,23 +113,20 @@ function SignupForm() {
             />
           </label>
 
-          <label className="flex flex-col gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">
-              Password <span className="font-medium normal-case tracking-normal text-faint">(10+ characters)</span>
-            </span>
-            <input
-              type="password"
-              required
-              minLength={10}
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="min-h-12 rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-base text-foreground focus:border-brand focus:outline-none"
-            />
-          </label>
+          <PasswordField
+            id="signup-password"
+            label="Password"
+            hint="10+ characters"
+            autoComplete="new-password"
+            minLength={10}
+            value={password}
+            onChange={setPassword}
+            invalid={Boolean(error)}
+            describedBy={error ? errorId : undefined}
+          />
 
           {error && (
-            <p role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
+            <p id={errorId} role="alert" className="rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
               {error}
             </p>
           )}
@@ -128,6 +134,7 @@ function SignupForm() {
           <button
             type="submit"
             disabled={busy}
+            aria-busy={busy}
             className="lift inline-flex min-h-13 items-center justify-center rounded-2xl bg-brand px-8 text-base font-bold text-ink disabled:opacity-60"
           >
             {busy ? "One moment…" : "Continue"}

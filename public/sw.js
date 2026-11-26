@@ -6,9 +6,17 @@
  * are precached on install, and the live data endpoint falls back to the last
  * successful payload. Navigation requests time out fast so visitors on flaky
  * mobile networks never wait on a dead connection.
+ *
+ * v17 adds an asset-integrity guard: a response served for a script, style,
+ * worker or font request is verified to actually be that kind of resource.
+ * If a deployment transition makes the network answer a hashed asset with a
+ * 404 HTML page (the classic "module script returned text/html" console
+ * error), the wrong bytes are never delivered or cached — the request fails
+ * cleanly instead and every open tab is told that a fresher build exists so
+ * it can guide the visitor to reload.
  */
 
-const VERSION = "fast-v16";
+const VERSION = "fast-v17";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const LIVE_CACHE = `${VERSION}-live`;
@@ -28,6 +36,7 @@ const PRIVATE_PREFIXES = [
   "/map",
   "/safety",
   "/ai",
+  "/contacts",
   "/profile",
   "/notifications",
   "/settings",
@@ -114,6 +123,26 @@ async function fetchWithTimeout(request, ms) {
   }
 }
 
+/**
+ * Tell every open tab that the build it is running against can no longer
+ * be fully served (a hashed chunk disappeared from the deployment). The
+ * app listens for this and offers a calm one-tap reload instead of failing
+ * with console errors.
+ */
+async function notifyStaleBuild() {
+  try {
+    const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of clients) client.postMessage({ type: "fast:stale-build" });
+  } catch {
+    /* messaging is best effort */
+  }
+}
+
+function isHtmlResponse(response) {
+  const type = (response.headers.get("content-type") || "").toLowerCase();
+  return type.includes("text/html");
+}
+
 /** Network first with a hard timeout, then the cache, then the fallback. */
 async function networkFirst(request, cacheName, fallbackUrl, timeoutMs) {
   const cache = await caches.open(cacheName);
@@ -139,13 +168,20 @@ async function networkFirst(request, cacheName, fallbackUrl, timeoutMs) {
   }
 }
 
-/** Cache first, refresh quietly in the background for next time. */
-async function cacheFirst(request, cacheName) {
+/**
+ * Cache first, refresh quietly in the background for next time.
+ *
+ * `kind` marks requests whose response must be the real asset. For those,
+ * an HTML body (deployment skew) or a 404/410 (hash no longer deployed)
+ * is never delivered or cached: the answer is an empty body with the
+ * honest status, so a module loader sees a failed fetch — never markup.
+ */
+async function cacheFirst(request, cacheName, kind) {
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   const refresh = fetch(request)
     .then((res) => {
-      if (res && res.ok) {
+      if (res && res.ok && !(kind === "asset" && isHtmlResponse(res))) {
         cache.put(request, res.clone()).catch(() => undefined);
       }
       return res;
@@ -156,6 +192,27 @@ async function cacheFirst(request, cacheName) {
     return cached;
   }
   const fresh = await refresh;
+  if (fresh && fresh.ok) {
+    if (kind === "asset" && isHtmlResponse(fresh)) {
+      void notifyStaleBuild();
+      return new Response("", {
+        status: 404,
+        statusText: "Stale build asset",
+        headers: { "Content-Type": "text/plain" },
+      });
+    }
+    return fresh;
+  }
+  if (fresh && (fresh.status === 404 || fresh.status === 410) && kind === "asset") {
+    // This tab runs HTML from an older deployment; its hashed chunk is
+    // gone. Fail the fetch cleanly (no HTML body) and invite a reload.
+    void notifyStaleBuild();
+    return new Response("", {
+      status: fresh.status,
+      statusText: "Stale build asset",
+      headers: { "Content-Type": "text/plain" },
+    });
+  }
   if (!fresh || !fresh.ok) {
     // Nothing cached and the network failed: answer with a clean 504 so the
     // request fails visibly instead of throwing an uncaught rejection.
@@ -175,6 +232,19 @@ async function networkOnly(request, fallbackUrl, timeoutMs) {
     }
     throw new Error("offline and uncached");
   }
+}
+
+/**
+ * Requests that must resolve to their real bytes: hashed build output and
+ * anything the browser loads as a script, style, worker or font. A wrong
+ * content-type here is exactly the "Failed to load module script: …
+ * text/html" error, so these get the guarded cache-first path.
+ */
+function isAssetRequest(request, url) {
+  if (url.pathname.startsWith("/_next/static/")) return true;
+  const dest = request.destination;
+  if (dest === "script" || dest === "style" || dest === "worker" || dest === "font") return true;
+  return /\.(css|js|mjs|woff|woff2|ttf|otf|map)$/.test(url.pathname);
 }
 
 self.addEventListener("fetch", (event) => {
@@ -217,15 +287,15 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Immutable build output, local emojis and icons: cache first.
+  // Immutable build output and local artwork: cache first, guarded.
   const cacheable =
-    url.pathname.startsWith("/_next/static/") ||
+    isAssetRequest(request, url) ||
     url.pathname.startsWith("/emojis/") ||
     url.pathname.startsWith("/icons/") ||
-    /\.(css|js|png|jpg|jpeg|webp|svg|ico|woff|woff2)$/.test(url.pathname);
+    /\.(png|jpg|jpeg|webp|svg|ico)$/.test(url.pathname);
 
   if (cacheable) {
-    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    event.respondWith(cacheFirst(request, STATIC_CACHE, isAssetRequest(request, url) ? "asset" : undefined));
   }
   // Everything else goes to the network untouched.
 });

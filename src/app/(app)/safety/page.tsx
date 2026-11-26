@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, FileHeart, Timer } from "lucide-react";
+import { CheckCircle2, FileHeart, Timer, Users } from "lucide-react";
 import { useSession } from "@/lib/app/session";
 import { EmergencyButton } from "@/components/app/emergency-sheet";
 import { createClient } from "@/lib/supabase/client";
@@ -121,6 +121,20 @@ export default function SafetyPage() {
           >
             <FileHeart className="h-4 w-4" aria-hidden="true" />
             My safety plans
+          </Link>
+        </div>
+        <div className="card-surface flex flex-col gap-3 p-6">
+          <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-dim">People I trust</p>
+          <p className="text-sm leading-relaxed text-body">
+            Your private directory — the numbers you would want at your
+            fingertips, kept ready and reachable in one tap.
+          </p>
+          <Link
+            href="/contacts"
+            className="lift inline-flex min-h-11 items-center gap-2 self-start rounded-2xl border-[3px] border-taupe bg-taupe/15 px-5 text-sm font-bold text-foreground hover:border-brand hover:text-brand"
+          >
+            <Users className="h-4 w-4" aria-hidden="true" />
+            Open my contacts
           </Link>
         </div>
       </section>

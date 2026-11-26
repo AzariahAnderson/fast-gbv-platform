@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { UpdateBanner } from "@/components/app/update-banner";
 import { SITE_URL } from "@/lib/site";
 import { CRISIS_LINE } from "@/lib/numbers";
 
@@ -102,6 +103,7 @@ export default function RootLayout({
             the service worker or the browser would otherwise fetch it; a
             preload link removes the one visible pop-in on a cold visit. */}
         <link rel="preload" as="image" href="/emojis/2728-128.webp" />
+        <UpdateBanner />
         <Toaster />
       </body>
     </html>

@@ -219,3 +219,18 @@ export const DIRECTORY_GROUPS: { label: string; blurb: string }[] = [
     blurb: "Behaviour change support, without judgement",
   },
 ];
+
+/** Look one entry up by its display number. Fails loudly if it drifts. */
+export function directoryEntry(number: string): DirectoryEntry {
+  const entry = DIRECTORY.find((e) => e.number === number);
+  if (!entry) throw new Error(`Directory has no entry for ${number}`);
+  return entry;
+}
+
+/**
+ * The police emergency line, for surfaces that pair it beside the crisis
+ * line (the offline banner, sign-in safety notes). Derived from DIRECTORY
+ * here — inside the directory — so the number can never drift apart
+ * elsewhere.
+ */
+export const POLICE_LINE = directoryEntry("10111");

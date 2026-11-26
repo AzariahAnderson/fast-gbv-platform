@@ -252,6 +252,19 @@ export type Database = {
         label: string | null;
         created_at: string;
       }>;
+      contacts: Table<{
+        id: string;
+        owner_id: string;
+        name: string;
+        phone: string | null;
+        email: string | null;
+        relationship: string | null;
+        notes: string | null;
+        preferred_method: "call" | "sms" | "email" | "whatsapp";
+        is_emergency: boolean;
+        created_at: string;
+        updated_at: string;
+      }>;
       notifications: Table<AppNotification>;
       reports: Table<{
         id: string;

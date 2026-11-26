@@ -22,6 +22,7 @@ import { readFileSync } from "node:fs";
 const MIGRATIONS = [
   readFileSync("supabase/migrations/0001_fast_schema.sql", "utf8"),
   readFileSync("supabase/migrations/0002_notifications_and_pins.sql", "utf8"),
+  readFileSync("supabase/migrations/0008_personal_contacts.sql", "utf8"),
 ].join("\n");
 
 const PRIVATE_TABLES = [
@@ -44,6 +45,7 @@ const PRIVATE_TABLES = [
   "safety_plan_shares",
   "safety_plan_contacts",
   "trusted_contacts",
+  "contacts",
   "notifications",
   "reports",
   "blocks",
@@ -94,6 +96,10 @@ describe("database security: RLS coverage", () => {
     expect(hasPolicy("safety_plans", "owner read")).toBe(true);
     expect(hasPolicy("safety_plans", "shared viewer read")).toBe(true);
     expect(hasPolicy("safety_plan_shares", "owner manage")).toBe(true);
+  });
+
+  test("the personal contacts directory is strictly owner-managed", () => {
+    expect(hasPolicy("contacts", "owner manage")).toBe(true);
   });
 
   test("notifications and AI history are strictly own-row", () => {

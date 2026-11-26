@@ -8,6 +8,7 @@ import { Pause, Play, ShieldCheck, Square } from "lucide-react";
 import { useSession } from "@/lib/app/session";
 import { Avatar } from "@/components/app/avatar";
 import { friendlyTime } from "@/lib/app/time";
+import { useOnline } from "@/hooks/use-online";
 import { createClient } from "@/lib/supabase/client";
 import { loadFastStyle, makeApproximate } from "@/lib/app/map-style";
 import type { LocationRow, LocationShare, PublicProfile } from "@/lib/db-types";
@@ -55,18 +56,31 @@ export default function MapPage() {
   const [paused, setPaused] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [mapFailed, setMapFailed] = useState(false);
+  // null = the map is fine; "unavailable" = the map could not start on
+  // this device (no WebGL context, blocked worker, dead tile source). A
+  // lost connection is not state at all — it is derived from `online`, so
+  // the offline panel appears and disappears with the network itself. The
+  // family list and sharing controls always stay.
+  const [mapFailed, setMapFailed] = useState<null | "unavailable">(null);
+  const [mapRetry, setMapRetry] = useState(0);
+  const online = useOnline();
 
-  // Map bootstrap — FAST style, graceful fallback. Depends on `loading`:
-  // the container div is only mounted once the session check completes,
-  // so this effect must re-run after that flip or the map never starts.
+  // Map bootstrap — FAST style, graceful fallback. Depends on `loading`,
+  // `online` and `mapRetry`: the container div only mounts once the session
+  // check completes, a lost connection must not boot a doomed map, and the
+  // retry button re-runs the whole bootstrap from scratch.
   useEffect(() => {
     if (loading) return;
     if (!containerRef.current || mapRef.current) return;
-    let map: MLMap;
+    // No connection: boot nothing. The offline panel below explains, and
+    // this effect re-runs the moment `online` flips back to true.
+    if (!online) return;
+    let cancelled = false;
+    let map: MLMap | undefined;
+    let loaded = false;
     (async () => {
       const style = await loadFastStyle();
-      if (!containerRef.current) return;
+      if (cancelled || !containerRef.current) return;
       try {
         map = new maplibregl.Map({
           container: containerRef.current,
@@ -78,16 +92,31 @@ export default function MapPage() {
       } catch {
         // Rare devices cannot create a WebGL context at all. Say so plainly:
         // the family list, sharing controls and emergency tools keep working.
-        setMapFailed(true);
+        setMapFailed("unavailable");
         return;
       }
       mapRef.current = map;
+      // Worker, style and tile failures arrive HERE, asynchronously — the
+      // constructor does not throw for them. Without these handlers a dead
+      // worker used to leave a silent blank rectangle (the production
+      // "Worker failed to load" report). Before the first successful load
+      // any error is fatal to the map; after it, single tile hiccups are
+      // not.
+      map.on("load", () => {
+        loaded = true;
+        setMapFailed(null);
+      });
+      map.on("error", () => {
+        if (!loaded && !cancelled && navigator.onLine) {
+          setMapFailed("unavailable");
+        }
+      });
       map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
       map.dragPan.enable();
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (pos) => {
-            map.easeTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 11, duration: 900 });
+            map!.easeTo({ center: [pos.coords.longitude, pos.coords.latitude], zoom: 11, duration: 900 });
           },
           () => {
             /* no permission yet — the map still shows the country */
@@ -95,12 +124,21 @@ export default function MapPage() {
         );
       }
     })();
+    // If the map has not rendered within twelve seconds — worker blocked,
+    // style frozen, WebGL wedged — stop pretending it is about to.
+    const watchdog = setTimeout(() => {
+      if (!cancelled && !loaded && mapRef.current && navigator.onLine) {
+        setMapFailed("unavailable");
+      }
+    }, 12_000);
     return () => {
-      mapRef.current?.remove();
+      cancelled = true;
+      clearTimeout(watchdog);
+      map?.remove();
       mapRef.current = null;
       markersRef.current.clear();
     };
-  }, [loading]);
+  }, [loading, online, mapRetry]);
 
   // Families + members of the selected family.
   useEffect(() => {
@@ -382,10 +420,33 @@ export default function MapPage() {
 
       <div className="relative overflow-hidden rounded-3xl border-2 border-taupe">
         <div ref={containerRef} className="h-[46dvh] min-h-72 w-full" aria-label="Family map" role="application">
-          {mapFailed && (
-            <p role="status" className="flex h-full items-center justify-center px-6 text-center text-sm leading-relaxed text-body">
-              The map could not open on this device. Everything else still works — your family list and sharing controls are below.
-            </p>
+          {(mapFailed || !online) && (
+            <div role="status" className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
+              {!online ? (
+                <p className="max-w-sm text-sm leading-relaxed text-body">
+                  The map needs a connection, and this device is offline
+                  right now. Nothing is lost — your family list and sharing
+                  controls below still work, and the map opens again the
+                  moment you are back online.
+                </p>
+              ) : (
+                <>
+                  <p className="max-w-sm text-sm leading-relaxed text-body">
+                    The map could not open here. Everything else still works
+                    — your family list and sharing controls are below.
+                  </p>
+                  <button
+                    onClick={() => {
+                      setMapFailed(null);
+                      setMapRetry((n) => n + 1);
+                    }}
+                    className="lift inline-flex min-h-11 items-center rounded-2xl border-2 border-taupe bg-taupe/15 px-4 text-sm font-bold text-body hover:border-brand"
+                  >
+                    Try the map again
+                  </button>
+                </>
+              )}
+            </div>
           )}
         </div>
         <p className="absolute bottom-1 right-2 z-10 rounded bg-black/50 px-2 py-0.5 text-[10px] text-body">

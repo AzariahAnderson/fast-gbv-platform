@@ -28,6 +28,7 @@ const APP_PREFIXES = [
   "/family",
   "/map",
   "/safety",
+  "/contacts",
   "/ai",
   "/profile",
   "/notifications",

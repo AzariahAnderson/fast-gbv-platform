@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { Plus, SendHorizontal, Trash2 } from "lucide-react";
 import { useSession } from "@/lib/app/session";
 import { createClient } from "@/lib/supabase/client";
+import { isNetworkError, useOnline } from "@/hooks/use-online";
 import { CRISIS_LINE } from "@/lib/numbers";
 import { GuideMarkdown } from "@/components/app/guide-markdown";
 
@@ -30,6 +32,7 @@ interface Turn {
 
 export default function AiPage() {
   const { user } = useSession();
+  const online = useOnline();
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -59,18 +62,30 @@ export default function AiPage() {
         signal: abortRef.current.signal,
       });
       if (!res.body) throw new Error("no stream");
-      // Non-200 answers (rate limit, dead session) carry a plain-text
-      // message meant to be read as the Guide's reply; larger statuses with
-      // no text fall through to the generic calm answer below.
+      // Status-aware handling. HTTP errors are NOT Guide answers: before
+      // this fix a plain "Unauthorized" body rendered inside an assistant
+      // bubble and read like the Guide speaking. 401 ends the session
+      // (say so, keep the question); 429 is a rate limit (say so, keep the
+      // question); every other non-200 carries a human message written by
+      // our own route (Guide unavailable / crisis fallback) meant to be
+      // read as the Guide's reply — those stay in the bubble.
       if (!res.ok) {
         const text = (await res.text()).trim();
-        setTurns([
-          ...next,
-          {
-            role: "assistant",
-            content: text || `I could not answer just now. If you are in danger, call ${CRISIS_LINE.display} — free, 24 hours.`,
-          },
-        ]);
+        if (res.status === 401) {
+          setTurns(next);
+          setError("Your session ended. Please sign in again — your conversation is still on this screen.");
+        } else if (res.status === 429) {
+          setTurns(next);
+          setNote(text || "The Guide is at its limit for this minute. Please wait a moment and send that again.");
+        } else {
+          setTurns([
+            ...next,
+            {
+              role: "assistant",
+              content: text || `I could not answer just now. If you are in danger, call ${CRISIS_LINE.display} — free, 24 hours.`,
+            },
+          ]);
+        }
         return;
       }
       const reader = res.body.getReader();
@@ -95,7 +110,20 @@ export default function AiPage() {
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        setError("The Guide is quiet right now. Please try again in a moment.");
+        if (isNetworkError(err)) {
+          // Offline: pull the question back into the composer so one tap
+          // re-sends it when the connection returns. Never dress a dead
+          // network up as a Guide answer.
+          setTurns(turns);
+          setDraft(question);
+          setError(
+            online
+              ? "The message could not reach the Guide. Your words are back in the box below — try sending again in a moment."
+              : "You are offline, so the message could not reach the Guide. Your words are back in the box below — send them again once you are back online.",
+          );
+        } else {
+          setError("The Guide is quiet right now. Please try again in a moment.");
+        }
       }
     } finally {
       setStreaming(false);
@@ -201,7 +229,17 @@ export default function AiPage() {
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 rounded-2xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">{error}</p>
+        <p role="alert" className="mt-3 rounded-2xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">
+          {error}
+          {error.includes("sign in again") && (
+            <>
+              {" "}
+              <Link href="/login?next=%2Fai" className="font-bold text-brand underline-offset-4 hover:underline">
+                Sign in
+              </Link>
+            </>
+          )}
+        </p>
       )}
       {note && (
         <p role="status" className="mt-3 rounded-2xl border-2 border-taupe bg-taupe/20 px-4 py-3 text-sm text-body">{note}</p>
@@ -218,7 +256,7 @@ export default function AiPage() {
           <button
             onClick={() => void saveConversation()}
             disabled={turns.length === 0}
-            className="lift min-h-10 rounded-xl border-2 border-taupe bg-taupe/15 px-3 text-xs font-bold text-body hover:border-brand disabled:opacity-50"
+            className="lift min-h-11 rounded-xl border-2 border-taupe bg-taupe/15 px-3 text-xs font-bold text-body hover:border-brand disabled:opacity-50"
           >
             Save conversation
           </button>
@@ -228,7 +266,7 @@ export default function AiPage() {
               setNote("Deleted from this screen.");
             }}
             disabled={turns.length === 0}
-            className="lift inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-taupe bg-taupe/15 px-3 text-xs font-bold text-body hover:border-brand disabled:opacity-50"
+            className="lift inline-flex min-h-11 items-center gap-1.5 rounded-xl border-2 border-taupe bg-taupe/15 px-3 text-xs font-bold text-body hover:border-brand disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
             Delete
@@ -240,6 +278,12 @@ export default function AiPage() {
           asking for help is always one tap away (sticky returns the pair
           to its flow position on taller screens). */}
       <div className="sticky bottom-[calc(4rem+env(safe-area-inset-bottom))] z-30 -mx-4 border-t-2 border-taupe/50 bg-background/95 px-4 pb-3 pt-3 backdrop-blur sm:-mx-6 sm:px-6 lg:static lg:mx-0 lg:border-t-0 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:backdrop-blur-none">
+        {!online && (
+          <p role="status" className="mb-2 rounded-xl border-2 border-taupe bg-taupe/20 px-4 py-2.5 text-xs leading-relaxed text-body">
+            You are offline. The Guide needs a connection, but the crisis
+            number below still works from any phone.
+          </p>
+        )}
         <div className="mt-3 flex items-end gap-2">
         <textarea
           rows={1}
